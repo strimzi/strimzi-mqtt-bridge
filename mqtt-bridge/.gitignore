@@ -1,0 +1,17 @@
+/target
+
+# Eclipse specific
+.project
+.settings/
+.prefs
+.classpath
+.apt_generated/
+.apt_generated_tests/
+
+# IntelliJ IDEA specific
+.idea/
+*.iml
+
+# VS Code
+.factorypath
+.vscode
