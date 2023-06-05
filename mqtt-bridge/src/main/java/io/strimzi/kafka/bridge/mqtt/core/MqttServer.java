@@ -1,4 +1,4 @@
-package io.strimiz.strimzi_mqtt_bridge.core;
+package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

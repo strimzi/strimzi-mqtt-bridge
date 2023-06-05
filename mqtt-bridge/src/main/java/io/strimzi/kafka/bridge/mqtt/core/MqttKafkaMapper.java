@@ -1,9 +1,9 @@
-package io.strimiz.strimzi_mqtt_bridge.core;
+package io.strimzi.kafka.bridge.mqtt.core;
 
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.strimiz.strimzi_mqtt_bridge.utils.MappingRunnable;
+import io.strimzi.kafka.bridge.mqtt.utils.MappingRunnable;
 
 public class MqttKafkaMapper {
     private static MqttKafkaMapper instance;

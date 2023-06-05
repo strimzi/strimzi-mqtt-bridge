@@ -1,8 +1,8 @@
-package io.strimiz.strimzi_mqtt_bridge;
+package io.strimzi.kafka.bridge.mqtt;
 
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.strimiz.strimzi_mqtt_bridge.core.MqttServer;
+import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
 
 public class Main {
     static final int PORT = Integer.parseInt(System.getProperty("port", "1883"));

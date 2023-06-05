@@ -1,4 +1,4 @@
-package io.strimiz.strimzi_mqtt_bridge.utils;
+package io.strimzi.kafka.bridge.mqtt.utils;
 
 
 import io.netty.channel.ChannelHandlerContext;
