@@ -17,7 +17,7 @@ public class Main {
             NioEventLoopGroup workerGroup = new NioEventLoopGroup();
             MqttServer server = new MqttServer(PORT, masterGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
             server.start();
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }

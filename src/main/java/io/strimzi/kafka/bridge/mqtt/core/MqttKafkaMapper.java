@@ -7,14 +7,12 @@ import io.strimzi.kafka.bridge.mqtt.utils.MappingRunnable;
 
 /**
  * Represent the Mqtt to Kafka Mapper component.
- *
  */
 public class MqttKafkaMapper {
     private static MqttKafkaMapper instance;
 
     /**
      * Private constructor
-     *
      */
     private MqttKafkaMapper() {
     }
@@ -35,7 +33,7 @@ public class MqttKafkaMapper {
     /**
      * Map the MqttPublishMessage to kafka record.
      *
-     * @param ctx ChannelHandlerContext instance.
+     * @param ctx         ChannelHandlerContext instance.
      * @param mqttMessage MqttPublishMessage to be mapped to Kafka.
      * @throws InterruptedException
      * @see MqttPublishMessage

@@ -43,14 +43,14 @@ public class MqttServer {
     /**
      * Constructor
      *
-     * @param port an integer that represents the port the server should be bound to.
+     * @param port        an integer that represents the port the server should be bound to.
      * @param masterGroup EventLoopGroup instance for handle incoming connections.
      * @param workerGroup EventLoopGroup instance for processing I/O.
-     * @param option ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG and etc.
+     * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG and etc.
      * @see ChannelOption
      */
     public MqttServer(int port, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
-        this.masterGroup =  masterGroup;
+        this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
         this.port = port;
         this.serverBootstrap = new ServerBootstrap();
@@ -68,7 +68,7 @@ public class MqttServer {
         try {
             ChannelFuture channelFuture = this.serverBootstrap.bind(this.port).sync();
             channelFuture.channel().closeFuture().sync();
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             logger.error(e.getMessage());
         } finally {
             this.stop();
@@ -78,7 +78,7 @@ public class MqttServer {
     /**
      * Stop the server.
      */
-    public void stop(){
+    public void stop() {
         this.masterGroup.shutdownGracefully();
         this.workerGroup.shutdownGracefully();
     }

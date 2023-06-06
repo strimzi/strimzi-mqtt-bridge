@@ -27,7 +27,7 @@ public class MappingRunnable implements Runnable {
     /**
      * Constructor
      *
-     * @param ctx represents a ChannelHandlerContext
+     * @param ctx         represents a ChannelHandlerContext
      * @param mqttMessage represents a MqttPublishMessage
      */
     public MappingRunnable(ChannelHandlerContext ctx, MqttPublishMessage mqttMessage) {
