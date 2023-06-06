@@ -9,6 +9,8 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 
@@ -20,9 +22,12 @@ import java.nio.charset.Charset;
  * @see io.netty.channel.SimpleChannelInboundHandler
  */
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
+
+    private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        System.out.printf("Client " + ctx.channel().remoteAddress() +  " is trying to connect\n");
+       logger.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
     }
 
 
@@ -43,10 +48,10 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 handlePublishMessage(ctx, message);
             } else {
                 // Handle other MQTT message types as needed
-                System.out.printf(messageType.name()+"\n");
+                logger.debug("Got {} message type", messageType.name());
             }
         } catch (Exception e){
-            System.out.printf(e.getMessage());
+            logger.error(e.getMessage());
             ctx.close();
         }
     }
@@ -69,7 +74,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 .returnCode(MqttConnectReturnCode.CONNECTION_ACCEPTED)
                 .build();
 
-        System.out.printf("Connected\n");
+        logger.info("New client connected");
         ctx.writeAndFlush(connAckMessage);
     }
 

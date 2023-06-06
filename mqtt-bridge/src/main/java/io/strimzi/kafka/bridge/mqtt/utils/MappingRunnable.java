@@ -3,6 +3,9 @@ package io.strimzi.kafka.bridge.mqtt.utils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
+import io.strimzi.kafka.bridge.mqtt.core.MqttServerHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.locks.Lock;
@@ -14,6 +17,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see io.strimzi.kafka.bridge.mqtt.core.MqttKafkaMapper
  */
 public class MappingRunnable implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(MappingRunnable.class);
     private final MqttPublishMessage mqttMessage;
     private final ChannelHandlerContext ctx;
     private final Lock lock;
@@ -35,10 +40,8 @@ public class MappingRunnable implements Runnable {
     public void run() {
         lock.lock();
         try {
-            System.out.println("Mapping");
-            System.out.println("Topic: " + mqttMessage.variableHeader().topicName());
-            System.out.println("Message: " + mqttMessage.payload().toString(Charset.defaultCharset()));
-
+            logger.info("MAPPING");
+            logger.info("Topic: {}", mqttMessage.variableHeader().topicName());
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
