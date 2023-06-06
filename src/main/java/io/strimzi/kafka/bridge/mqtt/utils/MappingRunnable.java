@@ -44,7 +44,7 @@ public class MappingRunnable implements Runnable {
             logger.info("Topic: {}", mqttMessage.variableHeader().topicName());
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } finally {
             lock.unlock();
         }

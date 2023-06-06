@@ -11,12 +11,15 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Represents the MqttServer component.
  */
 public class MqttServer {
+    private static final Logger logger = LoggerFactory.getLogger(MqttServer.class);
 
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
@@ -66,7 +69,7 @@ public class MqttServer {
             ChannelFuture channelFuture = this.serverBootstrap.bind(this.port).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e){
-            System.out.printf(e.getMessage());
+            logger.error(e.getMessage());
         } finally {
             this.stop();
         }
