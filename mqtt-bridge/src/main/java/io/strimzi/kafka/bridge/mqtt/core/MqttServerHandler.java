@@ -10,6 +10,8 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 
+import java.nio.charset.Charset;
+
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
  * - listen to client connections;<br>
@@ -17,21 +19,28 @@ import io.netty.handler.codec.mqtt.MqttConnAckMessage;
  *
  * @see io.netty.channel.SimpleChannelInboundHandler
  */
-public class MqttServerHandler extends SimpleChannelInboundHandler<Object> {
+public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         System.out.printf("Client " + ctx.channel().remoteAddress() +  " is trying to connect\n");
     }
 
+
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         try {
-            MqttMessageType messageType = ((MqttMessage) msg).fixedHeader().messageType();
+            MqttMessageType messageType = msg.fixedHeader().messageType();
 
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
-            } else if (messageType == MqttMessageType.PUBLISH) {
-                handlePublishMessage(ctx, (MqttPublishMessage) msg);
+            } else if (msg instanceof MqttPublishMessage message) {
+                System.out.printf(message.payload().toString(Charset.defaultCharset()));
+                handlePublishMessage(ctx, message);
             } else {
                 // Handle other MQTT message types as needed
                 System.out.printf(messageType.name()+"\n");
@@ -40,11 +49,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<Object> {
             System.out.printf(e.getMessage());
             ctx.close();
         }
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-
     }
 
     @Override
