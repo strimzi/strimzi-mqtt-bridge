@@ -10,6 +10,13 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 
+/**
+ * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
+ * - listen to client connections;<br>
+ * - listen to incoming messages; <br>
+ *
+ * @see io.netty.channel.SimpleChannelInboundHandler
+ */
 public class MqttServerHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -46,6 +53,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<Object> {
         ctx.close();
     }
 
+    /**
+     * Handle the case when a client sent a MQTT CONNECT message type.
+     *
+     * @param ctx ChannelHandlerContext instance
+     */
+
     private void handleConnectMessage(ChannelHandlerContext ctx) {
         MqttConnAckMessage connAckMessage = MqttMessageBuilders.connAck()
                 .sessionPresent(false)
@@ -56,6 +69,13 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<Object> {
         ctx.writeAndFlush(connAckMessage);
     }
 
+    /**
+     * Handle the case when a client sent a MQTT PUBLISH message type.
+     *
+     * @param ctx ChannelHandlerContext instance
+     * @param publishMessage represents a MqttPublishMessage
+     * @throws InterruptedException
+     */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) throws InterruptedException {
         MqttKafkaMapper.getInstance().map(ctx, publishMessage);
     }

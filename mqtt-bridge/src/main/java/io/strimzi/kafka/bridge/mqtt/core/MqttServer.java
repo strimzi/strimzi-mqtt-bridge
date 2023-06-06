@@ -12,6 +12,10 @@ import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+
+/**
+ * Represents the MqttServer component.
+ */
 public class MqttServer {
 
     private final EventLoopGroup masterGroup;
@@ -19,8 +23,12 @@ public class MqttServer {
     private final int port;
     private final ServerBootstrap serverBootstrap;
 
-    //define initializer class
+    /**
+     * This helper class help us add necessary Netty pipelines handlers. <br>
+     * During the {@link #initChannel(SocketChannel)}, we use MqttDecoder() and MqttEncoder to decode and encode Mqtt messages respectively. <br>
+     */
     private static class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
+
         @Override
         protected void initChannel(SocketChannel ch) {
             ch.pipeline().addLast("decoder", new MqttDecoder());
@@ -29,6 +37,15 @@ public class MqttServer {
         }
     }
 
+    /**
+     * Constructor
+     *
+     * @param port an integer that represents the port the server should be bound to.
+     * @param masterGroup EventLoopGroup instance for handle incoming connections.
+     * @param workerGroup EventLoopGroup instance for processing I/O.
+     * @param option ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG and etc.
+     * @see ChannelOption
+     */
     public MqttServer(int port, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
         this.masterGroup =  masterGroup;
         this.workerGroup = workerGroup;
@@ -41,6 +58,9 @@ public class MqttServer {
                 .childOption(option, true);
     }
 
+    /**
+     * Start the server.
+     */
     public void start() {
         try {
             ChannelFuture channelFuture = this.serverBootstrap.bind(this.port).sync();
@@ -52,6 +72,9 @@ public class MqttServer {
         }
     }
 
+    /**
+     * Stop the server.
+     */
     public void stop(){
         this.masterGroup.shutdownGracefully();
         this.workerGroup.shutdownGracefully();
