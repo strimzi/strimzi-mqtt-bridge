@@ -38,8 +38,8 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
-            } else if (msg instanceof MqttPublishMessage message) {
-                System.out.printf(message.payload().toString(Charset.defaultCharset()));
+            } else if (messageType == MqttMessageType.PUBLISH) {
+                MqttPublishMessage message = (MqttPublishMessage) msg;
                 handlePublishMessage(ctx, message);
             } else {
                 // Handle other MQTT message types as needed
