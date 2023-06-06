@@ -1,12 +1,25 @@
-/target
+*.class
 
-# Eclipse specific
-.project
-.settings/
-.prefs
-.classpath
-.apt_generated/
-.apt_generated_tests/
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Maven stuff
+**/target/*
+
+# Eclipse stuff
+**/.project
+**/.settings/*
+**/.prefs
+**/.classpath
+/target/
 
 # IntelliJ IDEA specific
 .idea/
@@ -15,3 +28,10 @@
 # VS Code
 .factorypath
 .vscode
+
+.DS_Store
+
+# Auto generated doc
+documentation/html/**
+documentation/htmlnoheader/**
+documentation/book/build/**
