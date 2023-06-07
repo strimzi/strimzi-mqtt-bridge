@@ -3,7 +3,6 @@ package io.strimzi.kafka.bridge.mqtt.utils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.strimzi.kafka.bridge.mqtt.core.MqttServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,9 @@ public class MappingRunnable implements Runnable {
         try {
             logger.info("MAPPING");
             logger.info("Topic: {}", mqttMessage.variableHeader().topicName());
+            logger.info("Message: {}", mqttMessage.payload().toString(Charset.defaultCharset()));
             Thread.sleep(5000);
+            mqttMessage.release();
         } catch (InterruptedException e) {
             logger.error(e.getMessage());
         } finally {

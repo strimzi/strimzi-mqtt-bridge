@@ -30,22 +30,17 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
        logger.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
     }
 
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
-    }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         try {
             MqttMessageType messageType = msg.fixedHeader().messageType();
-
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
             } else if (messageType == MqttMessageType.PUBLISH) {
                 MqttPublishMessage message = (MqttPublishMessage) msg;
+                message.retain();
                 handlePublishMessage(ctx, message);
+                message.release();
             } else {
                 // Handle other MQTT message types as needed
                 logger.debug("Got {} message type", messageType.name());
@@ -74,7 +69,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 .returnCode(MqttConnectReturnCode.CONNECTION_ACCEPTED)
                 .build();
 
-        logger.info("New client connected");
+        logger.info("{} client connected.", ctx.channel().remoteAddress());
         ctx.writeAndFlush(connAckMessage);
     }
 
@@ -85,7 +80,10 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      * @throws InterruptedException
      */
-    private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) throws InterruptedException {
-        MqttKafkaMapper.getInstance().map(ctx, publishMessage);
+    private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
+        // MqttKafkaMapper.getInstance().map(ctx, publishMessage);
+        logger.info("MAPPING");
+        logger.info("Topic: {}", publishMessage.variableHeader().topicName());
+        logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
     }
 }

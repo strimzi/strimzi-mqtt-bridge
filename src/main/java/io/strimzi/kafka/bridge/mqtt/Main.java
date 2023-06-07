@@ -3,7 +3,6 @@ package io.strimzi.kafka.bridge.mqtt;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
-import io.strimzi.kafka.bridge.mqtt.core.MqttServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
