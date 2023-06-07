@@ -7,6 +7,7 @@ from time import sleep
 from multiprocessing import Process
 import random
 
+
 class MqttClient:
     def __init__(self, broker_address, broker_port):
         self.broker_address = broker_address
@@ -39,8 +40,10 @@ class MqttClient:
     def publish(self, topic, message):
         self.client.publish(topic, message)
 
+
 messages = ["Doing", "Foo", "bar", "angola", "plant"]
 topics = ["sensors/home", "devices/speakers", "/bluetooth", "/"]
+
 
 def client_starter():
     broker_address = "localhost"
@@ -54,18 +57,19 @@ def client_starter():
     mqtt_client.stop()
     mqtt_client.disconnect()
 
+
 def main():
     num_client = 20
-    process=[]
+    process = []
     try:
         for i in range(num_client):
-            print(f'\n MQTTClient No {i+1} \n')
+            print(f'\n MQTTClient No {i + 1} \n')
             client = Process(target=client_starter)
             client.start()
             process.append(client)
             sleep(1)
     except Exception as e:
-        if type(e) ==  KeyboardInterrupt:
+        if type(e) == KeyboardInterrupt:
             sleep(1)
             for p in process:
                 os.kill(p.pid, signal.SIGINT)
@@ -74,5 +78,5 @@ def main():
             print(e)
 
 
-if __name__=='__main__':
-   main()
+if __name__ == '__main__':
+    main()
