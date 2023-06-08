@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MqttServer {
     private static final Logger logger = LoggerFactory.getLogger(MqttServer.class);
-
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
     private final int port;
@@ -31,7 +30,6 @@ public class MqttServer {
      * During the {@link #initChannel(SocketChannel)}, we use MqttDecoder() and MqttEncoder to decode and encode Mqtt messages respectively. <br>
      */
     private static class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
-
         @Override
         protected void initChannel(SocketChannel ch) {
             ch.pipeline().addLast("decoder", new MqttDecoder());

@@ -11,7 +11,6 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.charset.Charset;
 
 /**
@@ -22,7 +21,6 @@ import java.nio.charset.Charset;
  * @see io.netty.channel.SimpleChannelInboundHandler
  */
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
-
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
 
     @Override
@@ -62,7 +60,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      *
      * @param ctx ChannelHandlerContext instance
      */
-
     private void handleConnectMessage(ChannelHandlerContext ctx) {
         MqttConnAckMessage connAckMessage = MqttMessageBuilders.connAck()
                 .sessionPresent(false)
