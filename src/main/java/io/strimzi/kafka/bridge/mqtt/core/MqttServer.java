@@ -46,7 +46,7 @@ public class MqttServer {
      * @param port        an integer that represents the port the server should be bound to.
      * @param masterGroup EventLoopGroup instance for handle incoming connections.
      * @param workerGroup EventLoopGroup instance for processing I/O.
-     * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG and etc.
+     * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
      * @see ChannelOption
      */
     public MqttServer(int port, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
