@@ -27,7 +27,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-       logger.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
+        logger.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 // Handle other MQTT message types as needed
                 logger.debug("Got {} message type", messageType.name());
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
             ctx.close();
         }
@@ -76,13 +76,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     /**
      * Handle the case when a client sent a MQTT PUBLISH message type.
      *
-     * @param ctx ChannelHandlerContext instance
+     * @param ctx            ChannelHandlerContext instance
      * @param publishMessage represents a MqttPublishMessage
      * @throws InterruptedException
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        // MqttKafkaMapper.getInstance().map(ctx, publishMessage);
-        logger.info("MAPPING");
+        logger.info("MAPPING...");
         logger.info("Topic: {}", publishMessage.variableHeader().topicName());
         logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
     }
