@@ -78,7 +78,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      *
      * @param ctx            ChannelHandlerContext instance
      * @param publishMessage represents a MqttPublishMessage
-     * @throws InterruptedException
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
         logger.info("MAPPING...");
