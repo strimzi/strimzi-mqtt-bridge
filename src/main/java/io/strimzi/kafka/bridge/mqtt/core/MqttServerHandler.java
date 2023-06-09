@@ -35,6 +35,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         try {
             MqttMessageType messageType = msg.fixedHeader().messageType();
+            logger.debug("Got {} message type", messageType.name());
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
             } else if (messageType == MqttMessageType.PUBLISH) {
@@ -42,12 +43,9 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 message.retain();
                 handlePublishMessage(ctx, message);
                 message.release();
-            } else {
-                // Handle other MQTT message types as needed
-                logger.debug("Got {} message type", messageType.name());
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Error reading Channel: ", e);
             ctx.close();
         }
     }
@@ -80,7 +78,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        logger.info("MAPPING...");
         logger.info("Topic: {}", publishMessage.variableHeader().topicName());
         logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
     }

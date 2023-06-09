@@ -71,7 +71,7 @@ public class MqttServer {
             ChannelFuture channelFuture = this.serverBootstrap.bind(this.port).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("Error starting the MQTT server: ", e);
         } finally {
             this.stop();
         }

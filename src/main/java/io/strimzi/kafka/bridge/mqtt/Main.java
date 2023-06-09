@@ -21,7 +21,7 @@ public class Main {
             MqttServer server = new MqttServer(PORT, masterGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
             server.start();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Error starting the MQTT server: ", e);
         }
     }
 }
