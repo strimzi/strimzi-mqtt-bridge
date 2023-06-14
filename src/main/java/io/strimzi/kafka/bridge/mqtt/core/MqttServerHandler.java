@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
  */
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
+    private MqttKafkaMapper mapper = new MqttKafkaMapper();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -78,7 +79,8 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        logger.info("Topic: {}", publishMessage.variableHeader().topicName());
-        logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
+        logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
+        logger.info("Mapped Topic: {}", mapper.map(publishMessage.variableHeader().topicName()));
+        //logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
     }
 }
