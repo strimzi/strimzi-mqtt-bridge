@@ -30,24 +30,21 @@ public class MqttKafkaMapperTest {
 
 
     /**
-     * Read the mapping rules from the mapping_rules.json file and create a MqttKafkaMapper object.
-     * Check @src/test/resources/mapping_rules.json to add or modify the mapping rules.
+     * Load all the mapping rules before running the tests.
      *
-     * @throws IOException
      */
     @Before
-    public void setUp() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/mapping_rules.json"));
-        ObjectMapper objectMapper = new ObjectMapper();
-        StringBuilder jsonBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            jsonBuilder.append(line);
-        }
-        mappingRules = objectMapper.readValue(jsonBuilder.toString(), new TypeReference<>() {
-        });
-        mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
-        mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
+    public void setUp() {
+       mappingRules = new ArrayList<>();
+       mappingRules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
+       mappingRules.add(new MappingRule("sensor_data", "sensors/+/data"));
+       mappingRules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
+       mappingRules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
+       mappingRules.add(new MappingRule("building_{building}_others","building/{building}/#"));
+       mappingRules.add(new MappingRule("sensor_others", "sensors/#"));
+       mappingRules.add(new MappingRule("building_others", "building/#"));
+       mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
+       mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
     }
 
     /**
@@ -91,16 +88,6 @@ public class MqttKafkaMapperTest {
 
         assertThat("Mqtt pattern building/# should be mapped to building_others",
                 map("building/101"), is("building_others"));
-    }
-
-    /**
-     * Test rules loading from json file.
-     */
-    @Test
-    public void testLoadMappingRules() {
-        assertThat("Should load 7 mapping rules",
-                mappingRules.size(), is(7));
-
     }
 
     /**

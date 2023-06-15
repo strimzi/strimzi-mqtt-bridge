@@ -23,6 +23,19 @@ public class MappingRule {
     private String mqttTopicPattern;
 
     /**
+     * Constructor
+     * <p>
+     * Creates a new instance of MappingRule.
+     *
+     * @param kafkaTopicTemplate the desired Kafka topic template. The kafka topic template can contain placeholders.
+     * @param mqttTopicPattern   the mqtt topic pattern. The mqtt topic pattern can contain placeholders.
+     */
+    public MappingRule(String kafkaTopicTemplate, String mqttTopicPattern) {
+        this.kafkaTopicTemplate = kafkaTopicTemplate;
+        this.mqttTopicPattern = mqttTopicPattern;
+    }
+
+    /**
      * Get the kafka topic template.
      *
      * @return the kafka topic template.
