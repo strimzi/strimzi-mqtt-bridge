@@ -8,7 +8,6 @@ import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 /**
  * Responsible for handling all the topic mapping.
@@ -28,7 +27,7 @@ public class MqttKafkaMapper {
 
     /**
      * Constructor
-     *
+     * <p>
      * Creates a new instance of MqttKafkaMapper.
      */
     public MqttKafkaMapper(ArrayList<MappingRule> rules) {
