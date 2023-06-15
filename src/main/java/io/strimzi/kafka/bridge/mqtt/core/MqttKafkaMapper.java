@@ -18,7 +18,9 @@ public class MqttKafkaMapper {
 
     private static String DEFAULT_KAFKA_TOPIC = "messages_default";
     private ArrayList<MappingRule> rules;
-
+    private final String placeholderRegex = "(.*)"; // matches any character except line terminators. Used to replace the placeholders with {something} in the mqtt pattern.
+    private final String singleLevelWildcardRegex = "[^/]+"; // matches any character except a forward slash (/). Used to replace the + in the mqtt pattern.
+    private final String multiLevelWildcardRegex = ".*"; // matches any character after the string. Used to replace the # in the mqtt pattern.
     /**
      * Constructor
      *
@@ -46,8 +48,12 @@ public class MqttKafkaMapper {
     public String map(String mqttTopic) {
         for (MappingRule rule : this.rules) {
             //convert the mqtt pattern to a valid regex expression.
-            String regex = rule.getMqttTopicPattern().replaceAll("\\{\\w+\\}", "(.*)")
-                    .replace("#", ".*").replace("+", "[^/]+");
+            // the mqtt pattern can contain placeholders like {something}, + and #.
+            // if the mqtt topic contains a +, we replace it with @singleLevelWildcardRegex
+            // if the mqtt topic contains a #, we replace it with @multiLevelWildcardRegex
+            // if the mqtt topic contains a placeholder (pattern \{\w+\}), we replace it with @placeholderRegex
+            String regex = rule.getMqttTopicPattern().replaceAll("\\{\\w+\\}", placeholderRegex)
+                    .replace("#", multiLevelWildcardRegex).replace("+", singleLevelWildcardRegex);
             if (mqttTopic.matches(regex)) {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
