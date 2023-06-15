@@ -27,24 +27,31 @@ public class MqttKafkaMapperTest {
 
     private ArrayList<MappingRule> mappingRules;
     private MqttKafkaMapper mqttKafkaMapper;
-
+    //define the mapping rules as a JSON string. Add more rules if needed.
+    private static final String TOPIC_MAPPING_RULES_JSON =
+            "[" +
+                    "{\"kafkaTopic\":\"building_{building}_room_{room}\",\"mqttTopic\":\"building/{building}/room/{room}/#\"}," +
+                    "{\"kafkaTopic\":\"sensor_data\",\"mqttTopic\":\"sensors/+/data\"}," +
+                    "{\"kafkaTopic\":\"devices_{device}_data\",\"mqttTopic\":\"devices/{device}/data\"}," +
+                    "{\"kafkaTopic\":\"fleet_{vehicle}\",\"mqttTopic\":\"fleet/{fleet}/vehicle/{vehicle}/#\"}," +
+                    "{\"kafkaTopic\":\"building_{building}_others\",\"mqttTopic\":\"building/{building}/#\"}," +
+                    "{\"kafkaTopic\":\"sensor_others\",\"mqttTopic\":\"sensors/#\"}," +
+                    "{\"kafkaTopic\":\"building_others\",\"mqttTopic\":\"building/#\"}" + "]";
 
     /**
      * Load all the mapping rules before running the tests.
-     *
      */
     @Before
     public void setUp() {
-       mappingRules = new ArrayList<>();
-       mappingRules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
-       mappingRules.add(new MappingRule("sensor_data", "sensors/+/data"));
-       mappingRules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
-       mappingRules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
-       mappingRules.add(new MappingRule("building_{building}_others","building/{building}/#"));
-       mappingRules.add(new MappingRule("sensor_others", "sensors/#"));
-       mappingRules.add(new MappingRule("building_others", "building/#"));
-       mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
-       mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mappingRules = mapper.readValue(TOPIC_MAPPING_RULES_JSON, new TypeReference<>() {
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
+        mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
     }
 
     /**
