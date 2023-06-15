@@ -13,7 +13,6 @@ import java.util.HashMap;
 public class MappingRule {
     private String kafkaTopicTemplate;
     private String mqttTopicPattern;
-    private HashMap<String, String> placeholdersType = new HashMap<>();
 
     /**
      * Constructor
@@ -22,10 +21,9 @@ public class MappingRule {
      * @param kafkaTopicTemplate the desired Kafka topic template. The kafka topic template can contain placeholders.
      * @param mqttTopicPattern the mqtt topic pattern. The mqtt topic pattern can contain placeholders.
      */
-    public MappingRule (String kafkaTopicTemplate, String mqttTopicPattern, HashMap<String, String> placeholdersType){
+    public MappingRule (String kafkaTopicTemplate, String mqttTopicPattern){
         this.kafkaTopicTemplate= kafkaTopicTemplate;
         this.mqttTopicPattern = mqttTopicPattern;
-        this.placeholdersType = placeholdersType;
     }
 
     /**

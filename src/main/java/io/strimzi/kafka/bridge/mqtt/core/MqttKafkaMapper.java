@@ -26,13 +26,13 @@ public class MqttKafkaMapper {
      */
     public MqttKafkaMapper(){
         rules = new ArrayList<>();
-        rules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#", null));
-        rules.add(new MappingRule("sensor_data", "sensors/+/data", null));
-        rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data", null));
-        rules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#", null));
-        rules.add(new MappingRule("building_{building}_others","building/{building}/#", null));
-        rules.add(new MappingRule("sensor_others", "sensors/#", null));
-        rules.add(new MappingRule("building_others", "building/#", null));
+        rules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
+        rules.add(new MappingRule("sensor_data", "sensors/+/data"));
+        rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
+        rules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
+        rules.add(new MappingRule("building_{building}_others","building/{building}/#"));
+        rules.add(new MappingRule("sensor_others", "sensors/#"));
+        rules.add(new MappingRule("building_others", "building/#"));
         rules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
     }
 
