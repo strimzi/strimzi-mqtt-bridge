@@ -4,11 +4,15 @@
  */
 package io.strimzi.kafka.bridge.mqtt.utils;
 
-import java.util.HashMap;
-
 /**
- * Represents a Mapping Rule in the Topic Mapping Rules(TOMAR).
- *
+ * Represents a Mapping Rule in the Topic Mapping Rules(TOMAR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics.
+ * E.g.: a valid mapping rule would look like this in the TOMAR file:
+ * {
+ *     "kafkaTopic": "sensors_{sensorId}_data",
+ *     "mqttTopic": "sensors/{sensorId}/data"
+ * }
+ * and like this in the MappingRule class:
+ * MappingRule(kafkaTopicTemplate=sensors_{sensorId}_data mqttTopicPattern= sensors/{sensorId}/data)
  */
 public class MappingRule {
     private String kafkaTopicTemplate;
