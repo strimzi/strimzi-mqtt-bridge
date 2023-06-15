@@ -4,7 +4,18 @@
  */
 package io.strimzi.kafka.bridge.mqtt.core;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,7 +25,30 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class MqttKafkaMapperTest {
 
-    private final MqttKafkaMapper mqttKafkaMapper = new MqttKafkaMapper();
+    private ArrayList<MappingRule> mappingRules;
+    private MqttKafkaMapper mqttKafkaMapper;
+
+
+    /**
+     * Read the mapping rules from the mapping_rules.json file and create a MqttKafkaMapper object.
+     * Check @src/test/resources/mapping_rules.json to add or modify the mapping rules.
+     *
+     * @throws IOException
+     */
+    @Before
+    public void setUp() throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/mapping_rules.json"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        StringBuilder jsonBuilder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            jsonBuilder.append(line);
+        }
+        mappingRules = objectMapper.readValue(jsonBuilder.toString(), new TypeReference<>() {
+        });
+        mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
+        mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
+    }
 
     /**
      * Test the mapping of single level topics.
@@ -60,9 +94,19 @@ public class MqttKafkaMapperTest {
     }
 
     /**
-     * Help method to map an MQTT topic to a Kafka topic.
+     * Test rules loading from json file.
      */
-    protected String map(String mqttTopic){
+    @Test
+    public void testLoadMappingRules() {
+        assertThat("Should load 7 mapping rules",
+                mappingRules.size(), is(7));
+
+    }
+
+    /**
+     * Helper method to map an MQTT topic to a Kafka topic.
+     */
+    protected String map(String mqttTopic) {
         return mqttKafkaMapper.map(mqttTopic);
     }
 }

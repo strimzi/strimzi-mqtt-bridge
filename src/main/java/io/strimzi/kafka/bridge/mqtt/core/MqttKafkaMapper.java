@@ -5,6 +5,7 @@
 package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,21 +22,14 @@ public class MqttKafkaMapper {
     private final String placeholderRegex = "(.*)"; // matches any character except line terminators. Used to replace the placeholders with {something} in the mqtt pattern.
     private final String singleLevelWildcardRegex = "[^/]+"; // matches any character except a forward slash (/). Used to replace the + in the mqtt pattern.
     private final String multiLevelWildcardRegex = ".*"; // matches any character after the string. Used to replace the # in the mqtt pattern.
+
     /**
      * Constructor
-     *
+     * <p>
      * Creates a new instance of MqttKafkaMapper.
      */
-    public MqttKafkaMapper(){
-        rules = new ArrayList<>();
-        rules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
-        rules.add(new MappingRule("sensor_data", "sensors/+/data"));
-        rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
-        rules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
-        rules.add(new MappingRule("building_{building}_others","building/{building}/#"));
-        rules.add(new MappingRule("sensor_others", "sensors/#"));
-        rules.add(new MappingRule("building_others", "building/#"));
-        rules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
+    public MqttKafkaMapper(ArrayList<MappingRule> rules) {
+        this.rules = rules;
     }
 
     /**
