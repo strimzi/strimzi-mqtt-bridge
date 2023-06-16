@@ -27,7 +27,7 @@ public class MqttKafkaMapper {
 
     /**
      * Constructor
-     * <p>
+     * 
      * Creates a new instance of MqttKafkaMapper.
      */
     public MqttKafkaMapper(ArrayList<MappingRule> rules) {
