@@ -69,7 +69,7 @@ public class MqttKafkaMapperTest {
                 map("devices/4/data"), is("devices_4_data"));
 
         assertThat("Should use the default topic when no mapping rule is found",
-                map("sensor/temperature"), is("messages_default"));
+                map("sensor/temperature"), is(DEFAULT_KAFKA_TOPIC));
 
         assertThat("Should use the default topic when no mapping rule is found",
                 map("devices/1"), is("messages_default"));
