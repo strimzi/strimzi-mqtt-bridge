@@ -17,7 +17,6 @@ import java.util.List;
 public class MqttKafkaMapper {
 
     public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
-    private final List<MappingRule> rules;
     // matches any character except line terminators. Used to replace the placeholders with {something} in the mqtt pattern.
     private static final String PLACEHOLDER_REGEX = "(.*)";
     // matches any character except a forward slash (/). Used to replace the + in the mqtt pattern.
@@ -27,6 +26,7 @@ public class MqttKafkaMapper {
     private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
     private static final String MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER = "+";
     private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
+    private final List<MappingRule> rules;
 
     /**
      * Constructor
