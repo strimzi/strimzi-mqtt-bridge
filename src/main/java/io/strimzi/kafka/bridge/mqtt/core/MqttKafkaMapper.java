@@ -5,9 +5,8 @@
 package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
-
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Responsible for handling all the topic mapping.
@@ -16,21 +15,24 @@ import java.util.Arrays;
  */
 public class MqttKafkaMapper {
 
-    private static String DEFAULT_KAFKA_TOPIC = "messages_default";
-    private ArrayList<MappingRule> rules;
+    public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
+    private final List<MappingRule> rules;
     // matches any character except line terminators. Used to replace the placeholders with {something} in the mqtt pattern.
-    private static String PLACEHOLDER_REGEX = "(.*)";
+    private static final String PLACEHOLDER_REGEX = "(.*)";
     // matches any character except a forward slash (/). Used to replace the + in the mqtt pattern.
-    private static String SINGLE_LEVEL_WILDCARD_REGEX = "[^/]+";
+    private static final String SINGLE_LEVEL_WILDCARD_REGEX = "[^/]+";
     // matches any character after the string. Used to replace the # in the mqtt pattern.
-    private static String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
+    private static final String MQTT_TOPIC_PLACEHOLDER_REGEX = "\\{\\w+\\}";
+    private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
+    private static final String MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER = "+";
+    private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
 
     /**
      * Constructor
      * 
      * Creates a new instance of MqttKafkaMapper.
      */
-    public MqttKafkaMapper(ArrayList<MappingRule> rules) {
+    public MqttKafkaMapper(List<MappingRule> rules) {
         this.rules = rules;
     }
 
@@ -48,13 +50,13 @@ public class MqttKafkaMapper {
             // if the mqtt topic contains a +, we replace it with @singleLevelWildcardRegex
             // if the mqtt topic contains a #, we replace it with @multiLevelWildcardRegex
             // if the mqtt topic contains a placeholder (pattern \{\w+\}), we replace it with @placeholderRegex
-            String regex = rule.getMqttTopicPattern().replaceAll("\\{\\w+\\}", PLACEHOLDER_REGEX)
-                    .replace("#", MULTIPLE_LEVEL_WILDCARD_REGEX).replace("+", SINGLE_LEVEL_WILDCARD_REGEX);
+            String regex = rule.getMqttTopicPattern().replaceAll(MQTT_TOPIC_PLACEHOLDER_REGEX, PLACEHOLDER_REGEX)
+                    .replace(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER, MULTIPLE_LEVEL_WILDCARD_REGEX).replace(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER, SINGLE_LEVEL_WILDCARD_REGEX);
             if (mqttTopic.matches(regex)) {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
                 for (String placeholderKey : mqttTopicPatternParts) {
-                    if (placeholderKey.matches("\\{\\w+\\}")) {
+                    if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
                         int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
                         String placeholder = mqttTopic.split("/")[index];
                         mappedKafkaTopic = mappedKafkaTopic.replace(placeholderKey, placeholder);
