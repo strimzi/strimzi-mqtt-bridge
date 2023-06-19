@@ -68,7 +68,7 @@ public class MqttKafkaMapperTest {
     public void testIllegalPlaceholder(){
 
         List<MappingRule> rules = new ArrayList<>();
-        rules.add(new MappingRule("fleet_{fleet}", "fleet/{fleet}/vehicle/{vehicle}"));
+        rules.add(new MappingRule("fleet_{fleet}", "fleet/{flee}/vehicle/{vehicle}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
@@ -76,7 +76,7 @@ public class MqttKafkaMapperTest {
             mapper.map("fleet/4/vehicle/23");
         });
 
-        String expectedMessage = "The placeholder {flee} is not present in the kafka topic template.";
+        String expectedMessage = "The placeholder {fleet} was not assigned any value.";
         assertThat("The exception message should be: " + expectedMessage,
                 exception.getMessage(), is(expectedMessage));
 

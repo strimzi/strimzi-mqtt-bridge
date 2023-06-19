@@ -61,22 +61,36 @@ public class MqttKafkaMapper {
     public String map(String mqttTopic) {
         for (MappingRule rule : this.rules) {
             Matcher matcher = this.patterns.get(this.rules.indexOf(rule)).matcher(mqttTopic);
+            HashMap<String, String> placeholders = new HashMap<>();
+
             if (matcher.matches()) {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
                 String kafkaTopicDelimiter = getKafkaTopicDelimiter(rule.getKafkaTopicTemplate());
                 String[] kafkaTopicTemplateParts = rule.getKafkaTopicTemplate().split(kafkaTopicDelimiter);
-                for (String placeholderKey : mqttTopicPatternParts) {
-                    if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
-                        if (!Arrays.asList(kafkaTopicTemplateParts).contains(placeholderKey)) {
-                            throw new IllegalArgumentException("The placeholder " + placeholderKey + " is not present in the kafka topic template.");
-                        } else {
-                            int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
-                            String placeholder = mqttTopic.split("/")[index];
-                            mappedKafkaTopic = mappedKafkaTopic.replace(placeholderKey, placeholder);
-                        }
+
+                for (String templatePlaceholder : kafkaTopicTemplateParts) {
+                    if (templatePlaceholder.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
+                        placeholders.put(templatePlaceholder, null);
                     }
                 }
+
+                for (String placeholderKey : mqttTopicPatternParts) {
+                    if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX) && placeholders.containsKey(placeholderKey)) {
+                        int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
+                        String placeholder = mqttTopic.split("/")[index];
+                        placeholders.put(placeholderKey, placeholder);
+                    }
+                }
+
+                for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                    if (entry.getValue() != null) {
+                        mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
+                    } else {
+                        throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not assigned any value.");
+                    }
+                }
+
                 return mappedKafkaTopic;
             }
 
