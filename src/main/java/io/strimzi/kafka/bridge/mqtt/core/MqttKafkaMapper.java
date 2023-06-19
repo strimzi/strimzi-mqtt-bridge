@@ -6,10 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,15 +64,22 @@ public class MqttKafkaMapper {
             if (matcher.matches()) {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
+                String kafkaTopicDelimiter = getKafkaTopicDelimiter(rule.getKafkaTopicTemplate());
+                String[] kafkaTopicTemplateParts = rule.getKafkaTopicTemplate().split(kafkaTopicDelimiter);
                 for (String placeholderKey : mqttTopicPatternParts) {
                     if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
-                        int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
-                        String placeholder = mqttTopic.split("/")[index];
-                        mappedKafkaTopic = mappedKafkaTopic.replace(placeholderKey, placeholder);
+                        if (!Arrays.asList(kafkaTopicTemplateParts).contains(placeholderKey)) {
+                            throw new IllegalArgumentException("The placeholder " + placeholderKey + " is not present in the kafka topic template.");
+                        } else {
+                            int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
+                            String placeholder = mqttTopic.split("/")[index];
+                            mappedKafkaTopic = mappedKafkaTopic.replace(placeholderKey, placeholder);
+                        }
                     }
                 }
                 return mappedKafkaTopic;
             }
+
         }
         return DEFAULT_KAFKA_TOPIC;
     }
@@ -94,6 +98,23 @@ public class MqttKafkaMapper {
             String regex = rule.getMqttTopicPattern().replaceAll(MQTT_TOPIC_PLACEHOLDER_REGEX, PLACEHOLDER_REGEX)
                     .replace(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER, MULTIPLE_LEVEL_WILDCARD_REGEX).replace(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER, SINGLE_LEVEL_WILDCARD_REGEX);
             patterns.add(Pattern.compile(regex));
+        }
+    }
+    /**
+     * Helper method for getting the delimiter from the kafka topic template.
+     *
+     * @param kafkaTopicTemplate represents the kafka topic template.
+     * @return the delimiter used in the kafka topic template.
+     */
+    private String getKafkaTopicDelimiter(String kafkaTopicTemplate) {
+        if (kafkaTopicTemplate.contains("_")) {
+            return "_";
+        } else if (kafkaTopicTemplate.contains("-")) {
+            return "-";
+        } else if (kafkaTopicTemplate.contains(".")) {
+            return ".";
+        } else {
+            throw new IllegalArgumentException("The kafka topic template must contain a valid delimiter.");
         }
     }
 }

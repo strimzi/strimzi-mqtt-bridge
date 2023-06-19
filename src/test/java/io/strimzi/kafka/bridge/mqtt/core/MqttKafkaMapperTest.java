@@ -5,12 +5,16 @@
 package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Unit tests for {@link MqttKafkaMapper}
@@ -56,6 +60,27 @@ public class MqttKafkaMapperTest {
                 mapper.map("fleet/4/vehicle/23"), is("fleet_4"));
     }
 
+
+    /**
+     * Test the mapping of single level topics.
+     */
+    @Test
+    public void testIllegalPlaceholder(){
+
+        List<MappingRule> rules = new ArrayList<>();
+        rules.add(new MappingRule("fleet_{fleet}", "fleet/{fleet}/vehicle/{vehicle}"));
+
+        MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            mapper.map("fleet/4/vehicle/23");
+        });
+
+        String expectedMessage = "The placeholder {flee} is not present in the kafka topic template.";
+        assertThat("The exception message should be: " + expectedMessage,
+                exception.getMessage(), is(expectedMessage));
+
+    }
     /**
      * Test the mapping of multi level topics.
      */
