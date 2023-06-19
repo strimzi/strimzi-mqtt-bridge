@@ -4,15 +4,10 @@
  */
 package io.strimzi.kafka.bridge.mqtt.core;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -22,33 +17,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class MqttKafkaMapperTest {
 
-    private ArrayList<MappingRule> mappingRules;
-    private MqttKafkaMapper mqttKafkaMapper;
-    //define the mapping rules as a JSON string. Add more rules if needed.
-    private static final String TOPIC_MAPPING_RULES_JSON =
-            "[" +
-                    "{\"kafkaTopic\":\"building_{building}_room_{room}\",\"mqttTopic\":\"building/{building}/room/{room}/#\"}," +
-                    "{\"kafkaTopic\":\"sensor_data\",\"mqttTopic\":\"sensors/+/data\"}," +
-                    "{\"kafkaTopic\":\"devices_{device}_data\",\"mqttTopic\":\"devices/{device}/data\"}," +
-                    "{\"kafkaTopic\":\"fleet_{vehicle}\",\"mqttTopic\":\"fleet/{fleet}/vehicle/{vehicle}/#\"}," +
-                    "{\"kafkaTopic\":\"building_{building}_others\",\"mqttTopic\":\"building/{building}/#\"}," +
-                    "{\"kafkaTopic\":\"sensor_others\",\"mqttTopic\":\"sensors/#\"}," +
-                    "{\"kafkaTopic\":\"building_others\",\"mqttTopic\":\"building/#\"}" + "]";
 
     /**
-     * Load all the mapping rules before running the tests.
+     * Test for default topic.
+     * If the MQTT topic does not match any of the mapping rules, the default topic is used.
+     * E.g. if the Topic Mapping Rules is empty, the default topic is used by default.
      */
-    @Before
-    public void setUp() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mappingRules = mapper.readValue(TOPIC_MAPPING_RULES_JSON, new TypeReference<>() {
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mappingRules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
-        mqttKafkaMapper = new MqttKafkaMapper(mappingRules);
+    @Test
+    public void testDefaultTopic() {
+        List<MappingRule> rules = new ArrayList<>();
+
+        MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
+
+        assertThat("Should use the default topic when no mapping pattern matches.",
+                mapper.map("sensor/temperature"), is(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC));
     }
 
     /**
@@ -56,24 +38,22 @@ public class MqttKafkaMapperTest {
      */
     @Test
     public void testSingleLevel() {
+        List<MappingRule> rules = new ArrayList<>();
+
+        rules.add(new MappingRule("sensor_data", "sensors/+/data"));
+        rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
+        rules.add(new MappingRule("fleet_{fleet}", "fleet/{fleet}/vehicle/{vehicle}"));
+
+        MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
+
         assertThat("Mqtt pattern sensors/+/data should be mapped to sensor_data",
-                map("sensors/4/data"), is("sensor_data"));
-
-        assertThat("Mqtt pattern sensors/# should be mapped to sensor_others",
-                map("sensors/25/temperature/data"), is("sensor_others"));
-
-        assertThat("Mqtt pattern sensors/# should be mapped to sensor_others",
-                map("sensors/25/data/humidity"), is("sensor_others"));
+                mapper.map("sensors/4/data"), is("sensor_data"));
 
         assertThat("Mqtt pattern devices/{device}/data should be mapped to devices_{device}_data",
-                map("devices/4/data"), is("devices_4_data"));
+                mapper.map("devices/4/data"), is("devices_4_data"));
 
-        assertThat("Should use the default topic when no mapping rule is found",
-                map("sensor/temperature"), is(DEFAULT_KAFKA_TOPIC));
-
-        assertThat("Should use the default topic when no mapping rule is found",
-                map("devices/1"), is("messages_default"));
-
+        assertThat("Mqtt pattern fleet/{fleet}/vehicle/{vehicle} should be mapped to fleet_{fleet}",
+                mapper.map("fleet/4/vehicle/23"), is("fleet_4"));
     }
 
     /**
@@ -81,23 +61,25 @@ public class MqttKafkaMapperTest {
      */
     @Test
     public void testMultiLevel() {
+        List<MappingRule> rules = new ArrayList<>();
+
+        rules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
+        rules.add(new MappingRule("building_{building}_others", "building/{building}/#"));
+        rules.add(new MappingRule("building_others", "building/#"));
+        rules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
+
+        MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
+
         assertThat("Mqtt topic pattern fleet/{fleet}/vehicle/{vehicle}/# should be mapped to fleet_{vehicle}",
-                map("fleet/4/vehicle/23/velocity"), is("fleet_23"));
+                mapper.map("fleet/4/vehicle/23/velocity"), is("fleet_23"));
 
         assertThat("Mqtt pattern building/{building}/room/{room}/# should be mapped to building_{building}_room_{room}",
-                map("building/4/room/23/temperature"), is("building_4_room_23"));
+                mapper.map("building/4/room/23/temperature"), is("building_4_room_23"));
 
         assertThat("Mqtt pattern building/{building}/# should be mapped to building_{building}_others",
-                map("building/405/room"), is("building_405_others"));
+                mapper.map("building/405/room"), is("building_405_others"));
 
         assertThat("Mqtt pattern building/# should be mapped to building_others",
-                map("building/101"), is("building_others"));
-    }
-
-    /**
-     * Helper method to map an MQTT topic to a Kafka topic.
-     */
-    protected String map(String mqttTopic) {
-        return mqttKafkaMapper.map(mqttTopic);
+                mapper.map("building/101"), is("building_others"));
     }
 }

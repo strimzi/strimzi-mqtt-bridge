@@ -6,6 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,6 +35,7 @@ public class MqttKafkaMapper {
      */
     public MqttKafkaMapper(List<MappingRule> rules) {
         this.rules = rules;
+        this.rules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
     }
 
     /**

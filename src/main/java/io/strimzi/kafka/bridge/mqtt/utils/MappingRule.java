@@ -24,6 +24,23 @@ public class MappingRule {
 
 
     /**
+     * Default constructor for MappingRule. Used for deserialization.
+     */
+    public MappingRule() {
+    }
+
+    /**
+     * Constructor for MappingRule.
+     *
+     * @param kafkaTopicTemplate the kafka topic template.
+     * @param mqttTopicPattern   the mqtt topic pattern.
+     */
+    public MappingRule(String kafkaTopicTemplate, String mqttTopicPattern) {
+        this.kafkaTopicTemplate = kafkaTopicTemplate;
+        this.mqttTopicPattern = mqttTopicPattern;
+    }
+
+    /**
      * Get the kafka topic template.
      *
      * @return the kafka topic template.
