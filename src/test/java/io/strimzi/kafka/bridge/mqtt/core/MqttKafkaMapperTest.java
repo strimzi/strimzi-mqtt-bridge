@@ -54,7 +54,7 @@ public class MqttKafkaMapperTest {
     /**
      * Test the mapping of single level topics.
      */
-    @Test()
+    @Test
     public void testSingleLevel() {
         assertThat("Mqtt pattern sensors/+/data should be mapped to sensor_data",
                 map("sensors/4/data"), is("sensor_data"));
