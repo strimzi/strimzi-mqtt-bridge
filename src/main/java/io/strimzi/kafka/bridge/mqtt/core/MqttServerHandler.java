@@ -14,7 +14,6 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
@@ -25,7 +24,6 @@ import java.util.ArrayList;
  */
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
-    private MqttKafkaMapper mapper = new MqttKafkaMapper(new ArrayList<>());
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -80,6 +78,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
         logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
-        logger.info("Mapped Topic: {}", mapper.map(publishMessage.variableHeader().topicName()));
+        logger.info("Message: {}", publishMessage.payload().toString());
     }
 }
