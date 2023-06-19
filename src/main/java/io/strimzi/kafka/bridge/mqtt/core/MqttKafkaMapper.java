@@ -20,15 +20,25 @@ import java.util.regex.Pattern;
  */
 public class MqttKafkaMapper {
 
+    // default kafka topic. Used when no mapping rule matches the mqtt topic.
     public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
-    // matches any character except line terminators. Used to replace the placeholders with {something} in the mqtt pattern.
-    private static final String PLACEHOLDER_REGEX = "(.*)";
-    // matches any character except a forward slash (/). Used to replace the + in the mqtt pattern.
-    private static final String SINGLE_LEVEL_WILDCARD_REGEX = "[^/]+";
-    // matches any character after the string. Used to replace the # in the mqtt pattern.
+
+    // find any word inside a curly bracket. E.g. {something}, this is known as a placeholder.
     private static final String MQTT_TOPIC_PLACEHOLDER_REGEX = "\\{\\w+\\}";
-    private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
+
+    // Regex used to replace the placeholders with {something} in the mqtt pattern.
+    private static final String PLACEHOLDER_REGEX = "(.*)";
+
+    // identifies a single level wildcard character in the mqtt pattern. E.g. sensors/+/data
     private static final String MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER = "+";
+
+    // Regex expression used to replace the + in the mqtt pattern.
+    private static final String SINGLE_LEVEL_WILDCARD_REGEX = "[^/]+";
+
+    // identifies a multi level wildcard character in the mqtt pattern. E.g. sensors/#
+    private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
+
+    // matches any character after the string. Used to replace the # in the mqtt pattern.
     private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
     private final List<MappingRule> rules;
     private final List<Pattern> patterns = new ArrayList<>();
