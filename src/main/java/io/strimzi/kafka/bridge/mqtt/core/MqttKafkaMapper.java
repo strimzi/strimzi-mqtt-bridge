@@ -6,7 +6,12 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Comparator;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +47,7 @@ public class MqttKafkaMapper {
 
     /**
      * Constructor
-     * 
+     * <p>
      * Creates a new instance of MqttKafkaMapper.
      */
     public MqttKafkaMapper(List<MappingRule> rules) {
@@ -66,13 +71,11 @@ public class MqttKafkaMapper {
             if (matcher.matches()) {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
-                String kafkaTopicDelimiter = getKafkaTopicDelimiter(rule.getKafkaTopicTemplate());
-                String[] kafkaTopicTemplateParts = rule.getKafkaTopicTemplate().split(kafkaTopicDelimiter);
 
-                for (String templatePlaceholder : kafkaTopicTemplateParts) {
-                    if (templatePlaceholder.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
-                        placeholders.put(templatePlaceholder, null);
-                    }
+                // find MQTT_TOPIC_PLACEHOLDER_REGEX in the kafkaTopicTemplate.
+                Matcher placeholderMatcher = patterns.get(patterns.size() - 1).matcher(rule.getKafkaTopicTemplate());
+                while (placeholderMatcher.find()) {
+                    placeholders.put(placeholderMatcher.group(), null);
                 }
 
                 for (String placeholderKey : mqttTopicPatternParts) {
@@ -101,7 +104,7 @@ public class MqttKafkaMapper {
     /**
      * Helper method for Building the regex expressions for the mapping rules.
      */
-    private void buildRegex(){
+    private void buildRegex() {
 
         //convert the mqtt patterns to a valid regex expression.
         // the mqtt pattern can contain placeholders like {something}, + and #.
@@ -113,22 +116,7 @@ public class MqttKafkaMapper {
                     .replace(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER, MULTIPLE_LEVEL_WILDCARD_REGEX).replace(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER, SINGLE_LEVEL_WILDCARD_REGEX);
             patterns.add(Pattern.compile(regex));
         }
-    }
-    /**
-     * Helper method for getting the delimiter from the kafka topic template.
-     *
-     * @param kafkaTopicTemplate represents the kafka topic template.
-     * @return the delimiter used in the kafka topic template.
-     */
-    private String getKafkaTopicDelimiter(String kafkaTopicTemplate) {
-        if (kafkaTopicTemplate.contains("_")) {
-            return "_";
-        } else if (kafkaTopicTemplate.contains("-")) {
-            return "-";
-        } else if (kafkaTopicTemplate.contains(".")) {
-            return ".";
-        } else {
-            throw new IllegalArgumentException("The kafka topic template must contain a valid delimiter.");
-        }
+        // add the regex for the placeholders in the end of the patterns list.
+        patterns.add(Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX));
     }
 }

@@ -5,10 +5,7 @@
 package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +44,8 @@ public class MqttKafkaMapperTest {
         rules.add(new MappingRule("sensor_data", "sensors/+/data"));
         rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
         rules.add(new MappingRule("fleet_{fleet}", "fleet/{fleet}/vehicle/{vehicle}"));
+        rules.add(new MappingRule("building.{building}.floor.{floor}", "building/{building}/floor/{floor}"));
+        rules.add(new MappingRule("term{number}", "term/{number}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
@@ -58,6 +57,9 @@ public class MqttKafkaMapperTest {
 
         assertThat("Mqtt pattern fleet/{fleet}/vehicle/{vehicle} should be mapped to fleet_{fleet}",
                 mapper.map("fleet/4/vehicle/23"), is("fleet_4"));
+
+        assertThat("building/{building}/floor/{floor} should be mapped to building.{building}.floor.{floor}",
+                mapper.map("building/4/floor/23"), is("building.4.floor.23"));
     }
 
 
