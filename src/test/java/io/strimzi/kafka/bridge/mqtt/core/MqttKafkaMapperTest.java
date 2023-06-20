@@ -60,6 +60,9 @@ public class MqttKafkaMapperTest {
 
         assertThat("building/{building}/floor/{floor} should be mapped to building.{building}.floor.{floor}",
                 mapper.map("building/4/floor/23"), is("building.4.floor.23"));
+
+        assertThat("Mqtt pattern term/{number} should be mapped to term{number}",
+                mapper.map("term/4"), is("term4"));
     }
 
 
