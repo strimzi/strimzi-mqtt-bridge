@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Comparator;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,9 +79,7 @@ public class MqttKafkaMapper {
 
                 for (String placeholderKey : mqttTopicPatternParts) {
                     if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX) && placeholders.containsKey(placeholderKey)) {
-                        int index = Arrays.asList(mqttTopicPatternParts).indexOf(placeholderKey);
-                        String placeholder = mqttTopic.split("/")[index];
-                        placeholders.put(placeholderKey, placeholder);
+                        placeholders.put(placeholderKey, matcher.group(removeBrackets(placeholderKey)));
                     }
                 }
 
@@ -111,12 +108,54 @@ public class MqttKafkaMapper {
         // if the mqtt topic contains a +, we replace it with @singleLevelWildcardRegex
         // if the mqtt topic contains a #, we replace it with @multiLevelWildcardRegex
         // if the mqtt topic contains a placeholder (pattern \{\w+\}), we replace it with @placeholderRegex
+        String[] mqttTopicPatternParts;
+        StringBuilder ruleRegex;
         for (MappingRule rule : this.rules) {
-            String regex = rule.getMqttTopicPattern().replaceAll(MQTT_TOPIC_PLACEHOLDER_REGEX, PLACEHOLDER_REGEX)
-                    .replace(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER, MULTIPLE_LEVEL_WILDCARD_REGEX).replace(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER, SINGLE_LEVEL_WILDCARD_REGEX);
-            patterns.add(Pattern.compile(regex));
+            mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
+            int lastElementIndex = mqttTopicPatternParts.length - 1;
+            ruleRegex = new StringBuilder();
+            for (String part : mqttTopicPatternParts) {
+                if (part.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
+                    ruleRegex.append(buildNamedRegexExpression(part));
+                } else if (part.equals(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER)) {
+                    ruleRegex.append(SINGLE_LEVEL_WILDCARD_REGEX);
+                } else if (part.equals(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER)) {
+                    ruleRegex.append(MULTIPLE_LEVEL_WILDCARD_REGEX);
+                } else {
+                    ruleRegex.append(part);
+                }
+                if (!part.equals(mqttTopicPatternParts[lastElementIndex])) {
+                    ruleRegex.append("/");
+                }
+            }
+            patterns.add(Pattern.compile(ruleRegex.toString()));
         }
+
         // add the regex for the placeholders in the end of the patterns list.
         patterns.add(Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX));
+    }
+
+    /**
+     * Helper method for building a named regex expression.
+     *
+     * A named regex expression is a regex expression that contains a named capturing group.
+     *
+     * E.g. (?<groupName>regexExpression)
+     *
+     * @param placeholder represents a placeholder in the mqtt pattern.
+     * @return a named regex expression.
+     */
+    private String buildNamedRegexExpression(String placeholder) {
+        String groupName = removeBrackets(placeholder);
+        return "(?<" + groupName + ">[^/]+)";
+    }
+
+    /**
+     * Helper method for removing the curly brackets from a placeholder.
+     * @param placeholder
+     * @return a placeholder without the curly brackets.
+     */
+    private String removeBrackets(String placeholder) {
+        return placeholder.replaceAll("\\{+|\\}+", "");
     }
 }
