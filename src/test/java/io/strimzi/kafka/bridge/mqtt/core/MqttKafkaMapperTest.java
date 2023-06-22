@@ -118,5 +118,7 @@ public class MqttKafkaMapperTest {
 
         assertThat("Mqtt pattern building/# should be mapped to building_others",
                 mapper.map("building/101"), is("building_others"));
+                assertThrows(IllegalArgumentException.class, () ->
+                mapper.map("building/10/room/5"));
     }
 }
