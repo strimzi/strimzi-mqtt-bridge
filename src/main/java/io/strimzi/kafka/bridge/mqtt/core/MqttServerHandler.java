@@ -14,7 +14,6 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.nio.charset.Charset;
 
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
@@ -78,7 +77,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        logger.info("Topic: {}", publishMessage.variableHeader().topicName());
-        logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
+        logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
+        logger.info("Message: {}", publishMessage.payload().toString());
     }
 }

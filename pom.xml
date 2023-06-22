@@ -15,6 +15,8 @@
         <netty.version>4.1.93.Final</netty.version>
         <log4j.version>2.17.2</log4j.version>
         <slf4j.version>1.7.21</slf4j.version>
+        <junit.version>4.13.2</junit.version>
+        <jackson.version>2.12.5</jackson.version>
     </properties>
 
     <dependencies>
@@ -53,6 +55,21 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
     </dependencies>
-
 </project>
