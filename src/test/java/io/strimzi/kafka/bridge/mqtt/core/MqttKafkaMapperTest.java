@@ -76,6 +76,7 @@ public class MqttKafkaMapperTest {
         List<MappingRule> rules = new ArrayList<>();
         rules.add(new MappingRule("fleet/{flee}/vehicle/{vehicle}", "fleet_{fleet}"));
         rules.add(new MappingRule("buildings/+/rooms/+/device/+", "buildings_{building}_rooms_{room}_device_{device}"));
+        rules.add(new MappingRule("building/{building}/room/{room}", "building_{building}_room_{room}_{noexistingplaceholder}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
