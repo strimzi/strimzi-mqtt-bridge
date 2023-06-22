@@ -22,7 +22,6 @@ public class MappingRule {
     @JsonProperty("mqttTopic")
     private String mqttTopicPattern;
 
-
     /**
      * Default constructor for MappingRule. Used for deserialization.
      */

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,14 +69,14 @@ public class MqttKafkaMapper {
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
 
                 // find MQTT_TOPIC_PLACEHOLDER_REGEX in the kafkaTopicTemplate.
-                Matcher placeholderMatcher = placeholderPattern.matcher(rule.getKafkaTopicTemplate());
+                Matcher placeholderMatcher = this.placeholderPattern.matcher(rule.getKafkaTopicTemplate());
                 while (placeholderMatcher.find()) {
                     String placeholderKey = placeholderMatcher.group();
                     placeholders.put(placeholderKey, null);
                 }
 
                 if (!placeholders.isEmpty()) {
-                    Matcher mqttTopicMatcher = placeholderPattern.matcher(rule.getMqttTopicPattern());
+                    Matcher mqttTopicMatcher = this.placeholderPattern.matcher(rule.getMqttTopicPattern());
 
                     // find the placeholders in the mqtt topic pattern and assign them a value.
                     while (mqttTopicMatcher.find()) {
@@ -86,11 +85,12 @@ public class MqttKafkaMapper {
                         placeholders.put(placeholderKey, placeholderValue);
                     }
 
+                    //build the kafka topic using the placeholders.
                     for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                         if (entry.getValue() != null) {
                             mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
                         } else {
-                            throw new IllegalArgumentException("One or more placeholders were not assigned any value.");
+                            throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not found in the mqtt topic.");
                         }
                     }
                 }
