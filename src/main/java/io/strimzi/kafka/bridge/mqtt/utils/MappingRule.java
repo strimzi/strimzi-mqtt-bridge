@@ -35,6 +35,7 @@ public class MappingRule {
      * @param mqttTopicPattern   the mqtt topic pattern.
      */
     public MappingRule(String mqttTopicPattern, String kafkaTopicTemplate) {
+        this.mqttTopicPattern = mqttTopicPattern;
         this.kafkaTopicTemplate = kafkaTopicTemplate;
         this.mqttTopicPattern = mqttTopicPattern;
     }
