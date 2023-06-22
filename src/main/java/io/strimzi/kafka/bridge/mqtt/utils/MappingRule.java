@@ -10,17 +10,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Represents a Mapping Rule in the Topic Mapping Rules(TOMAR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics.
  * E.g.: a valid mapping rule would look like this in the TOMAR file:
  * {
- * "kafkaTopic": "sensors_{sensorId}_data",
- * "mqttTopic": "sensors/{sensorId}/data"
+ *      "kafkaTopic": "sensors_{sensorId}_data",
+ *      "mqttTopic": "sensors/{sensorId}/data"
  * }
  * and like this in the MappingRule class:
- * MappingRule(kafkaTopicTemplate=sensors_{sensorId}_data mqttTopicPattern= sensors/{sensorId}/data)
+ * MappingRule(mqttTopicPattern= sensors/{sensorId}/data, kafkaTopicTemplate=sensors_{sensorId}_data)
  */
 public class MappingRule {
-    @JsonProperty("kafkaTopic")
-    private String kafkaTopicTemplate;
     @JsonProperty("mqttTopic")
     private String mqttTopicPattern;
+    @JsonProperty("kafkaTopic")
+    private String kafkaTopicTemplate;
 
     /**
      * Default constructor for MappingRule. Used for deserialization.
@@ -31,13 +31,12 @@ public class MappingRule {
     /**
      * Constructor for MappingRule.
      *
-     * @param kafkaTopicTemplate the kafka topic template.
      * @param mqttTopicPattern   the mqtt topic pattern.
+     * @param kafkaTopicTemplate the kafka topic template.
      */
     public MappingRule(String mqttTopicPattern, String kafkaTopicTemplate) {
         this.mqttTopicPattern = mqttTopicPattern;
         this.kafkaTopicTemplate = kafkaTopicTemplate;
-        this.mqttTopicPattern = mqttTopicPattern;
     }
 
     /**
@@ -65,6 +64,6 @@ public class MappingRule {
      */
     @Override
     public String toString() {
-        return "MappingRule(kafkaTopic=" + this.kafkaTopicTemplate + " mqttTopic= " + this.mqttTopicPattern + ")";
+        return "MappingRule(mqttTopicPattern= " + this.mqttTopicPattern + "kafkaTopicTemplate=" + this.kafkaTopicTemplate + ")";
     }
 }
