@@ -90,7 +90,7 @@ public class MqttKafkaMapper {
                         if (entry.getValue() != null) {
                             mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
                         } else {
-                            throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not found in the mqtt topic.");
+                            throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not found assigned any value.");
                         }
                     }
                 }

@@ -82,13 +82,13 @@ public class MqttKafkaMapperTest {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mapper.map("fleet/4/vehicle/23"));
 
-        String expectedMessage = "The placeholder {fleet} was not found in the mqtt topic.";
+        String expectedMessage = "The placeholder {fleet} was not found assigned any value.";
         assertThat("The exception message should be: " + expectedMessage,
                 exception.getMessage(), is(expectedMessage));
 
         Exception otherException = assertThrows(IllegalArgumentException.class, () -> mapper.map("buildings/10/rooms/5/device/3"));
 
-        String otherExpectedMessage = "The placeholder {device} was not found in the mqtt topic.";
+        String otherExpectedMessage = "The placeholder {device} was not found assigned any value.";
         assertThat("The exception message should be: " + otherExpectedMessage,
                 otherException.getMessage(), is(otherExpectedMessage));
 
