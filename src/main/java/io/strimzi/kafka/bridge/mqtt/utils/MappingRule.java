@@ -59,17 +59,6 @@ public class MappingRule {
     }
 
     /**
-     * Get the MQTT topic pattern levels. This is used to compare the number of levels in two or more topics.
-     * This is useful when we have two topic similar but with different number of levels. E.g.:
-     * Given sensors/# and sensors/+/data topic  patterns, sensors/3/data is more likely to match sensors/+/data than sensors/#.
-     *
-     * @return number of levels in an MQTT topic pattern.
-     */
-    public int getMqttTopicPatternLevels() {
-        return mqttTopicPattern.split("/").length;
-    }
-
-    /**
      * String representation of a MappingRule.
      *
      * @return a string containing properties of a MappingRule.

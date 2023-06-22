@@ -40,6 +40,7 @@ public class MqttKafkaMapper {
     private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
     private final List<MappingRule> rules;
     private final List<Pattern> patterns = new ArrayList<>();
+    private final Pattern placeholderPattern;
 
     /**
      * Constructor
@@ -48,7 +49,7 @@ public class MqttKafkaMapper {
      */
     public MqttKafkaMapper(List<MappingRule> rules) {
         this.rules = rules;
-        this.rules.sort(Comparator.comparing(MappingRule::getMqttTopicPatternLevels).reversed());
+        this.placeholderPattern = Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX);
         buildRegex();
     }
 
@@ -65,7 +66,6 @@ public class MqttKafkaMapper {
 
             if (matcher.matches()) {
                 HashMap<String, String> placeholders = new HashMap<>();
-                Pattern placeholderPattern = Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX);
 
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
 
