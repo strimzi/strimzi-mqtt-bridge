@@ -43,6 +43,7 @@ public class MqttKafkaMapper {
     private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
     private final List<MappingRule> rules;
     private final List<Pattern> patterns = new ArrayList<>();
+    private Pattern placeholderPattern;
 
     /**
      * Constructor
@@ -65,35 +66,35 @@ public class MqttKafkaMapper {
     public String map(String mqttTopic) {
         for (MappingRule rule : this.rules) {
             Matcher matcher = this.patterns.get(this.rules.indexOf(rule)).matcher(mqttTopic);
-            HashMap<String, String> placeholders = new HashMap<>();
 
             if (matcher.matches()) {
+                HashMap<String, String> placeholders = new HashMap<>();
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
                 String[] mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
 
                 // find MQTT_TOPIC_PLACEHOLDER_REGEX in the kafkaTopicTemplate.
-                Matcher placeholderMatcher = patterns.get(patterns.size() - 1).matcher(rule.getKafkaTopicTemplate());
+                Matcher placeholderMatcher = placeholderPattern.matcher(rule.getKafkaTopicTemplate());
                 while (placeholderMatcher.find()) {
                     placeholders.put(placeholderMatcher.group(), null);
                 }
 
-                for (String placeholderKey : mqttTopicPatternParts) {
-                    if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX) && placeholders.containsKey(placeholderKey)) {
-                        placeholders.put(placeholderKey, matcher.group(removeBrackets(placeholderKey)));
+                if (!placeholders.isEmpty()) {
+                    for (String placeholderKey : mqttTopicPatternParts) {
+                        if (placeholderKey.matches(MQTT_TOPIC_PLACEHOLDER_REGEX) && placeholders.containsKey(placeholderKey)) {
+                            placeholders.put(placeholderKey, matcher.group(removeBrackets(placeholderKey)));
+                        }
+                    }
+
+                    for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                        if (entry.getValue() != null) {
+                            mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
+                        } else {
+                            throw new IllegalArgumentException("One or more placeholders were not assigned any value.");
+                        }
                     }
                 }
-
-                for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                    if (entry.getValue() != null) {
-                        mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
-                    } else {
-                        throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not assigned any value.");
-                    }
-                }
-
                 return mappedKafkaTopic;
             }
-
         }
         return DEFAULT_KAFKA_TOPIC;
     }
@@ -112,7 +113,6 @@ public class MqttKafkaMapper {
         StringBuilder ruleRegex;
         for (MappingRule rule : this.rules) {
             mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
-            int lastElementIndex = mqttTopicPatternParts.length - 1;
             ruleRegex = new StringBuilder();
             for (String part : mqttTopicPatternParts) {
                 if (part.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
@@ -124,15 +124,15 @@ public class MqttKafkaMapper {
                 } else {
                     ruleRegex.append(part);
                 }
-                if (!part.equals(mqttTopicPatternParts[lastElementIndex])) {
-                    ruleRegex.append("/");
-                }
+                ruleRegex.append("/");
             }
+            // remove the last slash
+            ruleRegex.deleteCharAt(ruleRegex.length() - 1);
+            // compile the regex expression for the rule.
             patterns.add(Pattern.compile(ruleRegex.toString()));
         }
-
-        // add the regex for the placeholders in the end of the patterns list.
-        patterns.add(Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX));
+        // compile the regex expression for the placeholders.
+        this.placeholderPattern = Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX);
     }
 
     /**

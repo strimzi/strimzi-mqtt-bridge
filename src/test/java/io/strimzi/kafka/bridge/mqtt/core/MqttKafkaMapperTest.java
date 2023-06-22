@@ -6,6 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,11 +42,11 @@ public class MqttKafkaMapperTest {
     public void testSingleLevel() {
         List<MappingRule> rules = new ArrayList<>();
 
-        rules.add(new MappingRule("sensor_data", "sensors/+/data"));
-        rules.add(new MappingRule("devices_{device}_data", "devices/{device}/data"));
-        rules.add(new MappingRule("fleet_{fleet}", "fleet/{fleet}/vehicle/{vehicle}"));
-        rules.add(new MappingRule("building.{building}.floor.{floor}", "building/{building}/floor/{floor}"));
-        rules.add(new MappingRule("term{number}", "term/{number}"));
+        rules.add(new MappingRule("sensors/+/data", "sensor_data"));
+        rules.add(new MappingRule("devices/{device}/data", "devices_{device}_data"));
+        rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}", "fleet_{fleet}"));
+        rules.add(new MappingRule("building/{building}/floor/{floor}", "building.{building}.floor.{floor}"));
+        rules.add(new MappingRule("term/{number}", "term{number}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
@@ -70,22 +71,27 @@ public class MqttKafkaMapperTest {
      * Test the mapping of single level topics.
      */
     @Test
-    public void testIllegalPlaceholder(){
+    public void testIllegalPlaceholder() {
 
         List<MappingRule> rules = new ArrayList<>();
-        rules.add(new MappingRule("fleet_{fleet}", "fleet/{flee}/vehicle/{vehicle}"));
+        rules.add(new MappingRule("fleet/{flee}/vehicle/{vehicle}", "fleet_{fleet}"));
+        rules.add(new MappingRule("buildings/+/rooms/+/device/+", "buildings_{building}_rooms_{room}_device_{device}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            mapper.map("fleet/4/vehicle/23");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> mapper.map("fleet/4/vehicle/23"));
 
-        String expectedMessage = "The placeholder {fleet} was not assigned any value.";
+        String expectedMessage = "One or more placeholders were not assigned any value.";
         assertThat("The exception message should be: " + expectedMessage,
                 exception.getMessage(), is(expectedMessage));
 
+        Exception otherException = assertThrows(IllegalArgumentException.class, () -> mapper.map("buildings/10/rooms/5/device/3"));
+
+        assertThat("The exception message should be: " + expectedMessage,
+                otherException.getMessage(), is(expectedMessage));
+
     }
+
     /**
      * Test the mapping of multi level topics.
      */
@@ -93,10 +99,10 @@ public class MqttKafkaMapperTest {
     public void testMultiLevel() {
         List<MappingRule> rules = new ArrayList<>();
 
-        rules.add(new MappingRule("building_{building}_room_{room}", "building/{building}/room/{room}/#"));
-        rules.add(new MappingRule("building_{building}_others", "building/{building}/#"));
-        rules.add(new MappingRule("building_others", "building/#"));
-        rules.add(new MappingRule("fleet_{vehicle}", "fleet/{fleet}/vehicle/{vehicle}/#"));
+        rules.add(new MappingRule("building/{building}/room/{room}/#", "building_{building}_room_{room}"));
+        rules.add(new MappingRule("building/{building}/#", "building_{building}_others"));
+        rules.add(new MappingRule("building/#", "building_others"));
+        rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}/#", "fleet_{vehicle}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
