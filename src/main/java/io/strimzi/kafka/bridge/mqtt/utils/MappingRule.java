@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Represents a Mapping Rule in the Topic Mapping Rules(TOMAR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics.
  * E.g.: a valid mapping rule would look like this in the TOMAR file:
  * {
- *      "kafkaTopic": "sensors_{sensorId}_data",
- *      "mqttTopic": "sensors/{sensorId}/data"
+ *      "mqttTopic": "sensors/{sensorId}/data",
+ *      "kafkaTopic": "sensors_{sensorId}_data"
  * }
  * and like this in the MappingRule class:
  * MappingRule(mqttTopicPattern= sensors/{sensorId}/data, kafkaTopicTemplate=sensors_{sensorId}_data)
