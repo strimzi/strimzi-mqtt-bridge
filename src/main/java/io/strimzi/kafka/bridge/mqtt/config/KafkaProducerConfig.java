@@ -5,16 +5,39 @@
 package io.strimzi.kafka.bridge.mqtt.config;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Represents configurations related to Kafka
+ * @see AbstractConfig
+ */
 public class KafkaProducerConfig extends AbstractConfig {
 
+    // Prefix for all the specific configuration parameters for Kafka producer in the properties file
     public static final String KAFKA_PRODUCER_CONFIG_PREFIX = KafkaConfig.KAFKA_CONFIG_PREFIX + "producer.";
+
+    // Acknowledgement level for Kafka producer
+    public static final String ACKS_LEVEL = KAFKA_PRODUCER_CONFIG_PREFIX + "acks";
+
+    /**
+     * Constructor
+     *
+     * @param config configuration parameters map
+     */
     public KafkaProducerConfig(Map<String, Object> config) {
         super(config);
     }
 
+    /**
+     * Build a Kafka producer configuration object from a map of configuration parameters
+     *
+     * @param map configuration parameters map
+     * @return a new instance of KafkaProducerConfig
+     */
     public static KafkaProducerConfig fromMap(Map<String, Object> map) {
-        return new KafkaProducerConfig(map);
+        return new KafkaProducerConfig(map.entrySet().stream()
+                .filter(e -> e.getKey().startsWith(KafkaProducerConfig.KAFKA_PRODUCER_CONFIG_PREFIX))
+                .collect(Collectors.toMap(e -> e.getKey().substring(KafkaProducerConfig.KAFKA_PRODUCER_CONFIG_PREFIX.length()), Map.Entry::getValue)));
     }
 
     @Override

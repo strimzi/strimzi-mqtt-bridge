@@ -15,9 +15,9 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Represents the MqttServer component.
@@ -26,8 +26,8 @@ public class MqttServer {
     private static final Logger logger = LoggerFactory.getLogger(MqttServer.class);
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
-    private final int port;
     private final ServerBootstrap serverBootstrap;
+    private final MqttConfig mqttConfig;
 
     /**
      * This helper class help us add necessary Netty pipelines handlers. <br>
@@ -45,16 +45,17 @@ public class MqttServer {
     /**
      * Constructor
      *
-     * @param port        an integer that represents the port the server should be bound to.
+     * @param config      MqttConfig instance with all configuration needed to run the server.
      * @param masterGroup EventLoopGroup instance for handle incoming connections.
      * @param workerGroup EventLoopGroup instance for processing I/O.
      * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @see MqttConfig
      * @see ChannelOption
      */
-    public MqttServer(int port, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
+    public MqttServer(MqttConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
-        this.port = port;
+        this.mqttConfig = config;
         this.serverBootstrap = new ServerBootstrap();
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -68,7 +69,8 @@ public class MqttServer {
      */
     public void start() {
         try {
-            ChannelFuture channelFuture = this.serverBootstrap.bind(this.port).sync();
+            int port = this.mqttConfig.getPort();
+            ChannelFuture channelFuture = this.serverBootstrap.bind(port).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             logger.error("Error starting the MQTT server: ", e);

@@ -12,8 +12,13 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
+import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
+import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
 
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
@@ -24,6 +29,21 @@ import org.slf4j.LoggerFactory;
  */
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
+    private MqttKafkaMapper mqttKafkaMapper;
+
+    /**
+     * Constructor
+     */
+    public MqttServerHandler() {
+        super(false);
+        try {
+            MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
+            List<MappingRule> rules = mappingRulesLoader.loadRules();
+            this.mqttKafkaMapper = new MqttKafkaMapper(rules);
+        } catch (IOException e) {
+            logger.error("Error reading mapping file: ", e);
+        }
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -78,6 +98,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
         logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
-        logger.info("Message: {}", publishMessage.payload().toString());
+        logger.info("Kafka Mapped Topic: {}", mqttKafkaMapper.map(publishMessage.variableHeader().topicName()));
+        logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
     }
 }

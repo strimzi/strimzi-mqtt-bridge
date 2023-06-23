@@ -1,0 +1,64 @@
+package io.strimzi.kafka.bridge.mqtt.core;
+
+import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
+import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
+import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
+import io.strimzi.kafka.bridge.mqtt.config.KafkaProducerConfig;
+import org.junit.Test;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThrows;
+
+/**
+ * Unit tests for {@link ConfigRetriever}.
+ */
+public class ConfigRetrieverTest {
+
+    /**
+     * Test if the application.properties file has all configuration parameters.
+     */
+    @Test
+    public void testApplicationPropertiesFile() throws IOException {
+        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("application.properties")).getPath();
+        Map<String, Object> config = ConfigRetriever.getConfig(filePath);
+        BridgeConfig bridgeConfig = BridgeConfig.fromMap(config);
+
+        // bridge config related tests
+        assertThat("Bridge-ID should be 'my-bridge'",
+                bridgeConfig.getBridgeID(), is("my-bridge"));
+
+        // Mqtt server config related tests
+        assertThat("There should be 2 related mqtt server config parameters",
+                bridgeConfig.getMqttConfig().getConfig().size(), is(2));
+        assertThat("Mqtt server host should be 'localhost'",
+                bridgeConfig.getMqttConfig().getHost(), is("localhost"));
+        assertThat("Mqtt server port should be '1883'",
+                bridgeConfig.getMqttConfig().getPort(), is(1883));
+
+        // Kafka server config related tests
+        assertThat("There should not be any related kafka admin config parameters",
+                bridgeConfig.getKafkaConfig().getKafkaAdminConfig().getConfig().size(), is(0));
+        assertThat("There should be 2 related kafka config parameters",
+                bridgeConfig.getKafkaConfig().getConfig().size(), is(2));
+        assertThat("Kafka Producer acks should be 1'",
+                bridgeConfig.getKafkaConfig().getKafkaProducerConfig().getConfig().get(KafkaProducerConfig.ACKS_LEVEL), is("1"));
+        assertThat("The address of the kafka bootstrap server should be 'localhost:9092'",
+                bridgeConfig.getKafkaConfig().getConfig().get(KafkaConfig.BOOTSTRAP_SERVERS_CONFIG), is("localhost:9092"));
+    }
+
+    /**
+     * Test if the application.properties not exists.
+     */
+    @Test
+    public void testApplicationPropertiesFileNotExists()  {
+        Exception fileNotFoundException = assertThrows(FileNotFoundException.class, ()-> ConfigRetriever.getConfig("not-exists-application.properties"));
+
+        assertThat("File not found exception should be thrown",
+                fileNotFoundException.getMessage(), is("not-exists-application.properties (No such file or directory)"));
+    }
+}

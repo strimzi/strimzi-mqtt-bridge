@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 /**
  * Represents the bridge configuration properties
  *
- * @see KafkaConfig
  * @see MqttConfig
+ * @see KafkaConfig
  */
 public class BridgeConfig extends AbstractConfig {
 
@@ -21,31 +21,53 @@ public class BridgeConfig extends AbstractConfig {
     // Bridge identification number
     public static final String BRIDGE_ID = BRIDGE_CONFIG_PREFIX + "id";
 
-    private final KafkaConfig kafkaConfig;
     private final MqttConfig mqttConfig;
+    private final KafkaConfig kafkaConfig;
 
-    public BridgeConfig(Map<String, Object> config, KafkaConfig kafkaConfig, MqttConfig mqttConfig) {
+    /**
+     * Constructor
+     *
+     * @param config      configuration parameters map
+     * @param mqttConfig  MQTT configuration properties
+     * @param kafkaConfig Kafka configuration properties
+     */
+    public BridgeConfig(Map<String, Object> config, MqttConfig mqttConfig, KafkaConfig kafkaConfig) {
         super(config);
-        this.kafkaConfig = kafkaConfig;
         this.mqttConfig = mqttConfig;
+        this.kafkaConfig = kafkaConfig;
     }
 
+    /**
+     * Build a bridge configuration object from a map of configuration parameters
+     *
+     * @param map configuration parameters map
+     * @return a new instance of BridgeConfig
+     */
     public static BridgeConfig fromMap(Map<String, Object> map) {
-        final KafkaConfig kafkaConfig = KafkaConfig.fromMap(map);
         final MqttConfig mqttConfig = MqttConfig.fromMap(map);
+        final KafkaConfig kafkaConfig = KafkaConfig.fromMap(map);
         return new BridgeConfig(map.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(BridgeConfig.BRIDGE_CONFIG_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), kafkaConfig, mqttConfig);
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), mqttConfig, kafkaConfig);
     }
 
+    /**
+     * @return the Kafka configuration properties
+     */
     public KafkaConfig getKafkaConfig() {
         return this.kafkaConfig;
     }
 
+    /**
+     * @return the MQTT configuration properties
+     */
     public MqttConfig getMqttConfig() {
         return this.mqttConfig;
     }
 
+    /**
+     * @return the bridge identification number
+     */
     public String getBridgeID() {
         return this.config.get(BridgeConfig.BRIDGE_ID) == null ? null : this.config.get(BridgeConfig.BRIDGE_ID).toString();
     }
@@ -57,8 +79,8 @@ public class BridgeConfig extends AbstractConfig {
     public String toString() {
         return "BridgeConfig(" +
                 "config=" + this.config +
-                ", kafkaConfig=" + this.kafkaConfig +
                 ", mqttConfig=" + this.mqttConfig +
+                ", kafkaConfig=" + this.kafkaConfig +
                 ')';
     }
 }

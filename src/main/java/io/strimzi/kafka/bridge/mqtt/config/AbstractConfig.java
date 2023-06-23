@@ -10,7 +10,6 @@ import java.util.Map;
  * Base abstract class for configurations related to protocols heads and Kafka
  */
 public abstract class AbstractConfig {
-
     protected Map<String, Object> config;
 
     /**
