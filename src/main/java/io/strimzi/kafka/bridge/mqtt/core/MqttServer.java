@@ -70,7 +70,8 @@ public class MqttServer {
     public void start() {
         try {
             int port = this.mqttConfig.getPort();
-            ChannelFuture channelFuture = this.serverBootstrap.bind(port).sync();
+            String host = this.mqttConfig.getHost();
+            ChannelFuture channelFuture = this.serverBootstrap.bind(host, port).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             logger.error("Error starting the MQTT server: ", e);
