@@ -24,8 +24,6 @@ public class MqttConfig extends AbstractConfig {
 
     public static final int DEFAULT_MQTT_PORT = 1883;
 
-    public static String MAPPER_RULES_PATH;
-
     /**
      * Constructor
      *
