@@ -32,7 +32,7 @@ public class MappingRulesLoader {
      * @return the singleton instance of the MappingRulesLoader
      */
     public static MappingRulesLoader getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
