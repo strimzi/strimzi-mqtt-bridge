@@ -56,4 +56,24 @@ public class ConfigRetrieverTest {
         assertThat("File not found exception should be thrown",
                 fileNotFoundException.getMessage(), is("not-exists-application.properties (No such file or directory)"));
     }
+
+    /**
+     * Test environment variables override.
+     */
+    @Test
+    public void testEnvironmentEnvOverride() throws IOException {
+        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("application.properties")).getPath();
+        Map<String, String> envs = new java.util.HashMap<>(Map.of());
+        // add all environment variables
+        envs.putAll(System.getenv());
+
+        // add new environment variable for bridge-id
+        envs.put(BridgeConfig.BRIDGE_ID, "my-bridge-env");
+
+        Map<String, Object> config = ConfigRetriever.getConfig(filePath, envs);
+        BridgeConfig bridgeConfig = BridgeConfig.fromMap(config);
+
+        assertThat("Bridge-ID should be 'my-bridge-env'",
+                bridgeConfig.getBridgeID(), is("my-bridge-env"));
+    }
 }
