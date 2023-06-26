@@ -20,7 +20,6 @@ public class KafkaConfig extends AbstractConfig {
     public static final String BOOTSTRAP_SERVERS_CONFIG = KAFKA_CONFIG_PREFIX + "bootstrap.servers";
 
     private final KafkaProducerConfig kafkaProducerConfig;
-    private final KafkaAdminConfig kafkaAdminConfig;
 
     /**
      * Constructor
@@ -28,10 +27,9 @@ public class KafkaConfig extends AbstractConfig {
      * @param config configuration parameters map
      * @param kafkaProducerConfig Kafka producer configuration properties
      */
-    public KafkaConfig(Map<String, Object> config, KafkaProducerConfig kafkaProducerConfig, KafkaAdminConfig kafkaAdminConfig) {
+    public KafkaConfig(Map<String, Object> config, KafkaProducerConfig kafkaProducerConfig) {
         super(config);
         this.kafkaProducerConfig = kafkaProducerConfig;
-        this.kafkaAdminConfig = kafkaAdminConfig;
     }
 
     /**
@@ -42,11 +40,10 @@ public class KafkaConfig extends AbstractConfig {
      */
     public static KafkaConfig fromMap(Map<String, Object> config) {
         final KafkaProducerConfig kafkaProducerConfig = KafkaProducerConfig.fromMap(config);
-        final KafkaAdminConfig kafkaAdminConfig = KafkaAdminConfig.fromMap(config);
         return new KafkaConfig(config.entrySet().stream()
                 .filter((entry-> entry
                 .getKey().startsWith(KafkaConfig.KAFKA_CONFIG_PREFIX)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), kafkaProducerConfig, kafkaAdminConfig);
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), kafkaProducerConfig);
     }
 
     /**
@@ -55,14 +52,6 @@ public class KafkaConfig extends AbstractConfig {
     public KafkaProducerConfig getKafkaProducerConfig() {
         return kafkaProducerConfig;
     }
-
-    /**
-     * @return the Kafka admin configuration properties
-     */
-    public KafkaAdminConfig getKafkaAdminConfig() {
-        return kafkaAdminConfig;
-    }
-
 
     @Override
     public String toString() {

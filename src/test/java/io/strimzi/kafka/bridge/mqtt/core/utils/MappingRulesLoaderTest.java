@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Unit tests for {@link MappingRulesLoader}
@@ -22,7 +23,7 @@ public class MappingRulesLoaderTest {
         String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
 
         MappingRulesLoader loader = MappingRulesLoader.getInstance();
-        loader.setMapperRuleFilePath(filePath);
+        loader.init(filePath);
         List<MappingRule> rules = loader.loadRules();
 
         assertThat("Should load 7 mapping rules",
@@ -30,5 +31,27 @@ public class MappingRulesLoaderTest {
 
         assertThat("Should not have null values",
                 rules.stream().anyMatch(rule -> rule.getMqttTopicPattern() == null || rule.getKafkaTopicTemplate() == null), is(false));
+    }
+
+    /**
+     * Test for initializing mapping rules loader more than once.
+     */
+    @Test
+    public void testInitMoreThanOnce() {
+        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
+        MappingRulesLoader loader = MappingRulesLoader.getInstance();
+
+        // first init
+        loader.init(filePath);
+
+        // prepare exception, try to init again
+        Exception exception =  assertThrows(IllegalStateException.class,  () -> loader.init(filePath));
+
+        String expectedMessage = "MappingRulesLoader is already initialized";
+
+        assertThat("Should throw an exception",
+                exception != null, is(true));
+        assertThat("Should throw an illegal state exception",
+                exception.getMessage(), is(expectedMessage));
     }
 }

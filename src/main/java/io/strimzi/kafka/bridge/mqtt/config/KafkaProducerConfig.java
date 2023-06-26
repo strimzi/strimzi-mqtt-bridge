@@ -16,9 +16,6 @@ public class KafkaProducerConfig extends AbstractConfig {
     // Prefix for all the specific configuration parameters for Kafka producer in the properties file
     public static final String KAFKA_PRODUCER_CONFIG_PREFIX = KafkaConfig.KAFKA_CONFIG_PREFIX + "producer.";
 
-    // Acknowledgement level for Kafka producer
-    public static final String ACKS_LEVEL = KAFKA_PRODUCER_CONFIG_PREFIX + "acks";
-
     /**
      * Constructor
      *

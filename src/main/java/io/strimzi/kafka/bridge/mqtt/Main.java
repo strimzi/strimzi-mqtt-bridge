@@ -11,11 +11,7 @@ import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
@@ -34,12 +30,14 @@ public class Main {
             CommandLine cmd = new DefaultParser().parse(generateCommandLineOptions(), args);
 
             //load the configuration file from the path specified in the command line
-            Map<String, Object> configRetriever = ConfigRetriever.getConfig(getAbsoluteFilePath(cmd.getOptionValue(Main.CONFIG_FILE_OPTION)));
+            String configFilePath = getAbsoluteFilePath(cmd.getOptionValue(Main.CONFIG_FILE_OPTION));
             String mappingRulesFile = getAbsoluteFilePath(cmd.getOptionValue(Main.MAPPING_RULES_FILE_OPTION));
-            BridgeConfig bridgeConfig = BridgeConfig.fromMap(configRetriever);
+
+            Map<String, ?> configRetriever = configFilePath != null ? ConfigRetriever.getConfig(configFilePath) : ConfigRetriever.getConfigFromEnv();
+            BridgeConfig bridgeConfig = BridgeConfig.fromMap((Map<String, Object>) configRetriever);
 
             //set the mapping rules file path
-            MappingRulesLoader.getInstance().setMapperRuleFilePath(mappingRulesFile);
+            MappingRulesLoader.getInstance().init(mappingRulesFile);
 
             //start the MQTT server
             EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -91,6 +89,9 @@ public class Main {
      * @return the absolute path of the file
      */
     private static String getAbsoluteFilePath(String arg) {
+        if (arg == null) {
+            return null;
+        }
         return arg.startsWith(File.separator) ? arg : System.getProperty("user.dir") + File.separator + arg;
     }
 }

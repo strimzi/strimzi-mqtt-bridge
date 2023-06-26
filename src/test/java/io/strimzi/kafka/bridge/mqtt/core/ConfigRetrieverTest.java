@@ -3,7 +3,6 @@ package io.strimzi.kafka.bridge.mqtt.core;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
-import io.strimzi.kafka.bridge.mqtt.config.KafkaProducerConfig;
 import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,12 +40,8 @@ public class ConfigRetrieverTest {
                 bridgeConfig.getMqttConfig().getPort(), is(1883));
 
         // Kafka server config related tests
-        assertThat("There should not be any related kafka admin config parameters",
-                bridgeConfig.getKafkaConfig().getKafkaAdminConfig().getConfig().size(), is(0));
         assertThat("There should be 2 related kafka config parameters",
                 bridgeConfig.getKafkaConfig().getConfig().size(), is(2));
-        assertThat("Kafka Producer acks should be 1'",
-                bridgeConfig.getKafkaConfig().getKafkaProducerConfig().getConfig().get(KafkaProducerConfig.ACKS_LEVEL), is("1"));
         assertThat("The address of the kafka bootstrap server should be 'localhost:9092'",
                 bridgeConfig.getKafkaConfig().getConfig().get(KafkaConfig.BOOTSTRAP_SERVERS_CONFIG), is("localhost:9092"));
     }
