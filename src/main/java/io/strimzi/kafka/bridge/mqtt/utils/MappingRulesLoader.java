@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class MappingRulesLoader {
 
-    private static final MappingRulesLoader instance = new MappingRulesLoader();
+    private static final MappingRulesLoader INSTANCE = new MappingRulesLoader();
     // path of the topic mapping rule file
     private String mapperRuleFilePath;
 
