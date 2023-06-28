@@ -36,7 +36,10 @@ You can use the MQTT bridge to take advantage of the benefits of both MQTT and K
 
 The MQTT Bridge is a netty-based MQTT server that is responsible for handling all the MQTT client connections and connections management and is responsible for all MQTT-based operations like QoS, error handling, and other capabilities Netty offers.
 
-The MQTT Bridge provides two interfaces to integrate MQTT and Apache Kafka. The mapper maps incoming MQTT topics to Kafka topics. Once this mapping is completed, the MQTT Bridge will transform the incoming MQTT payload to a valid Kafka record and then send to the appropriate Kafka topic through the bridge kafka Producer.
+The MQTT Bridge provides two interfaces to integrate MQTT and Apache Kafka. 
+1. MQTT mapper: maps incoming MQTT topics to Kafka topics. 
+2. MQTT Bridge:  transforms the incoming MQTT payload to a valid Kafka record and then sends them to the appropriate Kafka topic using a Kafka Producer.
+
 
 #### 1.2.1 The MqttKafkaMapper
 This interface is responsible for mapping incoming MQTT topic to Kafka topic. How this mapping is should be made must be defined in the `Topic Mapping Rules(TOMAR)`.
