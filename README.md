@@ -42,7 +42,7 @@ The MQTT Bridge provides two interfaces to integrate MQTT and Apache Kafka.
 
 
 #### 1.2.1 The MqttKafkaMapper
-This interface is responsible for mapping incoming MQTT topic to Kafka topic. How this mapping is should be made must be defined in the `Topic Mapping Rules(TOMAR)`.
+This interface is responsible for mapping incoming MQTT topic names to Kafka topic names. How this mapping is done must must be defined in the `Topic Mapping Rules(TOMAR)`.
 
 #### 1.2.2 Topic Mapping Rules(TOMAR)
 
