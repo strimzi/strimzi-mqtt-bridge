@@ -46,7 +46,7 @@ This interface is responsible for mapping incoming MQTT topic to Kafka topic. Ho
 
 #### 1.2.2 Topic Mapping Rules(TOMAR)
 
-The TOMAR is a set of patterns the user provides, to which the MQTT Bridge will decide which Kafka topic to produce a message. 
+The TOMAR is a set of patterns the user provides defining how the MQTT Bridge maps MQTT topic names to Kafka topic names.
 A Mapping Rule is a model that contains an `MQTT topic pattern` and a `Kafka topic template`. All the incoming MQTT message's topic should match an `MQTT topic pattern` in the `TOMAR` so that the bridge knows in which Kafka topic to produce this message. This Kafka topic is defined by a template, `kafka Topic template`. However, if the incoming MQTT message's topic does not match any pattern in the `TOMAR`, the Bridge has default Kafka topic where the incoming message will be mapped to.
 
 ##### 1.2.2.1 Usage/Examples
