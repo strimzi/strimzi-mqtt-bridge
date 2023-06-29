@@ -43,6 +43,8 @@ A valid TOMAR is a JSON file that contains an array of mapping rules. Each mappi
 The wildcard "#" represents one or more levels in the MQTT topic hierarchy. The wildcard "+" represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
+The parts with curly braces in the MQTT topic pattern are called `placeholders`. The MQTT Bridge will extract the values of these placeholders from the MQTT topic and use them to construct the Kafka topic name using the `kafkaTopic` template.
+
 Let's go through each rule to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
 
 1. MQTT Topic: "building/{building}/room/{room}/#" -> Kafka Topic: "building_{building}room{room}"
@@ -62,7 +64,7 @@ The order in which the rules are defined is important. The MQTT Bridge will use 
 
 ### 2. MQTT Bridge Configuration
 
-The user can configure the MQTT Bridge using an `application.properties` file. This section describes the configuration properties that can be used to configure the MQTT Bridge.
+The user can configure the MQTT Bridge using an `application.properties` file. This section describes the configuration properties that can be used to configure the MQTT Bridge. 
 The MQTT bridge can be configured using the appropriate prefix. Example:
 
 - `bridge.` is the prefix used for general configuration of the Bridge.
