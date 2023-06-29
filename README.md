@@ -123,7 +123,7 @@ The MQTT bridge can be configured using the appropriate prefix. Example:
 
 The following table describes the configuration properties that can be used to configure the MQTT Bridge.
 
-| Setting                        | Description                                     | Deafult           |
+| Setting                        | Description                                     | Default           |
 | ------------------------------ | ----------------------------------------------- |-------------------|
 | bridge.id                      | ID of the bridge                                | my-bridge         |
 | mqtt.server.host               | Host address of the MQTT server                 | localhost         |
