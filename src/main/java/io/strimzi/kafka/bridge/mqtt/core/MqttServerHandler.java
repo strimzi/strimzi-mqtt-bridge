@@ -12,20 +12,16 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
+import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
@@ -104,21 +100,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        // get QoS level from the MqttPublishMessage
-        int qos = publishMessage.fixedHeader().qosLevel().value();
-
-        // perform topic mapping
+       // logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
+       // logger.info("Kafka Mapped Topic: {}", mqttKafkaMapper.map(publishMessage.variableHeader().topicName()));
+        //logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
         String mappedTopic = mqttKafkaMapper.map(publishMessage.variableHeader().topicName());
-
-        // build the Kafka record
-        ProducerRecord<String, Object> record = new ProducerRecord<>(mqttKafkaMapper.map(mappedTopic),
-                publishMessage.payload().toString());
-
-        // get the appropriate Kafka producer according to the QoS level
-        BridgeKafkaProducer<String, Object> producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
-
-        // send the record to the Kafka topic
-        CompletionStage<RecordMetadata> result = producer.send(record);
-        logger.info("Message sent to Kafka topic {} with QoS {}", record.topic(), qos);
+        ProducerRecord<String, String> record = new ProducerRecord<>(mqttKafkaMapper.map(publishMessage.variableHeader().topicName()),
+                publishMessage.payload().toString(Charset.defaultCharset()));
+        KafkaBridgeProducer.getInstance().send(mappedTopic, record);
     }
 }
