@@ -127,7 +127,7 @@ The following table describes the configuration properties that can be used to c
 | ------------------------------ | ----------------------------------------------- |-------------------|
 | bridge.id                      | ID of the bridge                                | my-bridge         |
 | mqtt.server.host               | Host address of the MQTT server                 | localhost         |
-| mqtt.server.port               | Port number of the MQTT server                  | 1883(default)     |
+| mqtt.server.port               | Port number of the MQTT server                  | 1883              |
 | kafka.bootstrap.servers        | Bootstrap servers for Apache Kafka              | localhost:9092    |
 
 Other than the above properties, the user can also configure the bridge using environment variables.
