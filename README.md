@@ -50,7 +50,8 @@ Each mapping rule is a JSON object that contains two properties: `mqttTopic` and
   }
 ]
 ```
-The wildcard "#" represents one or more levels in the topic hierarchy. The wildcard "+" represents a single level in the topic hierarchy.
+The wildcard "#" represents one or more levels in the topic hierarchy. 
+The wildcard "+" represents a single level in the topic hierarchy.
 
 Let's go through each rule:
 
