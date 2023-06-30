@@ -64,7 +64,8 @@ The order in which the rules are defined is important. The MQTT Bridge will use 
 
 ### 2. MQTT Bridge Configuration
 
-The user can configure the MQTT Bridge using an `application.properties` file. This section describes the configuration properties that can be used to configure the MQTT Bridge. 
+The user can configure the MQTT Bridge using an `application.properties` file.
+This section describes the configuration properties that can be used to configure the MQTT Bridge. 
 The MQTT bridge can be configured using the appropriate prefix.
 Example:
 
