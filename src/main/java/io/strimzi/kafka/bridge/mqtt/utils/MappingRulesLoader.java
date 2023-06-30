@@ -46,7 +46,7 @@ public class MappingRulesLoader {
      *
      * @return the singleton instance of the MappingRulesLoader
      */
-    public static MappingRulesLoader getInstance() throws NullPointerException {
+    public static synchronized MappingRulesLoader getInstance() throws NullPointerException {
         if (INSTANCE == null) {
             INSTANCE = new MappingRulesLoader();
         }
