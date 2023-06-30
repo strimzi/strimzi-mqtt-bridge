@@ -49,7 +49,7 @@ It worth's mentioning that it is the user's responsibility to adhere to the [MQT
 The parts with curly braces in the MQTT topic pattern are called `placeholders`.
 The MQTT Bridge will extract the values of these placeholders from the MQTT topic and use them to construct the Kafka topic name using the `kafkaTopic` template.
 
-Let's go through each rule to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
+Let's go through each rule in the above example to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
 
 1. MQTT Topic: "building/{building}/room/{room}/#" -> Kafka Topic: "building_{building}room{room}"
 
