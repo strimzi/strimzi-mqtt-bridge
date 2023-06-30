@@ -69,7 +69,10 @@ Let's go through each rule in the above example to understand how the MQTT Bridg
    For example, if the MQTT topic is "sensors/temperature/living-room",  it will be mapped to the Kafka topic "sensor_others".
 
 
-The order in which the rules are defined is important. The MQTT Bridge will use the first rule that matches the MQTT topic. For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data" because `"sensors/+/data"` matches the MQTT topic before `"sensors/#"`. If exchange the positions of the rules, the MQTT Bridge would use the `"sensors/#"` to map the MQTT topic to the Kafka topic "sensor_others".
+The order in which the rules are defined is important.
+The MQTT Bridge will use the first rule that matches the MQTT topic.
+For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data` because `sensors/+/data` matches the MQTT topic before `sensors/#`. 
+If we swap the positions of the rules, the MQTT Bridge would use the `sensors/#` to map the MQTT topic to the Kafka topic `sensor_others`.
 
 ### MQTT Bridge Configuration
 
