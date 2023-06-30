@@ -9,6 +9,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
+import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
 import org.apache.commons.cli.CommandLine;
@@ -42,6 +43,9 @@ public class Main {
 
             //set the mapping rules file path
             MappingRulesLoader.getInstance().init(mappingRulesFile);
+
+            //initialize the Bridge Kafka Producer Factory
+            BridgeKafkaProducerFactory.getInstance().init(bridgeConfig.getKafkaConfig());
 
             //start the MQTT server
             EventLoopGroup bossGroup = new NioEventLoopGroup();
