@@ -44,8 +44,8 @@ The following is an example of a valid TOMAR:
 ]
 ```
 
-The wildcard "#" represents one or more levels in the MQTT topic hierarchy.
-The wildcard "+" represents a single level in the MQTT topic hierarchy.
+The wildcard `#` represents one or more levels in the MQTT topic hierarchy.
+The wildcard `+` represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
 The parts with curly braces in the MQTT topic pattern are called `placeholders`.
@@ -53,20 +53,20 @@ The MQTT Bridge will extract the values of these placeholders from the MQTT topi
 
 Let's go through each rule in the above example to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
 
-1. MQTT Topic: `"building/{building}/room/{room}/#"` -> Kafka Topic: `"building_{building}room{room}"`
+1. MQTT Topic: `building/{building}/room/{room}/#` -> Kafka Topic: `building_{building}_room_{room}`
 
-    This rule maps MQTT topics of the form `"building/{building}/room/{room}/#"` to the Kafka topic `"building_{building}room{room}"`. 
-    For example, if the MQTT topic is "building/A/room/1/floor/2", it will be mapped to the Kafka topic "building_A_room_1_floor_2".
+    This rule maps MQTT topics of the form `building/{building}/room/{room}/#` to the Kafka topic `building_{building}_room_{room}`. 
+    For example, if the MQTT topic is `building/A/room/1/floor/2` it will be mapped to the Kafka topic `building_A_room_1_floor_2`.
 
-2. MQTT Topic: `"sensors/+/data"` -> Kafka Topic: `"sensor_data"`
+2. MQTT Topic: `sensors/+/data` -> Kafka Topic: `sensor_data`
 
     This rule maps MQTT topics of the form `sensors/+/data` to the Kafka topic `sensor_data`. 
     For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data`.
 
-3. MQTT Topic: `"sensors/#"` -> Kafka Topic: `"sensor_others"`
+3. MQTT Topic: `sensors/#` -> Kafka Topic: `sensor_others`
 
-   This rule maps any MQTT topic starting with "sensors/" followed by any number of levels in the hierarchy to the Kafka topic "sensor_others".
-   For example, if the MQTT topic is "sensors/temperature/living-room",  it will be mapped to the Kafka topic "sensor_others".
+   This rule maps any MQTT topic starting with `sensors/` followed by any number of levels in the hierarchy to the Kafka topic `sensor_others`.
+   For example, if the MQTT topic is `sensors/temperature/living-room`,  it will be mapped to the Kafka topic `sensor_others`.
 
 
 The order in which the rules are defined is important.
