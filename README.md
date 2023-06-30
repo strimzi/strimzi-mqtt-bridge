@@ -59,7 +59,6 @@ Let's go through each rule to understand how the MQTT Bridge uses these rules to
 
     This rule maps MQTT topics of the form "sensors/+/data" to the Kafka topic "sensor_data". For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data".
 
-These mapping rules demonstrate how different MQTT topics can be mapped to corresponding Kafka topics based on predefined patterns. The MQTT Bridge uses these rules to map MQTT topics to Kafka topics. 
 The order in which the rules are defined is important. The MQTT Bridge will use the first rule that matches the MQTT topic. For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data" because the third rule matches the MQTT topic. If the third rule was not defined, the MQTT Bridge would use the second rule to map the MQTT topic to the Kafka topic "sensor_others".
 
 ### 2. MQTT Bridge Configuration
