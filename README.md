@@ -6,7 +6,7 @@
 This project provides a software component which acts as a bridge between [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) and an [Apache Kafka®](https://kafka.apache.org/) cluster.
 
 
-### 1. MQTT Bridge Overview
+## MQTT Bridge Overview
 
 #### 1.1 How it works
 
