@@ -12,7 +12,8 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
-import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
+import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
+import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
@@ -100,12 +101,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-       // logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
-       // logger.info("Kafka Mapped Topic: {}", mqttKafkaMapper.map(publishMessage.variableHeader().topicName()));
-        //logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
+        int qos = publishMessage.fixedHeader().qosLevel().value();
         String mappedTopic = mqttKafkaMapper.map(publishMessage.variableHeader().topicName());
-        ProducerRecord<String, String> record = new ProducerRecord<>(mqttKafkaMapper.map(publishMessage.variableHeader().topicName()),
+
+        ProducerRecord<String, String> record = new ProducerRecord<>(mqttKafkaMapper.map(mappedTopic),
                 publishMessage.payload().toString(Charset.defaultCharset()));
-        KafkaBridgeProducer.getInstance().send(mappedTopic, record);
+        logger.info("Publishing message to Kafka topic {} with QoS {}", record.topic(), qos);
+        BridgeKafkaProducerFactory.getInstance().getProducer(qos).send(record);
     }
 }
