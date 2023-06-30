@@ -70,7 +70,7 @@ Example:
 
 - `bridge.` is the prefix used for general configuration of the Bridge.
 - `mqtt.` is the prefix used for MQTT configuration of the Bridge.
-- `kafka.` is the prefix used for Kafka configuration of the Bridge.
+- `kafka.` is the prefix used for Kafka producer configurations of the Bridge.
 
 A valid configuration file should look like this:
 
