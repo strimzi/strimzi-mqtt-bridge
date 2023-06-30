@@ -23,7 +23,9 @@ All the incoming MQTT message's topic should match an `MQTT topic pattern` in th
 This Kafka topic is defined by a template, `kafka Topic template`.
 However, if the incoming MQTT message's topic does not match any pattern in the ToMaR, the Bridge has a default Kafka topic where the incoming message will be mapped to, known as `messages_default`.
 
-A valid TOMAR is a JSON file that contains an array of mapping rules. Each mapping rule is a JSON object that contains two properties: `mqttTopic` and `kafkaTopic`. The following is an example of a valid TOMAR:
+A valid ToMaR is a JSON file that contains an array of mapping rules. 
+Each mapping rule is a JSON object that contains two properties: `mqttTopic` and `kafkaTopic`.
+The following is an example of a valid TOMAR:
 
 ```json
 [
