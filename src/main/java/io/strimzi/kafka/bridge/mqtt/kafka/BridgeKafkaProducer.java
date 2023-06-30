@@ -6,6 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.kafka;
 
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringSerializer;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -49,9 +50,11 @@ public class BridgeKafkaProducer<K, V> {
      */
     public void create(KafkaConfig kafkaConfig) {
         Properties props = new Properties();
+        String keySerializer = StringSerializer.class.getName();
+        String valueSerializer = StringSerializer.class.getName();
         props.putAll(kafkaConfig.getConfig());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
         props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(this.ackLevel));
         this.clientProducer = new KafkaProducer<>(props);
     }
