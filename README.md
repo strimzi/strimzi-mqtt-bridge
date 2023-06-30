@@ -53,22 +53,25 @@ The MQTT Bridge will extract the values of these placeholders from the MQTT topi
 
 Let's go through each rule in the above example to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
 
-1. MQTT Topic: "building/{building}/room/{room}/#" -> Kafka Topic: "building_{building}room{room}"
+1. MQTT Topic: `"building/{building}/room/{room}/#"` -> Kafka Topic: `"building_{building}room{room}"`
 
-    This rule maps MQTT topics of the form "building/{building}/room/{room}/#" to the Kafka topic "building_{building}room{room}". For example, if the MQTT topic is "building/A/room/1/floor/2", it will be mapped to the Kafka topic "building_A_room_1_floor_2".
+    This rule maps MQTT topics of the form `"building/{building}/room/{room}/#"` to the Kafka topic `"building_{building}room{room}"`. 
+    For example, if the MQTT topic is "building/A/room/1/floor/2", it will be mapped to the Kafka topic "building_A_room_1_floor_2".
 
-2. MQTT Topic: "sensors/#" -> Kafka Topic: "sensor_others"
-
-    This rule maps any MQTT topic starting with "sensors/" followed by any number of levels in the hierarchy to the Kafka topic "sensor_others". For example, if the MQTT topic is "sensors/temperature/living-room",  it will be mapped to the Kafka topic "sensor_others".
-
-3. MQTT Topic: "sensors/+/data" -> Kafka Topic: "sensor_data"
+2. MQTT Topic: `"sensors/+/data"` -> Kafka Topic: `"sensor_data"`
 
     This rule maps MQTT topics of the form `sensors/+/data` to the Kafka topic `sensor_data`. 
     For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data`.
 
+3. MQTT Topic: `"sensors/#"` -> Kafka Topic: `"sensor_others"`
+
+   This rule maps any MQTT topic starting with "sensors/" followed by any number of levels in the hierarchy to the Kafka topic "sensor_others".
+   For example, if the MQTT topic is "sensors/temperature/living-room",  it will be mapped to the Kafka topic "sensor_others".
+
+
 The order in which the rules are defined is important. The MQTT Bridge will use the first rule that matches the MQTT topic. For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data" because `"sensors/+/data"` matches the MQTT topic before `"sensors/#"`. If exchange the positions of the rules, the MQTT Bridge would use the `"sensors/#"` to map the MQTT topic to the Kafka topic "sensor_others".
 
-### 2. MQTT Bridge Configuration
+### MQTT Bridge Configuration
 
 The user can configure the MQTT Bridge using an `application.properties` file.
 This section describes the configuration properties that can be used to configure the MQTT Bridge. 
