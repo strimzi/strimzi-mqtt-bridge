@@ -14,7 +14,7 @@ To enable a seamless integration between MQTT and Kafka, the MQTT Bridge provide
 This mapping is done using a set of predefined patterns and kafka topic templates. The MQTT Bridge uses these patterns to map MQTT topics to Kafka topics. 
 As a part of the bridge, a Kafka producer will be responsible for producing messages from the MQTT clients to the Kafka Cluster.
 
-#### 1.2. Topic Mapping Rules(TOMAR)
+### Topic Mapping Rules (ToMaR)
 
 The ToMaR is a set of patterns the user provides defining how the MQTT Bridge maps MQTT topic names to Kafka topic names.
 A Mapping Rule is a model that contains an `MQTT topic pattern` and a `Kafka topic template`. 
