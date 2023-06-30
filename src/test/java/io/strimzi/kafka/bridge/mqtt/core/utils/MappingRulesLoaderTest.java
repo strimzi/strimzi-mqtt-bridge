@@ -41,6 +41,7 @@ public class MappingRulesLoaderTest {
                 rules.size(), is(7));
         assertThat("Should not have null values",
                 rules.stream().anyMatch(rule -> rule.getMqttTopicPattern() == null || rule.getKafkaTopicTemplate() == null), is(false));
+        loader.close();
     }
 
     /**
@@ -63,5 +64,6 @@ public class MappingRulesLoaderTest {
                 exception, notNullValue());
         assertThat("Should throw an illegal state exception",
                 exception.getMessage(), is(expectedMessage));
+        loader.close();
     }
 }

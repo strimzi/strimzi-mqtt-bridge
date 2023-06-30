@@ -6,7 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
-
+import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class MappingRulesLoader {
 
-    private static final MappingRulesLoader INSTANCE = new MappingRulesLoader();
+    private static MappingRulesLoader INSTANCE;
     // path of the topic mapping rule file
     private String mapperRuleFilePath;
     private boolean initialized = false;
@@ -46,7 +46,10 @@ public class MappingRulesLoader {
      *
      * @return the singleton instance of the MappingRulesLoader
      */
-    public static MappingRulesLoader getInstance() {
+    public static MappingRulesLoader getInstance() throws NullPointerException {
+        if (INSTANCE == null) {
+            INSTANCE = new MappingRulesLoader();
+        }
         return INSTANCE;
     }
 
@@ -65,5 +68,13 @@ public class MappingRulesLoader {
 
         // deserialize the JSON array to a list of MappingRule objects
         return mapper.readValue( Path.of(this.mapperRuleFilePath).toFile(), mapper.getTypeFactory().constructCollectionType(List.class, MappingRule.class));
+    }
+
+    /**
+     * Close the MappingRulesLoader
+     */
+    public void close() {
+        initialized = false;
+        INSTANCE = null;
     }
 }
