@@ -29,12 +29,12 @@ A valid TOMAR is a JSON file that contains an array of mapping rules. Each mappi
     "kafkaTopic": "building_{building}_room_{room}"
   },
   {
-    "mqttTopic": "sensors/#",
-    "kafkaTopic": "sensor_others"
-  },
-  {
     "mqttTopic": "sensors/+/data",
     "kafkaTopic": "sensor_data"
+  },
+  {
+    "mqttTopic": "sensors/#",
+    "kafkaTopic": "sensor_others"
   }
 ]
 ```
@@ -59,7 +59,7 @@ Let's go through each rule to understand how the MQTT Bridge uses these rules to
     This rule maps MQTT topics of the form `sensors/+/data` to the Kafka topic `sensor_data`. 
     For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data`.
 
-The order in which the rules are defined is important. The MQTT Bridge will use the first rule that matches the MQTT topic. For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data" because the third rule matches the MQTT topic. If the third rule was not defined, the MQTT Bridge would use the second rule to map the MQTT topic to the Kafka topic "sensor_others".
+The order in which the rules are defined is important. The MQTT Bridge will use the first rule that matches the MQTT topic. For example, if the MQTT topic is "sensors/temperature/data", it will be mapped to the Kafka topic "sensor_data" because `"sensors/+/data"` matches the MQTT topic before `"sensors/#"`. If exchange the positions of the rules, the MQTT Bridge would use the `"sensors/#"` to map the MQTT topic to the Kafka topic "sensor_others".
 
 ### 2. MQTT Bridge Configuration
 
@@ -70,7 +70,7 @@ Example:
 
 - `bridge.` is the prefix used for general configuration of the Bridge.
 - `mqtt.` is the prefix used for MQTT configuration of the Bridge.
-- `kafka.` is the prefix used for Kafka producer configurations of the Bridge.
+- `kafka.` is the prefix used for Kafka configurations of the Bridge.
 
 A valid configuration file should look like this:
 
