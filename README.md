@@ -42,7 +42,8 @@ A valid TOMAR is a JSON file that contains an array of mapping rules. Each mappi
 ]
 ```
 
-The wildcard "#" represents one or more levels in the MQTT topic hierarchy. The wildcard "+" represents a single level in the MQTT topic hierarchy.
+The wildcard "#" represents one or more levels in the MQTT topic hierarchy.
+The wildcard "+" represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
 The parts with curly braces in the MQTT topic pattern are called `placeholders`. The MQTT Bridge will extract the values of these placeholders from the MQTT topic and use them to construct the Kafka topic name using the `kafkaTopic` template.
