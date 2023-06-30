@@ -11,7 +11,8 @@ This project provides a software component which acts as a bridge between [MQTT 
 ### How it works
 
 To enable a seamless integration between MQTT and Kafka, the MQTT Bridge provides a way to map MQTT topics to Kafka topics. 
-This mapping is done using a set of predefined patterns and kafka topic templates. The MQTT Bridge uses these patterns to map MQTT topics to Kafka topics. 
+This mapping is done using a set of predefined patterns and Kafka topic templates.
+The MQTT Bridge uses these patterns to map MQTT topics to Kafka topics. 
 As a part of the bridge, a Kafka producer will be responsible for producing messages from the MQTT clients to the Kafka Cluster.
 
 ### Topic Mapping Rules (ToMaR)
