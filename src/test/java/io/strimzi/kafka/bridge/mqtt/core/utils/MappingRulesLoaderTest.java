@@ -1,6 +1,6 @@
 package io.strimzi.kafka.bridge.mqtt.core.utils;
 
-import io.strimzi.kafka.bridge.mqtt.utils.MappingRule;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.junit.Test;
 import java.util.List;

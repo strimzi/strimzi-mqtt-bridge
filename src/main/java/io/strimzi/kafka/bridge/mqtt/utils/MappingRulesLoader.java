@@ -5,9 +5,8 @@
 package io.strimzi.kafka.bridge.mqtt.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import io.strimzi.kafka.bridge.mqtt.core.MqttKafkaMapper;
-import java.io.File;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
