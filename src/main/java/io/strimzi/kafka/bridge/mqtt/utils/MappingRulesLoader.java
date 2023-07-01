@@ -64,6 +64,6 @@ public class MappingRulesLoader {
         ObjectMapper mapper = new ObjectMapper();
 
         // deserialize the JSON array to a list of MappingRule objects
-        return mapper.readValue( Path.of(this.mapperRuleFilePath).toFile(), mapper.getTypeFactory().constructCollectionType(List.class, MappingRule.class));
+        return mapper.readValue(Path.of(this.mapperRuleFilePath).toFile(), mapper.getTypeFactory().constructCollectionType(List.class, MappingRule.class));
     }
 }

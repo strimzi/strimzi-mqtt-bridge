@@ -41,7 +41,6 @@ public class MqttKafkaMapper {
 
     /**
      * Constructor
-     * 
      * Creates a new instance of MqttKafkaMapper.
      */
     public MqttKafkaMapper(List<MappingRule> rules) {
@@ -134,9 +133,7 @@ public class MqttKafkaMapper {
 
     /**
      * Helper method for building a named regex expression.
-     *
      * A named regex expression is a regex expression that contains a named capturing group.
-     *
      * E.g. (?<groupName>regexExpression)
      *
      * @param placeholder represents a placeholder in the mqtt pattern.
@@ -149,7 +146,7 @@ public class MqttKafkaMapper {
 
     /**
      * Helper method for removing the curly brackets from a placeholder.
-     * @param placeholder
+     * @param placeholder represents a placeholder in the pattern.
      * @return a placeholder without the curly brackets.
      */
     private String removeBrackets(String placeholder) {
