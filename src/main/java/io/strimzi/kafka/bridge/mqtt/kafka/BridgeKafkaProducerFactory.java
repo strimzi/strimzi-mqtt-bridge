@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class BridgeKafkaProducerFactory<K, V> {
 
     private static final Logger logger = LoggerFactory.getLogger(BridgeKafkaProducerFactory.class);
-    private static final BridgeKafkaProducerFactory INSTANCE = new BridgeKafkaProducerFactory<>();
+    private static BridgeKafkaProducerFactory INSTANCE;
     // kafka configuration
     private KafkaConfig kafkaConfig;
     private BridgeKafkaProducer<K, V> bridgeKafkaProducerZero;
@@ -33,13 +33,26 @@ public class BridgeKafkaProducerFactory<K, V> {
      */
     public void init(KafkaConfig kafkaConfig) {
         this.kafkaConfig = kafkaConfig;
+
+        if (this.bridgeKafkaProducerZero == null) {
+            this.bridgeKafkaProducerZero = new BridgeKafkaProducer<>(0);
+            this.bridgeKafkaProducerZero.create(this.kafkaConfig);
+        }
+
+        if (this.bridgeKafkaProducerOne == null) {
+            this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(1);
+            this.bridgeKafkaProducerOne.create(this.kafkaConfig);
+        }
     }
 
     /**
      * Get the singleton instance of the factory
      * @return BridgeKafkaProducerFactory
      */
-    public static BridgeKafkaProducerFactory getInstance() {
+    public static synchronized BridgeKafkaProducerFactory getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new BridgeKafkaProducerFactory<>();
+        }
         return INSTANCE;
     }
 
@@ -51,16 +64,8 @@ public class BridgeKafkaProducerFactory<K, V> {
      */
     public BridgeKafkaProducer<K, V> getProducer(int qos) {
         if (qos == 0) {
-            if (this.bridgeKafkaProducerZero == null) {
-                this.bridgeKafkaProducerZero = new BridgeKafkaProducer<>(0);
-                this.bridgeKafkaProducerZero.create(this.kafkaConfig);
-            }
             return this.bridgeKafkaProducerZero;
         } else {
-            if (this.bridgeKafkaProducerOne == null) {
-                this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(1);
-                this.bridgeKafkaProducerOne.create(this.kafkaConfig);
-            }
             return this.bridgeKafkaProducerOne;
         }
     }

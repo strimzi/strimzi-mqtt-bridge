@@ -19,11 +19,9 @@ import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -98,6 +96,20 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     /**
+     * Send a MQTT PUBACK message to the client.
+     *
+     * @param ctx ChannelHandlerContext instance
+     * @param packetId packet identifier
+     */
+    private void sendPubAckMessage(ChannelHandlerContext ctx, int packetId) {
+        MqttMessage pubAckMessage = MqttMessageBuilders.pubAck()
+                .packetId(packetId)
+                .build();
+
+        ctx.writeAndFlush(pubAckMessage);
+    }
+
+    /**
      * Handle the case when a client sent a MQTT PUBLISH message type.
      *
      * @param ctx            ChannelHandlerContext instance
@@ -111,14 +123,29 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         String mappedTopic = mqttKafkaMapper.map(publishMessage.variableHeader().topicName());
 
         // build the Kafka record
-        ProducerRecord<String, Object> record = new ProducerRecord<>(mqttKafkaMapper.map(mappedTopic),
+        ProducerRecord<String, Object> record = new ProducerRecord<>(mappedTopic,
                 publishMessage.payload().toString());
 
         // get the appropriate Kafka producer according to the QoS level
         BridgeKafkaProducer<String, Object> producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
 
         // send the record to the Kafka topic
-        CompletionStage<RecordMetadata> result = producer.send(record);
-        logger.info("Message sent to Kafka topic {} with QoS {}", record.topic(), qos);
+        if (qos == 0) {
+            // send without waiting for the result of the send operation
+            producer.send(record);
+            logger.debug("Message sent to Kafka on topic {}", record.topic());
+        } else {
+            CompletionStage<RecordMetadata> result = producer.send(record);
+            // wait for the result of the send operation
+            result.whenComplete((metadata, error) -> {
+                if (error != null) {
+                    logger.error("Error sending message to Kafka: ", error);
+                } else {
+                    logger.debug("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
+                    // send PUBACK message to the client
+                    sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
+                }
+            });
+        }
     }
 }
