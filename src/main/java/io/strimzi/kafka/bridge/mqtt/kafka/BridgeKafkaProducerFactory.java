@@ -19,7 +19,7 @@ public class BridgeKafkaProducerFactory<K, V> {
     private KafkaConfig kafkaConfig;
     private BridgeKafkaProducer<K, V> bridgeKafkaProducerZero;
     private BridgeKafkaProducer<K, V> bridgeKafkaProducerOne;
-
+    private static boolean initialized = false;
 
     /**
      * Constructor
@@ -43,6 +43,7 @@ public class BridgeKafkaProducerFactory<K, V> {
             this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(1);
             this.bridgeKafkaProducerOne.create(this.kafkaConfig);
         }
+        initialized = true;
     }
 
     /**
@@ -63,6 +64,11 @@ public class BridgeKafkaProducerFactory<K, V> {
      * @return BridgeKafkaProducer
      */
     public BridgeKafkaProducer<K, V> getProducer(int qos) {
+
+        if (!initialized) {
+            throw new IllegalStateException("BridgeKafkaProducerFactory is not initialized");
+        }
+
         if (qos == 0) {
             return this.bridgeKafkaProducerZero;
         } else {
