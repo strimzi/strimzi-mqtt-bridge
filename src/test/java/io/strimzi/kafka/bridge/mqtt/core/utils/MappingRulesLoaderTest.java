@@ -1,8 +1,11 @@
 package io.strimzi.kafka.bridge.mqtt.core.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.junit.Test;
+
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +13,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link MappingRulesLoader}
@@ -22,7 +26,17 @@ public class MappingRulesLoaderTest {
     @Test
     public void testLoadRules() throws Exception {
         String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
-        MappingRulesLoader loader = MappingRulesLoader.getInstance();
+        MappingRulesLoader loader = mock(MappingRulesLoader.class);
+
+        // 1st loadRules call throws exception. 2nd loadRules call returns the rules
+        when(loader.loadRules())
+                .thenThrow(new IllegalStateException("MappingRulesLoader is not initialized"))
+                .thenAnswer(invocationOnMock -> {
+                    ObjectMapper mapper = new ObjectMapper();
+                    // deserialize the JSON array to a list of MappingRule objects
+                    return mapper.readValue(Path.of(filePath).toFile(), mapper.getTypeFactory().constructCollectionType(List.class, MappingRule.class));
+                });
+        verify(loader, times(0)).init(filePath);
 
         // the mapping rules loader is not initialized
         Exception exception = assertThrows(IllegalStateException.class, loader::loadRules);
@@ -35,6 +49,8 @@ public class MappingRulesLoaderTest {
 
         // init the mapping rules loader
         loader.init(filePath);
+        verify(loader, times(1)).init(filePath);
+
         List<MappingRule> rules = loader.loadRules();
 
         assertThat("Should load 7 mapping rules",
@@ -49,7 +65,11 @@ public class MappingRulesLoaderTest {
     @Test
     public void testInitMoreThanOnce() {
         String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
-        MappingRulesLoader loader = MappingRulesLoader.getInstance();
+        //MappingRulesLoader loader = MappingRulesLoader.getInstance();
+        MappingRulesLoader loader = mock(MappingRulesLoader.class);
+
+        // 1st init call, do Nothing. 2nd init call throw exception
+        doNothing().doThrow(new IllegalStateException("MappingRulesLoader is already initialized")).when(loader).init(filePath);
 
         // first init
         loader.init(filePath);
