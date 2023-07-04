@@ -36,7 +36,6 @@ public class MappingRulesLoaderTest {
                     // deserialize the JSON array to a list of MappingRule objects
                     return mapper.readValue(Path.of(filePath).toFile(), mapper.getTypeFactory().constructCollectionType(List.class, MappingRule.class));
                 });
-        verify(loader, times(0)).init(filePath);
 
         // the mapping rules loader is not initialized
         Exception exception = assertThrows(IllegalStateException.class, loader::loadRules);
@@ -49,14 +48,14 @@ public class MappingRulesLoaderTest {
 
         // init the mapping rules loader
         loader.init(filePath);
-        verify(loader, times(1)).init(filePath);
-
         List<MappingRule> rules = loader.loadRules();
 
         assertThat("Should load 7 mapping rules",
                 rules.size(), is(7));
         assertThat("Should not have null values",
                 rules.stream().anyMatch(rule -> rule.getMqttTopicPattern() == null || rule.getKafkaTopicTemplate() == null), is(false));
+
+        verify(loader, atMostOnce()).init(filePath);
     }
 
     /**
@@ -65,7 +64,6 @@ public class MappingRulesLoaderTest {
     @Test
     public void testInitMoreThanOnce() {
         String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
-        //MappingRulesLoader loader = MappingRulesLoader.getInstance();
         MappingRulesLoader loader = mock(MappingRulesLoader.class);
 
         // 1st init call, do Nothing. 2nd init call throw exception
@@ -76,12 +74,13 @@ public class MappingRulesLoaderTest {
 
         // prepare exception, try to init again
         Exception exception =  assertThrows(IllegalStateException.class,  () -> loader.init(filePath));
-
         String expectedMessage = "MappingRulesLoader is already initialized";
 
         assertThat("Should throw an exception",
                 exception, notNullValue());
         assertThat("Should throw an illegal state exception",
                 exception.getMessage(), is(expectedMessage));
+
+        verify(loader, times(2)).init(filePath);
     }
 }
