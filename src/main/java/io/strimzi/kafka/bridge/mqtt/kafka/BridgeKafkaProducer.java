@@ -5,8 +5,10 @@
 package io.strimzi.kafka.bridge.mqtt.kafka;
 
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
+import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
+
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -16,15 +18,13 @@ import java.util.concurrent.CompletionStage;
  */
 public class BridgeKafkaProducer<K, V> {
 
-
-    private final int ackLevel;
+    private final KafkaProducerAckLevel ackLevel;
     private Producer<K, V> clientProducer;
 
     /**
      * Constructor
-     *
      */
-    public BridgeKafkaProducer(int ackLevel) {
+    public BridgeKafkaProducer(KafkaProducerAckLevel ackLevel) {
         this.ackLevel = ackLevel;
     }
 
@@ -55,7 +55,7 @@ public class BridgeKafkaProducer<K, V> {
         props.putAll(kafkaConfig.getConfig());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
-        props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(this.ackLevel));
+        props.put(ProducerConfig.ACKS_CONFIG, this.ackLevel.getValue());
         this.clientProducer = new KafkaProducer<>(props);
     }
 

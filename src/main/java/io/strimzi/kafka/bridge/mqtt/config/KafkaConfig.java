@@ -53,11 +53,10 @@ public class KafkaConfig extends AbstractConfig {
         return kafkaProducerConfig;
     }
 
-
     @Override
     public Map<String, Object> getConfig() {
         // get the kafka config without the prefix
-        return this.config.entrySet().stream().collect(Collectors.toMap((e)->e.getKey().substring(6), Map.Entry::getValue));
+        return this.config.entrySet().stream().collect(Collectors.toMap((e) -> e.getKey().substring(KAFKA_CONFIG_PREFIX.length()), Map.Entry::getValue));
     }
 
     @Override

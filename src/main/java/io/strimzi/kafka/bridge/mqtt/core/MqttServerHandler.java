@@ -6,21 +6,18 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.mqtt.MqttMessage;
-import io.netty.handler.codec.mqtt.MqttMessageBuilders;
-import io.netty.handler.codec.mqtt.MqttMessageType;
-import io.netty.handler.codec.mqtt.MqttPublishMessage;
-import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
-import io.netty.handler.codec.mqtt.MqttConnAckMessage;
+import io.netty.handler.codec.mqtt.*;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
+import io.strimzi.kafka.bridge.mqtt.utils.MqttMessageQoS;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -117,7 +114,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
         // get QoS level from the MqttPublishMessage
-        int qos = publishMessage.fixedHeader().qosLevel().value();
+        MqttMessageQoS qos = MqttMessageQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
 
         // perform topic mapping
         String mappedTopic = mqttKafkaMapper.map(publishMessage.variableHeader().topicName());
@@ -130,22 +127,25 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         BridgeKafkaProducer<String, Object> producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
 
         // send the record to the Kafka topic
-        if (qos == 0) {
-            // send without waiting for the result of the send operation
-            producer.send(record);
-            logger.debug("Message sent to Kafka on topic {}", record.topic());
-        } else {
-            CompletionStage<RecordMetadata> result = producer.send(record);
-            // wait for the result of the send operation
-            result.whenComplete((metadata, error) -> {
-                if (error != null) {
-                    logger.error("Error sending message to Kafka: ", error);
-                } else {
-                    logger.debug("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
-                    // send PUBACK message to the client
-                    sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
-                }
-            });
+        switch (qos) {
+            case AT_MOST_ONCE -> {
+                producer.send(record);
+                logger.debug("Message sent to Kafka on topic {}", record.topic());
+            }
+            case AT_LEAST_ONCE -> {
+                CompletionStage<RecordMetadata> result = producer.send(record);
+                // wait for the result of the send operation
+                result.whenComplete((metadata, error) -> {
+                    if (error != null) {
+                        logger.error("Error sending message to Kafka: ", error);
+                    } else {
+                        logger.debug("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
+                        // send PUBACK message to the client
+                        sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
+                    }
+                });
+            }
+            case EXACTLY_ONCE -> logger.info("QoS level is EXACTLY_ONCE not supported yet");
         }
     }
 }

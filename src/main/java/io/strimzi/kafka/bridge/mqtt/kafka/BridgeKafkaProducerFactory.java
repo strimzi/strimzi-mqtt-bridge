@@ -5,6 +5,8 @@
 package io.strimzi.kafka.bridge.mqtt.kafka;
 
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
+import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
+import io.strimzi.kafka.bridge.mqtt.utils.MqttMessageQoS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +37,12 @@ public class BridgeKafkaProducerFactory<K, V> {
         this.kafkaConfig = kafkaConfig;
 
         if (this.bridgeKafkaProducerZero == null) {
-            this.bridgeKafkaProducerZero = new BridgeKafkaProducer<>(0);
+            this.bridgeKafkaProducerZero = new BridgeKafkaProducer<>(KafkaProducerAckLevel.ZERO);
             this.bridgeKafkaProducerZero.create(this.kafkaConfig);
         }
 
         if (this.bridgeKafkaProducerOne == null) {
-            this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(1);
+            this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(KafkaProducerAckLevel.ONE);
             this.bridgeKafkaProducerOne.create(this.kafkaConfig);
         }
         initialized = true;
@@ -60,19 +62,20 @@ public class BridgeKafkaProducerFactory<K, V> {
 
     /**
      * Get the Kafka producer for the given Mqtt QoS
+     *
      * @param qos Mqtt QoS
      * @return BridgeKafkaProducer
      */
-    public BridgeKafkaProducer<K, V> getProducer(int qos) {
+    public BridgeKafkaProducer<K, V> getProducer(MqttMessageQoS qos) {
 
         if (!initialized) {
             throw new IllegalStateException("BridgeKafkaProducerFactory is not initialized");
         }
 
-        if (qos == 0) {
-            return this.bridgeKafkaProducerZero;
-        } else {
-            return this.bridgeKafkaProducerOne;
-        }
+        return switch (qos) {
+            case AT_MOST_ONCE -> this.bridgeKafkaProducerZero;
+            case AT_LEAST_ONCE -> this.bridgeKafkaProducerOne;
+            default -> throw new IllegalArgumentException("Invalid QoS: " + qos);
+        };
     }
 }
