@@ -15,6 +15,8 @@ import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
+import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,38 +32,44 @@ public class MqttServer {
     private final MqttConfig mqttConfig;
 
     /**
-     * This helper class help us add necessary Netty pipelines handlers. <br>
-     * During the {@link #initChannel(SocketChannel)}, we use MqttDecoder() and MqttEncoder to decode and encode Mqtt messages respectively. <br>
-     */
-    private static class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
-        @Override
-        protected void initChannel(SocketChannel ch) {
-            ch.pipeline().addLast("decoder", new MqttDecoder());
-            ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
-            ch.pipeline().addLast("handler", new MqttServerHandler());
-        }
-    }
-
-    /**
      * Constructor
      *
      * @param config      MqttConfig instance with all configuration needed to run the server.
      * @param masterGroup EventLoopGroup instance for handle incoming connections.
      * @param workerGroup EventLoopGroup instance for processing I/O.
      * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
-     * @see MqttConfig
+     * @see BridgeConfig
      * @see ChannelOption
      */
-    public MqttServer(MqttConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
+    public MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
-        this.mqttConfig = config;
+        this.mqttConfig = config.getMqttConfig();
         this.serverBootstrap = new ServerBootstrap();
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServer.MqttServerInitializer())
+                .childHandler(new MqttServer.MqttServerInitializer(config.getKafkaConfig()))
                 .childOption(option, true);
+    }
+
+    /**
+     * This helper class help us add necessary Netty pipelines handlers. <br>
+     * During the {@link #initChannel(SocketChannel)}, we use MqttDecoder() and MqttEncoder to decode and encode Mqtt messages respectively. <br>
+     */
+    private static class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
+        private final MqttServerHandler handler;
+
+        public MqttServerInitializer(KafkaConfig config) {
+            this.handler = new MqttServerHandler(config);
+        }
+
+        @Override
+        protected void initChannel(SocketChannel ch) {
+            ch.pipeline().addLast("decoder", new MqttDecoder());
+            ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
+            ch.pipeline().addLast("handler", this.handler);
+        }
     }
 
     /**

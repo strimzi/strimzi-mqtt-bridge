@@ -6,12 +6,14 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.mqtt.*;
+import io.netty.util.ReferenceCountUtil;
+import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
+import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -22,29 +24,38 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
+import static io.netty.channel.ChannelHandler.Sharable;
+
 /**
- * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
+ * Represents a ChannelInboundHandlerAdapter. The MqttServerHandler is responsible for: <br>
  * - listen to client connections;<br>
  * - listen to incoming messages; <br>
  *
- * @see io.netty.channel.SimpleChannelInboundHandler
+ * @see io.netty.channel.ChannelInboundHandlerAdapter
  */
-public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
+@Sharable
+public class MqttServerHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
     private MqttKafkaMapper mqttKafkaMapper;
+    // A Kafka Producer to handle  mqtt messages with QoS 0
+    private final BridgeKafkaProducer bridgeKafkaProducerZero;
+    //  A Kafka Producer to handle  mqtt messages with QoS 1
+    private final BridgeKafkaProducer bridgeKafkaProducerOne;
 
     /**
      * Constructor
      */
-    public MqttServerHandler() {
-        super(true);
+    public MqttServerHandler(KafkaConfig kafkaConfig) {
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
             this.mqttKafkaMapper = new MqttKafkaMapper(rules);
+            logger.info("Mapping rules loaded");
         } catch (IOException e) {
             logger.error("Error reading mapping file: ", e);
         }
+        this.bridgeKafkaProducerZero = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ZERO);
+        this.bridgeKafkaProducerOne = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ONE);
     }
 
     @Override
@@ -53,9 +64,9 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            MqttMessageType messageType = msg.fixedHeader().messageType();
+            MqttMessageType messageType = ((MqttMessage) msg).fixedHeader().messageType();
             logger.debug("Got {} message type", messageType.name());
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
@@ -68,12 +79,16 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         } catch (Exception e) {
             logger.error("Error reading Channel: ", e);
             ctx.close();
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
+        this.bridgeKafkaProducerOne.close();
+        this.bridgeKafkaProducerZero.close();
         ctx.close();
     }
 
@@ -124,7 +139,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 publishMessage.payload());
 
         // get the appropriate Kafka producer according to the QoS level
-        BridgeKafkaProducer producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
+        BridgeKafkaProducer producer = this.getProducer(qos);
 
         // send the record to the Kafka topic
         switch (qos) {
@@ -147,5 +162,21 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             }
             case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported yet");
         }
+    }
+
+    /**
+     * Get the Kafka producer for the given Mqtt QoS
+     *
+     * @param qos Mqtt QoS
+     * @return BridgeKafkaProducer
+     */
+    public BridgeKafkaProducer getProducer(MqttQoS qos) {
+
+        return switch (qos) {
+            case AT_MOST_ONCE -> this.bridgeKafkaProducerZero;
+            case AT_LEAST_ONCE -> this.bridgeKafkaProducerOne;
+            case EXACTLY_ONCE -> null;
+            case FAILURE -> throw new IllegalStateException("Unexpected value: " + qos);
+        };
     }
 }

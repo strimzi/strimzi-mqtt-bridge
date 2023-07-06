@@ -9,16 +9,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
-import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -44,13 +40,10 @@ public class Main {
             //set the mapping rules file path
             MappingRulesLoader.getInstance().init(mappingRulesFile);
 
-            //initialize the Bridge Kafka Producer Factory
-            BridgeKafkaProducerFactory.getInstance().init(bridgeConfig.getKafkaConfig());
-
             //start the MQTT server
             EventLoopGroup bossGroup = new NioEventLoopGroup();
             EventLoopGroup workerGroup = new NioEventLoopGroup();
-            MqttServer mqttServer = new MqttServer(bridgeConfig.getMqttConfig(), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
+            MqttServer mqttServer = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
 
             // start the MQTT server
             mqttServer.start();
