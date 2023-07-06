@@ -6,7 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
 import io.netty.handler.codec.mqtt.MqttMessageType;
@@ -14,7 +14,6 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.netty.util.ReferenceCountUtil;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
@@ -32,14 +31,14 @@ import java.util.concurrent.CompletionStage;
 import static io.netty.channel.ChannelHandler.Sharable;
 
 /**
- * Represents a ChannelInboundHandlerAdapter. The MqttServerHandler is responsible for: <br>
+ * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
  * - listen to client connections;<br>
  * - listen to incoming messages; <br>
  *
- * @see io.netty.channel.ChannelInboundHandlerAdapter
+ * @see io.netty.channel.SimpleChannelInboundHandler
  */
 @Sharable
-public class MqttServerHandler extends ChannelInboundHandlerAdapter {
+public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
     private MqttKafkaMapper mqttKafkaMapper;
     // A Kafka Producer to handle  mqtt messages with QoS 0
@@ -51,6 +50,8 @@ public class MqttServerHandler extends ChannelInboundHandlerAdapter {
      * Constructor
      */
     public MqttServerHandler(KafkaConfig kafkaConfig) {
+        // auto release reference count to avoid memory leak
+        super(true);
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
@@ -68,9 +69,9 @@ public class MqttServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         try {
-            MqttMessageType messageType = ((MqttMessage) msg).fixedHeader().messageType();
+            MqttMessageType messageType = msg.fixedHeader().messageType();
             logger.debug("Got {} message type", messageType.name());
             if (messageType == MqttMessageType.CONNECT) {
                 handleConnectMessage(ctx);
@@ -83,8 +84,6 @@ public class MqttServerHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             logger.error("Error reading Channel: ", e);
             ctx.close();
-        } finally {
-            ReferenceCountUtil.release(msg);
         }
     }
 
