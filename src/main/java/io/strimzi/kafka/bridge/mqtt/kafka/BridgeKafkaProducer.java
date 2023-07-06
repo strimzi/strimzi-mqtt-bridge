@@ -12,6 +12,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -22,14 +23,14 @@ import java.util.concurrent.CompletionStage;
  */
 public class BridgeKafkaProducer {
 
-    private final KafkaProducerAckLevel ackLevel;
-    private KafkaProducer<String, ByteBuf> clientProducer;
+    private final KafkaProducerAckLevel producerAckLevel;
+    private Producer<String, ByteBuf> clientProducer;
 
     /**
      * Constructor
      */
-    public BridgeKafkaProducer(KafkaConfig config, KafkaProducerAckLevel ackLevel) {
-        this.ackLevel = ackLevel;
+    public BridgeKafkaProducer(KafkaConfig config, KafkaProducerAckLevel producerAckLevel) {
+        this.producerAckLevel = producerAckLevel;
         this.create(config);
     }
 
@@ -58,10 +59,9 @@ public class BridgeKafkaProducer {
     private void create(KafkaConfig kafkaConfig) {
         Properties props = new Properties();
         props.putAll(kafkaConfig.getConfig());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteBufSerializer.class.getName());
-        props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(this.ackLevel.getValue()));
-        this.clientProducer = new KafkaProducer<>(props);
+        props.putAll(kafkaConfig.getKafkaProducerConfig().getConfig());
+        props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(this.producerAckLevel.getValue()));
+        this.clientProducer = new KafkaProducer<>(props, new StringSerializer(), new ByteBufSerializer());
     }
 
     /**
