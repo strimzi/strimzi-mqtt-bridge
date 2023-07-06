@@ -4,6 +4,7 @@
  */
 package io.strimzi.kafka.bridge.mqtt.core;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.mqtt.*;
@@ -12,7 +13,6 @@ import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerFactory;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
-import io.strimzi.kafka.bridge.mqtt.utils.MqttMessageQoS;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * Constructor
      */
     public MqttServerHandler() {
-        super(false);
+        super(true);
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
@@ -114,23 +114,23 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
         // get QoS level from the MqttPublishMessage
-        MqttMessageQoS qos = MqttMessageQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
+        MqttQoS qos = MqttQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
 
         // perform topic mapping
         String mappedTopic = mqttKafkaMapper.map(publishMessage.variableHeader().topicName());
 
         // build the Kafka record
-        ProducerRecord<String, Object> record = new ProducerRecord<>(mappedTopic,
-                publishMessage.payload().toString());
+        ProducerRecord<String, ByteBuf> record = new ProducerRecord<>(mappedTopic,
+                publishMessage.payload());
 
         // get the appropriate Kafka producer according to the QoS level
-        BridgeKafkaProducer<String, Object> producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
+        BridgeKafkaProducer producer = BridgeKafkaProducerFactory.getInstance().getProducer(qos);
 
         // send the record to the Kafka topic
         switch (qos) {
             case AT_MOST_ONCE -> {
                 producer.send(record);
-                logger.debug("Message sent to Kafka on topic {}", record.topic());
+                logger.info("Message sent to Kafka on topic {}", record.topic());
             }
             case AT_LEAST_ONCE -> {
                 CompletionStage<RecordMetadata> result = producer.send(record);
@@ -139,13 +139,13 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                     if (error != null) {
                         logger.error("Error sending message to Kafka: ", error);
                     } else {
-                        logger.debug("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
+                        logger.info("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
                         // send PUBACK message to the client
                         sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
                     }
                 });
             }
-            case EXACTLY_ONCE -> logger.info("QoS level is EXACTLY_ONCE not supported yet");
+            case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported yet");
         }
     }
 }

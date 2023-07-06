@@ -4,48 +4,24 @@
  */
 package io.strimzi.kafka.bridge.mqtt.kafka;
 
+import io.netty.handler.codec.mqtt.MqttQoS;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
-import io.strimzi.kafka.bridge.mqtt.utils.MqttMessageQoS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Factory for creating Kafka producers as needed.
  */
-public class BridgeKafkaProducerFactory<K, V> {
+public class BridgeKafkaProducerFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(BridgeKafkaProducerFactory.class);
     private static BridgeKafkaProducerFactory INSTANCE;
-    // kafka configuration
-    private KafkaConfig kafkaConfig;
-    private BridgeKafkaProducer<K, V> bridgeKafkaProducerZero;
-    private BridgeKafkaProducer<K, V> bridgeKafkaProducerOne;
+    private BridgeKafkaProducer bridgeKafkaProducerZero;
+    private BridgeKafkaProducer bridgeKafkaProducerOne;
     private static boolean initialized = false;
 
     /**
      * Constructor
-     *
      */
-    private BridgeKafkaProducerFactory() {}
-
-    /**
-     * Initialize the factory with the given configuration
-     * @param kafkaConfig Kafka configuration
-     */
-    public void init(KafkaConfig kafkaConfig) {
-        this.kafkaConfig = kafkaConfig;
-
-        if (this.bridgeKafkaProducerZero == null) {
-            this.bridgeKafkaProducerZero = new BridgeKafkaProducer<>(KafkaProducerAckLevel.ZERO);
-            this.bridgeKafkaProducerZero.create(this.kafkaConfig);
-        }
-
-        if (this.bridgeKafkaProducerOne == null) {
-            this.bridgeKafkaProducerOne = new BridgeKafkaProducer<>(KafkaProducerAckLevel.ONE);
-            this.bridgeKafkaProducerOne.create(this.kafkaConfig);
-        }
-        initialized = true;
+    private BridgeKafkaProducerFactory() {
     }
 
     /**
@@ -54,11 +30,26 @@ public class BridgeKafkaProducerFactory<K, V> {
      */
     public static synchronized BridgeKafkaProducerFactory getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new BridgeKafkaProducerFactory<>();
+            INSTANCE = new BridgeKafkaProducerFactory();
         }
         return INSTANCE;
     }
 
+    /**
+     * Initialize the factory with the given configuration
+     * @param kafkaConfig Kafka configuration
+     */
+    public void init(KafkaConfig kafkaConfig) {
+
+        if (this.bridgeKafkaProducerZero == null) {
+            this.bridgeKafkaProducerZero = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ZERO);
+        }
+
+        if (this.bridgeKafkaProducerOne == null) {
+            this.bridgeKafkaProducerOne = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ONE);
+        }
+        initialized = true;
+    }
 
     /**
      * Get the Kafka producer for the given Mqtt QoS
@@ -66,7 +57,7 @@ public class BridgeKafkaProducerFactory<K, V> {
      * @param qos Mqtt QoS
      * @return BridgeKafkaProducer
      */
-    public BridgeKafkaProducer<K, V> getProducer(MqttMessageQoS qos) {
+    public BridgeKafkaProducer getProducer(MqttQoS qos) {
 
         if (!initialized) {
             throw new IllegalStateException("BridgeKafkaProducerFactory is not initialized");
@@ -75,7 +66,8 @@ public class BridgeKafkaProducerFactory<K, V> {
         return switch (qos) {
             case AT_MOST_ONCE -> this.bridgeKafkaProducerZero;
             case AT_LEAST_ONCE -> this.bridgeKafkaProducerOne;
-            default -> throw new IllegalArgumentException("Invalid QoS: " + qos);
+            case EXACTLY_ONCE -> null;
+            case FAILURE -> throw new IllegalStateException("Unexpected value: " + qos);
         };
     }
 }
