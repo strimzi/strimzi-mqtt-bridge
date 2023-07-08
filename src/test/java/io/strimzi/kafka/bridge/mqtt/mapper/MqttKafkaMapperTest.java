@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -104,20 +105,57 @@ public class MqttKafkaMapperTest {
         rules.add(new MappingRule("building/{building}/#", "building_{building}_others"));
         rules.add(new MappingRule("building/#", "building_others"));
         rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}/#", "fleet_{vehicle}"));
+        rules.add(new MappingRule("sensor/#", "sensor_data"));
+        rules.add(new MappingRule("sport/tennis/{player}/#", "sports_{player}"));
+        rules.add(new MappingRule("+/recipes/#", "my_recipes"));
+        rules.add(new MappingRule("{house}/#", "{house}"));
 
         MqttKafkaMapper mapper = new MqttKafkaMapper(rules);
 
+        // Test fleet/{fleet}/vehicle/{vehicle}/# pattern
         assertThat("Mqtt topic pattern fleet/{fleet}/vehicle/{vehicle}/# should be mapped to fleet_{vehicle}",
                 mapper.map("fleet/4/vehicle/23/velocity"), is("fleet_23"));
 
+        // Test building/{building}/room/{room}/# pattern
         assertThat("Mqtt pattern building/{building}/room/{room}/# should be mapped to building_{building}_room_{room}",
                 mapper.map("building/4/room/23/temperature"), is("building_4_room_23"));
 
+        // Test building/{building}/# pattern
         assertThat("Mqtt pattern building/{building}/# should be mapped to building_{building}_others",
                 mapper.map("building/405/room"), is("building_405_others"));
 
-        assertThat("Mqtt pattern building/# should be mapped to building_others",
-                mapper.map("building/101"), is("building_others"));
+        assertThat("Mqtt pattern building/# will be mapped to building_101_others because building/{building}/# was defined before building/#",
+                mapper.map("building/101"), not("building_others"));
 
+        // Test sensor/# pattern
+        assertThat("Mqtt pattern sensor/# should be mapped to sensor_data",
+                mapper.map("sensor/temperature"), is("sensor_data"));
+
+        // Test sport/tennis/{player}/# pattern
+        assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
+                mapper.map("sport/tennis/player1"), is("sports_player1"));
+
+        assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
+                mapper.map("sport/tennis/player100/ranking"), is("sports_player100"));
+
+        assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
+                mapper.map("sport/tennis/player123/score/wimbledon"), is("sports_player123"));
+
+        // Test +/recipes/# pattern
+        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
+                mapper.map("italian/recipes/pizza"), is("my_recipes"));
+
+        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
+                mapper.map("italian/recipes/pasta"), is("my_recipes"));
+
+        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
+                mapper.map("angolan/recipes/calulu/fish"), is("my_recipes"));
+
+        // Test {house}/# pattern
+        assertThat("Mqtt pattern {house}/# should be mapped to {house}",
+                mapper.map("my_house/temperature"), is("my_house"));
+
+        assertThat("Mqtt pattern {house}/# should be mapped to {house}",
+                mapper.map("my_house/temperature/room1"), is("my_house"));
     }
 }

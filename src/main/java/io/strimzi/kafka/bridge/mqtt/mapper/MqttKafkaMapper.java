@@ -118,6 +118,7 @@ public class MqttKafkaMapper {
                 } else if (part.equals(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER)) {
                     ruleRegex.append(SINGLE_LEVEL_WILDCARD_REGEX);
                 } else if (part.equals(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER)) {
+                    ruleRegex.deleteCharAt(ruleRegex.length() - 1);
                     ruleRegex.append(MULTIPLE_LEVEL_WILDCARD_REGEX);
                 } else {
                     ruleRegex.append(part);
@@ -125,7 +126,9 @@ public class MqttKafkaMapper {
                 ruleRegex.append("/");
             }
             // remove the last slash
-            ruleRegex.deleteCharAt(ruleRegex.length() - 1);
+            if (ruleRegex.length() > 1) {
+                ruleRegex.deleteCharAt(ruleRegex.length() - 1);
+            }
             // compile the regex expression for the rule.
             patterns.add(Pattern.compile(ruleRegex.toString()));
         }
