@@ -1,7 +1,3 @@
-/*
- * Copyright Strimzi authors.
- * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
- */
 package io.strimzi.kafka.bridge.mqtt.core.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +13,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link MappingRulesLoader}
