@@ -6,17 +6,12 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.mqtt.MqttDecoder;
-import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
-import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,27 +44,8 @@ public class MqttServer {
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServer.MqttServerInitializer(config.getKafkaConfig()))
+                .childHandler(new MqttServerInitializer(config.getKafkaConfig()))
                 .childOption(option, true);
-    }
-
-    /**
-     * This helper class help us add necessary Netty pipelines handlers. <br>
-     * During the {@link #initChannel(SocketChannel)}, we use MqttDecoder() and MqttEncoder to decode and encode Mqtt messages respectively. <br>
-     */
-    private static class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
-        private final MqttServerHandler handler;
-
-        public MqttServerInitializer(KafkaConfig config) {
-            this.handler = new MqttServerHandler(config);
-        }
-
-        @Override
-        protected void initChannel(SocketChannel ch) {
-            ch.pipeline().addLast("decoder", new MqttDecoder());
-            ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
-            ch.pipeline().addLast("handler", this.handler);
-        }
     }
 
     /**
