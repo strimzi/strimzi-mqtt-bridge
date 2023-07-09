@@ -127,6 +127,10 @@ public class MqttKafkaMapperTest {
         assertThat("Mqtt pattern building/# will be mapped to building_101_others because building/{building}/# was defined before building/#",
                 mapper.map("building/101"), not("building_others"));
 
+        // Test building/# pattern
+        assertThat("Mqtt pattern building/# should be mapped to building_others",
+                mapper.map("building"), is("building_others"));
+
         // Test sensor/# pattern
         assertThat("Mqtt pattern sensor/# should be mapped to sensor_data",
                 mapper.map("sensor/temperature"), is("sensor_data"));
