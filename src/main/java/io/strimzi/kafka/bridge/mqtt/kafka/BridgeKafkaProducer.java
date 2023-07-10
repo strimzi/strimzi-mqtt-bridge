@@ -67,6 +67,7 @@ public class BridgeKafkaProducer {
      * Close the producer
      */
     public void close() {
+        this.clientProducer.flush();
         if (this.clientProducer != null) {
             this.clientProducer.close();
         }

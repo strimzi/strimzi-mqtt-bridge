@@ -47,7 +47,7 @@ public class BridgeKafkaProducerTest {
 
                     CompletableFuture<RecordMetadata> promise = new CompletableFuture<>();
 
-                    promise.complete(new RecordMetadata(new TopicPartition(r.topic(), 2), 234L, 0, 1000, 0L, 0, "test".getBytes().size()));
+                    promise.complete(new RecordMetadata(new TopicPartition(r.topic(), 2), 234L, 0, 1000, 0L, 0, "test".getBytes().length));
                     return promise;
                 });
 

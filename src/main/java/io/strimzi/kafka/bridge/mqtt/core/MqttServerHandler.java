@@ -92,14 +92,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         ctx.close();
     }
 
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        bridgeKafkaProducerWithNoAck.close();
-        bridgeKafkaProducerWithAckOne.close();
-        ctx.close();
-        super.handlerRemoved(ctx);
-    }
-
     /**
      * Handle the case when a client sent a MQTT CONNECT message type.
      *
@@ -130,6 +122,30 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     /**
+     * Transform a MqttPublishMessage's payload into byte array
+     */
+    private static byte[] payloadToBytes(MqttPublishMessage msg) {
+        byte[] data = new byte[msg.payload().readableBytes()];
+        msg.payload().readBytes(data);
+        return data;
+    }
+
+    /**
+     * Get the Kafka producer for the given Mqtt QoS
+     *
+     * @param qos Mqtt QoS
+     * @return BridgeKafkaProducer
+     */
+    private BridgeKafkaProducer getProducer(MqttQoS qos) {
+        return switch (qos) {
+            case AT_MOST_ONCE -> this.bridgeKafkaProducerWithNoAck;
+            case AT_LEAST_ONCE -> this.bridgeKafkaProducerWithAckOne;
+            case EXACTLY_ONCE -> null;
+            case FAILURE -> throw new IllegalStateException("Unexpected value: " + qos);
+        };
+    }
+
+    /**
      * Handle the case when a client sent a MQTT PUBLISH message type.
      *
      * @param ctx            ChannelHandlerContext instance
@@ -148,9 +164,10 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         //log the topic mapping
         logger.info("MQTT topic {} mapped to Kafka Topic {}", mqttTopic, kafkaMappedTopic);
 
+        byte[] data = payloadToBytes(publishMessage);
         // build the Kafka record
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaMappedTopic,
-                publishMessage.payload().array());
+                data);
 
         // get the appropriate Kafka producer according to the QoS level
         BridgeKafkaProducer producer = getProducer(qos);
@@ -176,21 +193,5 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             }
             case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported");
         }
-    }
-
-    /**
-     * Get the Kafka producer for the given Mqtt QoS
-     *
-     * @param qos Mqtt QoS
-     * @return BridgeKafkaProducer
-     */
-    private BridgeKafkaProducer getProducer(MqttQoS qos) {
-
-        return switch (qos) {
-            case AT_MOST_ONCE -> this.bridgeKafkaProducerWithNoAck;
-            case AT_LEAST_ONCE -> this.bridgeKafkaProducerWithAckOne;
-            case EXACTLY_ONCE -> null;
-            case FAILURE -> throw new IllegalStateException("Unexpected value: " + qos);
-        };
     }
 }
