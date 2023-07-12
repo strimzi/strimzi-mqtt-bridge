@@ -8,7 +8,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
-import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
 
 /**

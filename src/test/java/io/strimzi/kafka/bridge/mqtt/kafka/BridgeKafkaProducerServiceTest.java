@@ -13,29 +13,33 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link BridgeKafkaProducer}
+ * Unit tests for {@link BridgeKafkaProducerService}
  */
-public class BridgeKafkaProducerTest {
+public class BridgeKafkaProducerServiceTest {
 
     /**
-     * Test the {@link BridgeKafkaProducer#send(ProducerRecord)} method
+     * Test the {@link BridgeKafkaProducerService#send(ProducerRecord)}} method
      */
     @Test
-    public void testProducerNoAck() {
+    public void testProducerSend() {
         // mock the producer
-        BridgeKafkaProducer producer = mock(BridgeKafkaProducer.class);
+        BridgeKafkaProducerService producer = mock(BridgeKafkaProducerService.class);
 
         String kafkaTopic = "test-topic";
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaTopic, "test".getBytes());
 
-        // simulate the send method. First no ack, then ack
+        // simulate the send method with no ack
+        doNothing().when(producer).sendNoAck(any(ProducerRecord.class));
+
+        // simulate the send method with ack
         when(producer.send(any(ProducerRecord.class)))
-                .thenReturn(any()) // no ack
                 .thenAnswer(invocation -> {
                     ProducerRecord<String, byte[]> r = invocation.getArgument(0);
 
@@ -50,9 +54,6 @@ public class BridgeKafkaProducerTest {
                     promise.complete(new RecordMetadata(new TopicPartition(r.topic(), 2), 234L, 0, 1000, 0L, 0, "test".getBytes().length));
                     return promise;
                 });
-
-        // send the record and do not wait for ack
-        producer.send(record);
 
         // send the record and wait for ack
         producer.send(record).thenAccept(metadata -> {
@@ -70,5 +71,8 @@ public class BridgeKafkaProducerTest {
                     metadata.timestamp(), is(1000L));
 
         });
+
+        // send the record with no ack
+        producer.sendNoAck(record);
     }
 }

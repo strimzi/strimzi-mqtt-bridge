@@ -13,12 +13,9 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducer;
 import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
-import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -154,11 +151,11 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         // send the record to the Kafka topic
         switch (qos) {
             case AT_MOST_ONCE -> {
-                kafkaProducerService.send(qos, record);
+                kafkaProducerService.sendNoAck(record);
                 logger.info("Message sent to Kafka on topic {}", record.topic());
             }
             case AT_LEAST_ONCE -> {
-                CompletionStage<RecordMetadata> result = kafkaProducerService.send(qos, record);
+                CompletionStage<RecordMetadata> result = kafkaProducerService.send(record);
                 // wait for the result of the send operation
                 result.whenComplete((metadata, error) -> {
                     if (error != null) {

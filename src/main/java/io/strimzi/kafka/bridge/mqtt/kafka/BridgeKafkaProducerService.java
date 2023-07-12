@@ -4,54 +4,88 @@
  */
 package io.strimzi.kafka.bridge.mqtt.kafka;
 
-import io.netty.handler.codec.mqtt.MqttQoS;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
- * A service to handle the Kafka Producers
+ * Represents a Kafka producer for the Bridge.
  */
 public class BridgeKafkaProducerService {
-    // A Kafka Producer to handle mqtt messages with QoS 0. This producer has ack equals to 0
-    private final BridgeKafkaProducer bridgeKafkaProducerWithNoAck;
-    // A Kafka Producer to handle mqtt messages with QoS 1. This producer has ack equals to 1
-    private final BridgeKafkaProducer bridgeKafkaProducerWithAckOne;
+
+    private final Producer<String, byte[]> noAckProducer;
+    private final Producer<String, byte[]> ackOneProducer;
 
     /**
      * Constructor
-     *
-     * @param kafkaConfig Kafka configuration parameters
      */
-    public BridgeKafkaProducerService(KafkaConfig kafkaConfig) {
-        this.bridgeKafkaProducerWithNoAck = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ZERO);
-        this.bridgeKafkaProducerWithAckOne = new BridgeKafkaProducer(kafkaConfig, KafkaProducerAckLevel.ONE);
+    public BridgeKafkaProducerService(KafkaConfig config) {
+        this.noAckProducer = createProducer(config, KafkaProducerAckLevel.ZERO);
+        this.ackOneProducer = createProducer(config, KafkaProducerAckLevel.ONE);
     }
 
     /**
      * Send the given record to the Kafka topic
      *
-     * @param qos    MQTT QoS level
      * @param record record to be sent
      * @return a future which completes when the record is acknowledged
      */
-    public CompletionStage<RecordMetadata> send(MqttQoS qos, ProducerRecord<String, byte[]> record) {
-        return switch (qos) {
-            case AT_MOST_ONCE -> bridgeKafkaProducerWithNoAck.send(record);
-            case AT_LEAST_ONCE -> bridgeKafkaProducerWithAckOne.send(record);
-            default -> throw new IllegalArgumentException("QoS level not supported");
-        };
+    public CompletionStage<RecordMetadata> send(ProducerRecord<String, byte[]> record) {
+        CompletableFuture<RecordMetadata> promise = new CompletableFuture<>();
+
+        this.ackOneProducer.send(record, (metadata, exception) -> {
+            if (exception != null) {
+                promise.completeExceptionally(exception);
+            } else {
+                promise.complete(metadata);
+            }
+        });
+        return promise;
     }
 
     /**
-     * Close the Kafka Producers
+     * Send the given record to the Kafka topic
+     *
+     * @param record record to be sent
+     */
+    public void sendNoAck(ProducerRecord<String, byte[]> record) {
+        this.noAckProducer.send(record);
+    }
+
+    /**
+     * Create the Kafka producer client with the given configuration
+     */
+    private Producer<String, byte[]> createProducer(KafkaConfig kafkaConfig, KafkaProducerAckLevel producerAckLevel) {
+        Properties props = new Properties();
+        props.putAll(kafkaConfig.getConfig());
+        props.putAll(kafkaConfig.getKafkaProducerConfig().getConfig());
+        props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(producerAckLevel.getValue()));
+        return new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
+    }
+
+    /**
+     * Close the producer
      */
     public void close() {
-        bridgeKafkaProducerWithNoAck.close();
-        bridgeKafkaProducerWithAckOne.close();
 
+        if (this.noAckProducer != null) {
+            this.noAckProducer.flush();
+            this.noAckProducer.close();
+        }
+
+        if (this.ackOneProducer != null) {
+            this.ackOneProducer.flush();
+            this.ackOneProducer.close();
+        }
     }
 }
