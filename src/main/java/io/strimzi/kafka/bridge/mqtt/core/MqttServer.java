@@ -13,6 +13,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
+import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ public class MqttServer {
     private final EventLoopGroup workerGroup;
     private final ServerBootstrap serverBootstrap;
     private final MqttConfig mqttConfig;
+    private final BridgeKafkaProducerService producerService;
 
     /**
      * Constructor
@@ -40,11 +42,12 @@ public class MqttServer {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
         this.mqttConfig = config.getMqttConfig();
+        this.producerService = new BridgeKafkaProducerService(config.getKafkaConfig());
         this.serverBootstrap = new ServerBootstrap();
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServerInitializer(config.getKafkaConfig()))
+                .childHandler(new MqttServerInitializer(this.producerService))
                 .childOption(option, true);
     }
 
@@ -70,5 +73,8 @@ public class MqttServer {
     public void stop() {
         this.masterGroup.shutdownGracefully();
         this.workerGroup.shutdownGracefully();
+        logger.info("Closing Kafka producers...");
+        this.producerService.close();
+        logger.info("Kafka producers closed");
     }
 }
