@@ -13,7 +13,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
+import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
@@ -37,13 +37,13 @@ import static io.netty.channel.ChannelHandler.Sharable;
 @Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
-    private final BridgeKafkaProducerService kafkaProducerService;
+    private final KafkaBridgeProducer kafkaBridgeProducer;
     private MqttKafkaMapper mqttKafkaMapper;
 
     /**
      * Constructor
      */
-    public MqttServerHandler(BridgeKafkaProducerService producerService) {
+    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer) {
         // auto release reference count to avoid memory leak
         super(true);
         try {
@@ -53,7 +53,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         } catch (IOException e) {
             logger.error("Error reading mapping file: ", e);
         }
-        this.kafkaProducerService = producerService;
+        this.kafkaBridgeProducer = kafkaBridgeProducer;
     }
 
     @Override
@@ -151,11 +151,11 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         // send the record to the Kafka topic
         switch (qos) {
             case AT_MOST_ONCE -> {
-                kafkaProducerService.sendNoAck(record);
+                kafkaBridgeProducer.sendNoAck(record);
                 logger.info("Message sent to Kafka on topic {}", record.topic());
             }
             case AT_LEAST_ONCE -> {
-                CompletionStage<RecordMetadata> result = kafkaProducerService.send(record);
+                CompletionStage<RecordMetadata> result = kafkaBridgeProducer.send(record);
                 // wait for the result of the send operation
                 result.whenComplete((metadata, error) -> {
                     if (error != null) {

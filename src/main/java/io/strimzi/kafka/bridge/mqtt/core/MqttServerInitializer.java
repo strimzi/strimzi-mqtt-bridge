@@ -8,7 +8,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
-import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
+import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 
 /**
  * This helper class help us add necessary Netty pipelines handlers. <br>
@@ -17,8 +17,8 @@ import io.strimzi.kafka.bridge.mqtt.kafka.BridgeKafkaProducerService;
 public class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
     private final MqttServerHandler mqttServerHandler;
 
-    public MqttServerInitializer(BridgeKafkaProducerService producerService) {
-        this.mqttServerHandler = new MqttServerHandler(producerService);
+    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer) {
+        this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer);
     }
 
     @Override

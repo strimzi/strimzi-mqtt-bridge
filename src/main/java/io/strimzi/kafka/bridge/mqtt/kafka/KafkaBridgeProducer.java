@@ -21,7 +21,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Represents a Kafka producer for the Bridge.
  */
-public class BridgeKafkaProducerService {
+public class KafkaBridgeProducer {
 
     private final Producer<String, byte[]> noAckProducer;
     private final Producer<String, byte[]> ackOneProducer;
@@ -29,7 +29,7 @@ public class BridgeKafkaProducerService {
     /**
      * Constructor
      */
-    public BridgeKafkaProducerService(KafkaConfig config) {
+    public KafkaBridgeProducer(KafkaConfig config) {
         this.noAckProducer = createProducer(config, KafkaProducerAckLevel.ZERO);
         this.ackOneProducer = createProducer(config, KafkaProducerAckLevel.ONE);
     }

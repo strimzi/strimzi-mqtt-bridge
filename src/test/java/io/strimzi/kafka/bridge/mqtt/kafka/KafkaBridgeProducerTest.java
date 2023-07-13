@@ -16,27 +16,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for {@link BridgeKafkaProducerService}
+ * Unit tests for {@link KafkaBridgeProducer}
  */
-public class BridgeKafkaProducerServiceTest {
+public class KafkaBridgeProducerTest {
 
     /**
-     * Test the {@link BridgeKafkaProducerService#send(ProducerRecord)}} method
+     * Test the {@link KafkaBridgeProducer#send(ProducerRecord)}} method
      */
     @Test
-    public void testProducerSend() {
+    public void testSend() {
         // mock the producer
-        BridgeKafkaProducerService producer = mock(BridgeKafkaProducerService.class);
+        KafkaBridgeProducer producer = mock(KafkaBridgeProducer.class);
 
         String kafkaTopic = "test-topic";
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaTopic, "test".getBytes());
-
-        // simulate the send method with no ack
-        doNothing().when(producer).sendNoAck(any(ProducerRecord.class));
 
         // simulate the send method with ack
         when(producer.send(any(ProducerRecord.class)))
@@ -70,9 +66,13 @@ public class BridgeKafkaProducerServiceTest {
             assertThat("Timestamp is correct",
                     metadata.timestamp(), is(1000L));
 
-        });
+            // should have the correct serialized key size
+            assertThat("Serialized key size is correct",
+                    metadata.serializedKeySize(), is(0));
 
-        // send the record with no ack
-        producer.sendNoAck(record);
+            // should have the correct serialized value size
+            assertThat("Serialized value size is correct",
+                    metadata.serializedValueSize(), is("test".getBytes().length));
+        });
     }
 }
