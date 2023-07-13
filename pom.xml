@@ -18,6 +18,7 @@
         <junit.version>4.13.2</junit.version>
         <jackson.version>2.14.2</jackson.version>
         <commons-cli.version>1.5.0</commons-cli.version>
+        <kafka.version>3.5.0</kafka.version>
         <mockito.version>4.11.0</mockito.version>
     </properties>
 
@@ -71,6 +72,11 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons-cli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
         </dependency>
         <!-- Testing -->
         <dependency>

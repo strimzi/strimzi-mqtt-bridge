@@ -12,14 +12,20 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
+import io.netty.handler.codec.mqtt.MqttQoS;
+import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
+
+import static io.netty.channel.ChannelHandler.Sharable;
 
 /**
  * Represents a SimpleChannelInboundHandler. The MqttServerHandler is responsible for: <br>
@@ -28,15 +34,18 @@ import java.util.List;
  *
  * @see io.netty.channel.SimpleChannelInboundHandler
  */
+@Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger logger = LoggerFactory.getLogger(MqttServerHandler.class);
+    private final KafkaBridgeProducer kafkaBridgeProducer;
     private MqttKafkaMapper mqttKafkaMapper;
 
     /**
      * Constructor
      */
-    public MqttServerHandler() {
-        super(false);
+    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer) {
+        // auto release reference count to avoid memory leak
+        super(true);
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
@@ -44,6 +53,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         } catch (IOException e) {
             logger.error("Error reading mapping file: ", e);
         }
+        this.kafkaBridgeProducer = kafkaBridgeProducer;
     }
 
     @Override
@@ -92,14 +102,72 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     /**
+     * Send a MQTT PUBACK message to the client.
+     *
+     * @param ctx ChannelHandlerContext instance
+     * @param packetId packet identifier
+     */
+    private void sendPubAckMessage(ChannelHandlerContext ctx, int packetId) {
+        MqttMessage pubAckMessage = MqttMessageBuilders.pubAck()
+                .packetId(packetId)
+                .build();
+
+        ctx.writeAndFlush(pubAckMessage);
+    }
+
+    /**
+     * Transform a MqttPublishMessage's payload into byte array
+     */
+    private static byte[] payloadToBytes(MqttPublishMessage msg) {
+        byte[] data = new byte[msg.payload().readableBytes()];
+        msg.payload().readBytes(data);
+        return data;
+    }
+
+    /**
      * Handle the case when a client sent a MQTT PUBLISH message type.
      *
      * @param ctx            ChannelHandlerContext instance
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        logger.info("MQTT Topic: {}", publishMessage.variableHeader().topicName());
-        logger.info("Kafka Mapped Topic: {}", mqttKafkaMapper.map(publishMessage.variableHeader().topicName()));
-        logger.info("Message: {}", publishMessage.payload().toString(Charset.defaultCharset()));
+        // get QoS level from the MqttPublishMessage
+        MqttQoS qos = MqttQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
+
+        // get the MQTT topic from the MqttPublishMessage
+        String mqttTopic = publishMessage.variableHeader().topicName();
+
+        // perform topic mapping
+        String kafkaMappedTopic = mqttKafkaMapper.map(mqttTopic);
+
+        //log the topic mapping
+        logger.info("MQTT topic {} mapped to Kafka Topic {}", mqttTopic, kafkaMappedTopic);
+
+        byte[] data = payloadToBytes(publishMessage);
+        // build the Kafka record
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaMappedTopic,
+                data);
+
+        // send the record to the Kafka topic
+        switch (qos) {
+            case AT_MOST_ONCE -> {
+                kafkaBridgeProducer.sendNoAck(record);
+                logger.info("Message sent to Kafka on topic {}", record.topic());
+            }
+            case AT_LEAST_ONCE -> {
+                CompletionStage<RecordMetadata> result = kafkaBridgeProducer.send(record);
+                // wait for the result of the send operation
+                result.whenComplete((metadata, error) -> {
+                    if (error != null) {
+                        logger.error("Error sending message to Kafka: ", error);
+                    } else {
+                        logger.info("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
+                        // send PUBACK message to the client
+                        sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
+                    }
+                });
+            }
+            case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported");
+        }
     }
 }

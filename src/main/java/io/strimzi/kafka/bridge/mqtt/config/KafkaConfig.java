@@ -18,7 +18,6 @@ public class KafkaConfig extends AbstractConfig {
 
     // Kafka bootstrap server configuration. This will be removed when we add the apache kafka client
     public static final String BOOTSTRAP_SERVERS_CONFIG = KAFKA_CONFIG_PREFIX + "bootstrap.servers";
-
     private final KafkaProducerConfig kafkaProducerConfig;
 
     /**
@@ -41,9 +40,8 @@ public class KafkaConfig extends AbstractConfig {
     public static KafkaConfig fromMap(Map<String, Object> config) {
         final KafkaProducerConfig kafkaProducerConfig = KafkaProducerConfig.fromMap(config);
         return new KafkaConfig(config.entrySet().stream()
-                .filter((entry-> entry
-                .getKey().startsWith(KafkaConfig.KAFKA_CONFIG_PREFIX)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), kafkaProducerConfig);
+                .filter((entry -> entry.getKey().startsWith(KafkaConfig.KAFKA_CONFIG_PREFIX)))
+                .collect(Collectors.toMap((e) -> e.getKey().substring(KAFKA_CONFIG_PREFIX.length()), Map.Entry::getValue)), kafkaProducerConfig);
     }
 
     /**
