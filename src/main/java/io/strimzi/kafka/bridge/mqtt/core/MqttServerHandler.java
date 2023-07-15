@@ -14,6 +14,7 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
@@ -138,14 +139,17 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         String mqttTopic = publishMessage.variableHeader().topicName();
 
         // perform topic mapping
-        String kafkaMappedTopic = mqttKafkaMapper.map(mqttTopic);
+        MappingResult mqttKafkaMappingResult = mqttKafkaMapper.map(mqttTopic);
+
+        String kafkaMappedTopic = mqttKafkaMappingResult.getKafkaTopic();
+        String key = mqttKafkaMappingResult.getKafkaKey();
 
         //log the topic mapping
-        logger.info("MQTT topic {} mapped to Kafka Topic {}", mqttTopic, kafkaMappedTopic);
+        logger.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, kafkaMappedTopic, key);
 
         byte[] data = payloadToBytes(publishMessage);
         // build the Kafka record
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaMappedTopic,
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaMappedTopic, key,
                 data);
 
         // send the record to the Kafka topic

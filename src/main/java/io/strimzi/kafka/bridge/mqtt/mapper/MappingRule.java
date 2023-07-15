@@ -22,6 +22,9 @@ public class MappingRule {
     @JsonProperty("kafkaTopic")
     private String kafkaTopicTemplate;
 
+    @JsonProperty("kafkaKey")
+    private String kafkaKey;
+
     /**
      * Default constructor for MappingRule. Used for deserialization.
      */
@@ -34,9 +37,10 @@ public class MappingRule {
      * @param mqttTopicPattern   the mqtt topic pattern.
      * @param kafkaTopicTemplate the kafka topic template.
      */
-    public MappingRule(String mqttTopicPattern, String kafkaTopicTemplate) {
+    public MappingRule(String mqttTopicPattern, String kafkaTopicTemplate, String kafkaKey) {
         this.mqttTopicPattern = mqttTopicPattern;
         this.kafkaTopicTemplate = kafkaTopicTemplate;
+        this.kafkaKey = kafkaKey;
     }
 
     /**
@@ -55,6 +59,15 @@ public class MappingRule {
      */
     public String getMqttTopicPattern() {
         return mqttTopicPattern;
+    }
+
+    /**
+     * Get the record key.
+     *
+     * @return the record key.
+     */
+    public String getKafkaKey() {
+        return kafkaKey;
     }
 
     /**

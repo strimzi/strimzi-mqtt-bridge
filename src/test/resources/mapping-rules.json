@@ -1,30 +1,36 @@
 [
   {
-    "mqttTopic": "building/{building}/room/{room}/#",
-    "kafkaTopic": "building_{building}_room_{room}"
+    "mqttTopic": "building/([^/]+)/room/([^/]+).*",
+    "kafkaTopic": "building_$1_room_$2",
+    "kafkaKey": "building_$2"
   },
   {
-    "mqttTopic": "sensors/+/data",
-    "kafkaTopic": "sensor_data"
+    "mqttTopic": "sensors/([^/]+)/data",
+    "kafkaTopic": "sensor_data",
+    "kafkaKey": "sensor_$1"
   },
   {
-    "mqttTopic": "devices/{device}/data",
-    "kafkaTopic": "devices_{device}_data"
+    "mqttTopic": "devices/([^/]+)/data",
+    "kafkaTopic": "devices_$1_data",
+    "kafkaKey": "devices_$1"
   },
   {
-    "mqttTopic": "fleet/{fleet}/vehicle/{vehicle}/#",
-    "kafkaTopic": "fleet_{vehicle}"
+    "mqttTopic": "fleet/([^/]+)/vehicle/([^/]+).*",
+    "kafkaTopic": "fleet_$1_vehicle_$2",
+    "kafkaKey": "fleet_$2"
   },
   {
-    "mqttTopic": "building/{building}/#",
-    "kafkaTopic": "building_{building}_others"
+    "mqttTopic": "building/[^/]+.*",
+    "kafkaTopic": "building_$1_others"
   },
   {
-    "mqttTopic": "sensors/#",
-    "kafkaTopic": "sensor_others"
+    "mqttTopic": "sensors.*",
+    "kafkaTopic": "sensor_others",
+    "kafkaKey": "sensor"
   },
   {
-    "mqttTopic": "building/#",
-    "kafkaTopic": "building_others"
+    "mqttTopic": "building.*",
+    "kafkaTopic": "building_others",
+    "kafkaKey": "building"
   }
 ]

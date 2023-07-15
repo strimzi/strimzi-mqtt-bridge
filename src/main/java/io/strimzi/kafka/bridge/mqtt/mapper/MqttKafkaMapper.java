@@ -6,8 +6,6 @@ package io.strimzi.kafka.bridge.mqtt.mapper;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,20 +19,9 @@ public class MqttKafkaMapper {
     // default kafka topic. Used when no mapping rule matches the mqtt topic.
     public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
 
-    // find any word inside a curly bracket. E.g. {something}, this is known as a placeholder.
-    private static final String MQTT_TOPIC_PLACEHOLDER_REGEX = "\\{\\w+\\}";
+    // used to find any expression starting with a $ followed by upto 2 digits number. E.g. $1, this is known as a placeholder.
+    private static final String MQTT_TOPIC_PLACEHOLDER_REGEX = "\\$(\\d{1,2})";
 
-    // identifies a single level wildcard character in the mqtt pattern. E.g. sensors/+/data
-    private static final String MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER = "+";
-
-    // Regex expression used to replace the + in the mqtt pattern.
-    private static final String SINGLE_LEVEL_WILDCARD_REGEX = "[^/]+";
-
-    // identifies a multi level wildcard character in the mqtt pattern. E.g. sensors/#
-    private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
-
-    // matches any character after the string. Used to replace the # in the mqtt pattern.
-    private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
     private final List<MappingRule> rules;
     private final List<Pattern> patterns = new ArrayList<>();
     private final Pattern placeholderPattern;
@@ -46,7 +33,9 @@ public class MqttKafkaMapper {
     public MqttKafkaMapper(List<MappingRule> rules) {
         this.rules = rules;
         this.placeholderPattern = Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX);
-        buildRegex();
+
+        // compile the patterns for each rule
+        this.rules.forEach(e -> this.patterns.add(Pattern.compile(e.getMqttTopicPattern())));
     }
 
     /**
@@ -56,103 +45,48 @@ public class MqttKafkaMapper {
      * @return a valid Kafka topic.
      * @see MappingRule
      */
-    public String map(String mqttTopic) {
+    public MappingResult map(String mqttTopic) {
+        MappingResult mappingResult = new MappingResult(DEFAULT_KAFKA_TOPIC, null);
+
         for (MappingRule rule : this.rules) {
             Matcher matcher = this.patterns.get(this.rules.indexOf(rule)).matcher(mqttTopic);
-
             if (matcher.matches()) {
-                HashMap<String, String> placeholders = new HashMap<>();
-
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
+                String kafkaKey = rule.getKafkaKey();
 
-                // find MQTT_TOPIC_PLACEHOLDER_REGEX in the kafkaTopicTemplate.
-                Matcher placeholderMatcher = this.placeholderPattern.matcher(rule.getKafkaTopicTemplate());
-                while (placeholderMatcher.find()) {
-                    String placeholderKey = placeholderMatcher.group();
-                    placeholders.put(placeholderKey, null);
+                for (int i = 1; i < matcher.groupCount() + 1; i++) {
+                    mappedKafkaTopic = mappedKafkaTopic.replace("$" + i, matcher.group(i));
+                    kafkaKey = kafkaKey != null ? kafkaKey.replace("$" + i, matcher.group(i)) : null;
                 }
 
-                if (!placeholders.isEmpty()) {
-                    Matcher mqttTopicMatcher = this.placeholderPattern.matcher(rule.getMqttTopicPattern());
+                // check for pending placeholders replacement in the kafka topic
+                checkPlaceholder(mappedKafkaTopic);
+                // set the mapped kafka topic to the result
+                mappingResult.setKafkaTopic(mappedKafkaTopic);
 
-                    // find the placeholders in the mqtt topic pattern and assign them a value.
-                    while (mqttTopicMatcher.find()) {
-                        String placeholderKey = mqttTopicMatcher.group();
-                        String placeholderValue = matcher.group(removeBrackets(placeholderKey));
-                        placeholders.put(placeholderKey, placeholderValue);
-                    }
-
-                    //build the kafka topic using the placeholders.
-                    for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                        if (entry.getValue() != null) {
-                            mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
-                        } else {
-                            throw new IllegalArgumentException("The placeholder " + entry.getKey() + " was not found assigned any value.");
-                        }
-                    }
+                if (kafkaKey != null) {
+                    // check for pending placeholders replacement in the kafka key.
+                    checkPlaceholder(kafkaKey);
+                    // set the mapped kafka key to the result
+                    mappingResult.setKafkaKey(kafkaKey);
                 }
-                return mappedKafkaTopic;
+
+                // return the first match
+                return mappingResult;
             }
         }
-        return DEFAULT_KAFKA_TOPIC;
+        return mappingResult;
     }
 
     /**
-     * Helper method for Building the regex expressions for the mapping rules.
-     */
-    private void buildRegex() {
-
-        //convert the mqtt patterns to a valid regex expression.
-        // the mqtt pattern can contain placeholders like {something}, + and #.
-        // if the mqtt topic contains a +, we replace it with @singleLevelWildcardRegex
-        // if the mqtt topic contains a #, we replace it with @multiLevelWildcardRegex
-        // if the mqtt topic contains a placeholder (pattern \{\w+\}), we replace it with @placeholderRegex
-        String[] mqttTopicPatternParts;
-        StringBuilder ruleRegex;
-        for (MappingRule rule : this.rules) {
-            mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
-            ruleRegex = new StringBuilder();
-            for (String part : mqttTopicPatternParts) {
-                if (part.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
-                    ruleRegex.append(buildNamedRegexExpression(part));
-                } else if (part.equals(MQTT_TOPIC_SINGLE_LEVEL_WILDCARD_CHARACTER)) {
-                    ruleRegex.append(SINGLE_LEVEL_WILDCARD_REGEX);
-                } else if (part.equals(MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER)) {
-                    if (ruleRegex.length() > 1) {
-                        ruleRegex.deleteCharAt(ruleRegex.length() - 1);
-                    }
-                    ruleRegex.append(MULTIPLE_LEVEL_WILDCARD_REGEX);
-                } else {
-                    ruleRegex.append(part);
-                }
-                ruleRegex.append("/");
-            }
-            // remove the last slash
-            ruleRegex.deleteCharAt(ruleRegex.length() - 1);
-            // compile the regex expression for the rule.
-            patterns.add(Pattern.compile(ruleRegex.toString()));
-        }
-    }
-
-    /**
-     * Helper method for building a named regex expression.
-     * A named regex expression is a regex expression that contains a named capturing group.
-     * E.g. (?<groupName>regexExpression)
+     * Checks if there are any pending placeholders in the kafka topic or kafka key.
      *
-     * @param placeholder represents a placeholder in the mqtt pattern.
-     * @return a named regex expression.
+     * @param placeholder the placeholder to check.
      */
-    private String buildNamedRegexExpression(String placeholder) {
-        String groupName = removeBrackets(placeholder);
-        return "(?<" + groupName + ">[^/]+)";
-    }
-
-    /**
-     * Helper method for removing the curly brackets from a placeholder.
-     * @param placeholder represents a placeholder in the pattern.
-     * @return a placeholder without the curly brackets.
-     */
-    private String removeBrackets(String placeholder) {
-        return placeholder.replaceAll("\\{+|\\}+", "");
+    private void checkPlaceholder(String placeholder) {
+        Matcher matcher = this.placeholderPattern.matcher(placeholder);
+        if (matcher.find()) {
+            throw new IllegalArgumentException("The placeholder " + matcher.group() + " was not found or assigned any value.");
+        }
     }
 }
