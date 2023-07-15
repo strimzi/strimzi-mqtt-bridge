@@ -63,7 +63,7 @@ public class MqttConfig extends AbstractConfig {
     public String toString(){
         return "MqttConfig(" +
                 "config=" + config +
-                ')';
+                ")";
     }
 
 }

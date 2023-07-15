@@ -64,6 +64,9 @@ public class MappingRule {
      */
     @Override
     public String toString() {
-        return "MappingRule(mqttTopicPattern= " + this.mqttTopicPattern + "kafkaTopicTemplate=" + this.kafkaTopicTemplate + ")";
+        return "MappingRule(" +
+                "mqttTopicPattern= " + this.mqttTopicPattern +
+                ", kafkaTopicTemplate=" + this.kafkaTopicTemplate +
+                ")";
     }
 }
