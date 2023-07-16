@@ -72,6 +72,7 @@ public class Main {
         Option optionConfigFile = Option.builder()
                 .longOpt(Main.CONFIG_FILE_OPTION)
                 .hasArg(true)
+                .required()
                 .desc("The path to the configuration file")
                 .build();
         options.addOption(optionConfigFile);
