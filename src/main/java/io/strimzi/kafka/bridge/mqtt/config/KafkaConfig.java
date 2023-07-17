@@ -56,6 +56,6 @@ public class KafkaConfig extends AbstractConfig {
         return "KafkaConfig(" +
                 "config=" + config +
                 ", kafkaProducerConfig=" + kafkaProducerConfig +
-                ')';
+                ")";
     }
 }

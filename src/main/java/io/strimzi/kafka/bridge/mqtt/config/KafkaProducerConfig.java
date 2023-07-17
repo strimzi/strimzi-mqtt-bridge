@@ -41,6 +41,6 @@ public class KafkaProducerConfig extends AbstractConfig {
     public String toString() {
         return "KafkaProducerConfig(" +
                 "config=" + config +
-                ')';
+                ")";
     }
 }

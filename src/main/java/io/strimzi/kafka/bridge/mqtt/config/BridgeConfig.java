@@ -81,6 +81,6 @@ public class BridgeConfig extends AbstractConfig {
                 "config=" + this.config +
                 ", mqttConfig=" + this.mqttConfig +
                 ", kafkaConfig=" + this.kafkaConfig +
-                ')';
+                ")";
     }
 }
