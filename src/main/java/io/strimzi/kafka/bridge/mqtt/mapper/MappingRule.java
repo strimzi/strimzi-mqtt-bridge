@@ -7,14 +7,15 @@ package io.strimzi.kafka.bridge.mqtt.mapper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Represents a Mapping Rule in the Topic Mapping Rules(TOMAR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics.
- * E.g.: a valid mapping rule would look like this in the TOMAR file:
+ * Represents a Mapping Rule in the Topic Mapping Rules(ToMaR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics, and additionally define the record key.
+ * E.g.: a valid mapping rule would look like this in the ToMaR file:
  * {
- *      "mqttTopic": "sensors/{sensorId}/data",
- *      "kafkaTopic": "sensors_{sensorId}_data"
+ * "mqttTopic": "sensors/(^[0-9])/data",
+ * "kafkaTopic": "sensors_$1_data",
+ * "kafkaKey": "sensor_$1"
  * }
  * and like this in the MappingRule class:
- * MappingRule(mqttTopicPattern= sensors/{sensorId}/data, kafkaTopicTemplate=sensors_{sensorId}_data)
+ * MappingRule(mqttTopicPattern= sensors/(^[0-9])/data, kafkaTopicTemplate=sensors_$1_data, kafkaKey=sensor_$1)
  */
 public class MappingRule {
     @JsonProperty("mqttTopic")
@@ -80,6 +81,7 @@ public class MappingRule {
         return "MappingRule(" +
                 "mqttTopicPattern= " + this.mqttTopicPattern +
                 ", kafkaTopicTemplate=" + this.kafkaTopicTemplate +
+                ", kafkaKey=" + this.kafkaKey +
                 ")";
     }
 }

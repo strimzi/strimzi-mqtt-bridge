@@ -14,14 +14,16 @@ import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
-import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
-import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
+import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaRegexMapper;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
 import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -50,11 +52,20 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
-            this.mqttKafkaMapper = new MqttKafkaMapper(rules);
+            this.mqttKafkaMapper = new MqttKafkaRegexMapper(rules);
         } catch (IOException e) {
             logger.error("Error reading mapping file: ", e);
         }
         this.kafkaBridgeProducer = kafkaBridgeProducer;
+    }
+
+    /**
+     * Transform a MqttPublishMessage's payload into byte array
+     */
+    private static byte[] payloadToBytes(MqttPublishMessage msg) {
+        byte[] data = new byte[msg.payload().readableBytes()];
+        msg.payload().readBytes(data);
+        return data;
     }
 
     @Override
@@ -105,7 +116,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     /**
      * Send a MQTT PUBACK message to the client.
      *
-     * @param ctx ChannelHandlerContext instance
+     * @param ctx      ChannelHandlerContext instance
      * @param packetId packet identifier
      */
     private void sendPubAckMessage(ChannelHandlerContext ctx, int packetId) {
@@ -114,15 +125,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 .build();
 
         ctx.writeAndFlush(pubAckMessage);
-    }
-
-    /**
-     * Transform a MqttPublishMessage's payload into byte array
-     */
-    private static byte[] payloadToBytes(MqttPublishMessage msg) {
-        byte[] data = new byte[msg.payload().readableBytes()];
-        msg.payload().readBytes(data);
-        return data;
     }
 
     /**
@@ -139,17 +141,14 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         String mqttTopic = publishMessage.variableHeader().topicName();
 
         // perform topic mapping
-        MappingResult mqttKafkaMappingResult = mqttKafkaMapper.map(mqttTopic);
-
-        String kafkaMappedTopic = mqttKafkaMappingResult.getKafkaTopic();
-        String key = mqttKafkaMappingResult.getKafkaKey();
+        MappingResult mappingResult = mqttKafkaMapper.map(mqttTopic);
 
         //log the topic mapping
-        logger.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, kafkaMappedTopic, key);
+        logger.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, mappingResult.kafkaTopic(), mappingResult.kafkaKey());
 
         byte[] data = payloadToBytes(publishMessage);
         // build the Kafka record
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaMappedTopic, key,
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(mappingResult.kafkaTopic(), mappingResult.kafkaKey(),
                 data);
 
         // send the record to the Kafka topic
