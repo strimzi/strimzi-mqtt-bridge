@@ -47,7 +47,7 @@ public class ConfigRetrieverTest {
         assertThat("There should be 1 related kafka config parameters",
                 bridgeConfig.getKafkaConfig().getConfig().size(), is(1));
         assertThat("The address of the kafka bootstrap server should be 'localhost:9092'",
-                bridgeConfig.getKafkaConfig().getConfig().get(KafkaConfig.BOOTSTRAP_SERVERS_CONFIG), is("localhost:9092"));
+                bridgeConfig.getKafkaConfig().getConfig().get("bootstrap.servers"), is("localhost:9092"));
     }
 
     /**
