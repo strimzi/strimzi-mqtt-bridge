@@ -77,7 +77,7 @@ Let's go through each rule in the above example to understand how the MQTT Bridg
 
    This rule maps any MQTT topic starting with `sensors/` followed by any number of levels in the hierarchy to the Kafka topic `sensor_others`.
    For example, if the MQTT topic is `sensors/temperature/living-room`, it will be mapped to the Kafka topic `sensor_others` with the key `sensor`.
-   Because the `KafkaKey` is not defined, the key of the Kafka record will be `null`.
+   Because the `kafkaKey` is not defined, the key of the Kafka record will be `null`.
 
 4. MQTT Topic: `devices/([^/]+)/data/(\b(all|new|old)\b)` -> Kafka Topic: `device_$1_data` with Kafka Key: `device_$2`
 
