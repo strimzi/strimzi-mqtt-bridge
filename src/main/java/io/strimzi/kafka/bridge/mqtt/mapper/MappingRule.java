@@ -64,7 +64,7 @@ public class MappingRule {
     }
 
     /**
-     * Get the record key.
+     * Get the record key template.
      *
      * @return the record key template.
      */
