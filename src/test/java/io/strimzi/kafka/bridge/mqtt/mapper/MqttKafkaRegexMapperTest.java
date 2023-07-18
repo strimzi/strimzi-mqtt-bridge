@@ -65,7 +65,7 @@ public class MqttKafkaRegexMapperTest {
                 mappingResult.kafkaTopic(), is("building_14"));
 
         assertThat("The key for building_$1 should be expanded to room_25",
-                mappingResult.kafkaKey(), is("building_25"));
+                mappingResult.kafkaKey(), is("room_25"));
 
         // Test sensors/[^/]+/data
         mappingResult = mapper.map("sensors/temperature/data");
