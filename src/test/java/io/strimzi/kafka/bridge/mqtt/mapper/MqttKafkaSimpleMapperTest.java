@@ -33,8 +33,12 @@ public class MqttKafkaSimpleMapperTest {
 
         MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
 
+        MappingResult result = mapper.map("sensor/temperature");
         assertThat("Should use the default topic when no mapping pattern matches.",
-                mapper.map("sensor/temperature").kafkaTopic(), is(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC));
+                result.kafkaTopic(), is(MqttKafkaSimpleMapper.DEFAULT_KAFKA_TOPIC));
+
+        assertThat("The key for the default topic should be null",
+                result.kafkaKey(), nullValue());
     }
 
     /**
@@ -44,43 +48,58 @@ public class MqttKafkaSimpleMapperTest {
     public void testSingleLevel() {
         List<MappingRule> rules = new ArrayList<>();
 
-        rules.add(new MappingRule("sensors/+/data", "sensor_data", "sensor"));
-        rules.add(new MappingRule("devices/{device}/data", "devices_{device}_data", "device_{device}"));
+        rules.add(new MappingRule("sensors/+/data", "sensor_data", null));
+        rules.add(new MappingRule("devices/{device}/data", "devices_{device}_data", null));
         rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}", "fleet_{fleet}", "vehicle_{vehicle}"));
-        rules.add(new MappingRule("building/{building}/floor/{floor}", "building.{building}.floor.{floor}", "floor_{floor}"));
+        rules.add(new MappingRule("building/{building}/floor/{floor}", "building.{building}", "floor_{floor}"));
         rules.add(new MappingRule("term/{number}", "term{number}", null));
 
         MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
 
-        assertThat("Mqtt pattern sensors/+/data should be mapped to sensor_data",
-                mapper.map("sensors/4/data").kafkaTopic(), is("sensor_data"));
+        // Test sensors/+/data
+        MappingResult mappingResult = mapper.map("sensors/8/data");
 
-        assertThat("The key for sensors/+/data should be sensor",
-                mapper.map("sensors/4/data").kafkaKey(), is("sensor"));
+        assertThat("Mqtt pattern sensors/+/data should be mapped to sensor_data",
+                mappingResult.kafkaTopic(), is("sensor_data"));
+
+        assertThat("The key for sensors/+/data should be null",
+                mappingResult.kafkaKey(), nullValue());
+
+        // Test devices/{device}/data
+        mappingResult = mapper.map("devices/4/data");
 
         assertThat("Mqtt pattern devices/{device}/data should be mapped to devices_{device}_data",
-                mapper.map("devices/4/data").kafkaTopic(), is("devices_4_data"));
+                mappingResult.kafkaTopic(), is("devices_4_data"));
 
-        assertThat("The key for devices/{device}/data should be device_{device}",
-                mapper.map("devices/4/data").kafkaKey(), is("device_4"));
+        assertThat("The key for devices/{device}/data should be null",
+                mappingResult.kafkaKey(), nullValue());
+
+        // Test fleet/{fleet}/vehicle/{vehicle}
+        mappingResult = mapper.map("fleet/4/vehicle/23");
 
         assertThat("Mqtt pattern fleet/{fleet}/vehicle/{vehicle} should be mapped to fleet_{fleet}",
-                mapper.map("fleet/4/vehicle/23").kafkaTopic(), is("fleet_4"));
+                mappingResult.kafkaTopic(), is("fleet_4"));
 
         assertThat("The key for fleet/{fleet}/vehicle/{vehicle} should be vehicle_{vehicle}",
-                mapper.map("fleet/4/vehicle/23").kafkaKey(), is("vehicle_23"));
+                mappingResult.kafkaKey(), is("vehicle_23"));
 
-        assertThat("building/{building}/floor/{floor} should be mapped to building.{building}.floor.{floor}",
-                mapper.map("building/4/floor/23").kafkaTopic(), is("building.4.floor.23"));
+        // Test building/{building}/floor/{floor}
+        mappingResult = mapper.map("building/40/floor/13");
+
+        assertThat("building/{building}/floor/{floor} should be mapped to building.{building}",
+                mappingResult.kafkaTopic(), is("building.40"));
 
         assertThat("The key for building/{building}/floor/{floor} should be floor_{floor}",
-                mapper.map("building/4/floor/23").kafkaKey(), is("floor_23"));
+                mappingResult.kafkaKey(), is("floor_13"));
+
+        // Test term/{number}
+        mappingResult = mapper.map("term/4");
 
         assertThat("Mqtt pattern term/{number} should be mapped to term{number}",
-                mapper.map("term/4").kafkaTopic(), is("term4"));
+                mappingResult.kafkaTopic(), is("term4"));
 
         assertThat("The key for term/{number} should be null",
-                mapper.map("term/4").kafkaKey(), is(nullValue()));
+                mappingResult.kafkaKey(), nullValue());
     }
 
 
@@ -118,89 +137,100 @@ public class MqttKafkaSimpleMapperTest {
     public void testMultiLevel() {
         List<MappingRule> rules = new ArrayList<>();
 
-        rules.add(new MappingRule("building/{building}/room/{room}/#", "building_{building}_room_{room}", "building"));
-        rules.add(new MappingRule("building/{building}/#", "building_{building}_others", "building_{building}"));
+        rules.add(new MappingRule("building/{building}/room/{room}/#", "building_{building}", "room_{room}"));
+        rules.add(new MappingRule("building/{building}/#", "building_{building}_others", null));
         rules.add(new MappingRule("building/#", "building_others", null));
-        rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}/#", "fleet_{vehicle}", "vehicle_{vehicle}"));
-        rules.add(new MappingRule("sensor/#", "sensor_data", "sensor"));
-        rules.add(new MappingRule("sport/tennis/{player}/#", "sports_{player}", "player_{player}"));
+        rules.add(new MappingRule("fleet/{fleet}/vehicle/{vehicle}/#", "fleet_{fleet}", "vehicle_{vehicle}"));
+        rules.add(new MappingRule("sensor/#", "sensor_data", null));
+        rules.add(new MappingRule("sport/tennis/{player}/#", "sports_{player}", null));
         rules.add(new MappingRule("+/recipes/#", "my_recipes", null));
         rules.add(new MappingRule("{house}/#", "{house}", null));
 
         MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
 
         // Test fleet/{fleet}/vehicle/{vehicle}/# pattern
-        assertThat("Mqtt topic pattern fleet/{fleet}/vehicle/{vehicle}/# should be mapped to fleet_{vehicle}",
-                mapper.map("fleet/4/vehicle/23/velocity").kafkaTopic(), is("fleet_23"));
+        MappingResult mappingResult = mapper.map("fleet/4/vehicle/23/velocity");
+
+        assertThat("Mqtt topic pattern fleet/{fleet}/vehicle/{vehicle}/# should be mapped to fleet_{fleet}",
+                mappingResult.kafkaTopic(), is("fleet_4"));
 
         assertThat("The key for fleet/{fleet}/vehicle/{vehicle}/# should be vehicle_{vehicle}",
-                mapper.map("fleet/4/vehicle/23/velocity").kafkaKey(), is("vehicle_23"));
+                mappingResult.kafkaKey(), is("vehicle_23"));
 
         // Test building/{building}/room/{room}/# pattern
-        assertThat("Mqtt pattern building/{building}/room/{room}/# should be mapped to building_{building}_room_{room}",
-                mapper.map("building/4/room/23/temperature").kafkaTopic(), is("building_4_room_23"));
+        mappingResult = mapper.map("building/4/room/23/temperature");
 
-        assertThat("The key for building/{building}/room/{room}/# should be building}",
-                mapper.map("building/4/room/23/temperature").kafkaKey(), is("building"));
+        assertThat("Mqtt pattern building/{building}/room/{room}/# should be mapped to building_{building}_room_{room}",
+                mappingResult.kafkaTopic(), is("building_4"));
+
+        assertThat("The key for building/{building}/room/{room}/# should be room_{room}",
+                mappingResult.kafkaKey(), is("room_23"));
 
         // Test building/{building}/# pattern
+        mappingResult = mapper.map("building/405/room");
+
         assertThat("Mqtt pattern building/{building}/# should be mapped to building_{building}_others",
-                mapper.map("building/405/room").kafkaTopic(), is("building_405_others"));
+                mappingResult.kafkaTopic(), is("building_405_others"));
+
+        assertThat("The key for building/{building}/# should be null",
+                mappingResult.kafkaKey(), nullValue());
+
+        // Test building/# pattern
+        mappingResult = mapper.map("building");
+        assertThat("Mqtt pattern building/# should be mapped to building_others",
+                mappingResult.kafkaTopic(), is("building_others"));
+
+        assertThat("The key for building/# should be null",
+                mappingResult.kafkaKey(), nullValue());
 
         assertThat("Mqtt pattern building/# will be mapped to building_101_others because building/{building}/# was defined before building/#",
                 mapper.map("building/101").kafkaTopic(), not("building_others"));
 
-        assertThat("The key for building/{building}/# should be building_{building}",
-                mapper.map("building/405/room").kafkaKey(), is("building_405"));
-
-        // Test building/# pattern
-        assertThat("Mqtt pattern building/# should be mapped to building_others",
-                mapper.map("building").kafkaTopic(), is("building_others"));
-
-        assertThat("The key for building/# should be null",
-                mapper.map("building").kafkaKey(), is(nullValue()));
-
         // Test sensor/# pattern
-        assertThat("Mqtt pattern sensor/# should be mapped to sensor_data",
-                mapper.map("sensor/temperature").kafkaTopic(), is("sensor_data"));
+        mappingResult = mapper.map("sensor/temperature");
 
-        assertThat("The key for sensor/# should be sensor",
-                mapper.map("sensor/temperature").kafkaKey(), is("sensor"));
+        assertThat("Mqtt pattern sensor/# should be mapped to sensor_data",
+                mappingResult.kafkaTopic(), is("sensor_data"));
+
+        assertThat("The key for sensor/# should be null",
+                mappingResult.kafkaKey(), nullValue());
 
         // Test sport/tennis/{player}/# pattern
-        assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
-                mapper.map("sport/tennis/player1").kafkaTopic(), is("sports_player1"));
+        mappingResult = mapper.map("sport/tennis/player1/ranking");
 
         assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
-                mapper.map("sport/tennis/player100/ranking").kafkaTopic(), is("sports_player100"));
+                mappingResult.kafkaTopic(), is("sports_player1"));
 
+        mappingResult = mapper.map("sport/tennis/player123/score/wimbledon");
         assertThat("Mqtt pattern sport/tennis/{player}/# should be mapped to sports_{player}",
-                mapper.map("sport/tennis/player123/score/wimbledon").kafkaTopic(), is("sports_player123"));
+                mappingResult.kafkaTopic(), is("sports_player123"));
 
-        assertThat("The key for sport/tennis/{player}/# should be player_{player}",
-                mapper.map("sport/tennis/player123/score/wimbledon").kafkaKey(), is("player_player123"));
+        assertThat("The key for sport/tennis/{player}/# should be null",
+                mappingResult.kafkaKey(), nullValue());
 
         // Test +/recipes/# pattern
-        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
-                mapper.map("italian/recipes/pizza").kafkaTopic(), is("my_recipes"));
+        mappingResult = mapper.map("italian/recipes/pizza");
 
         assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
-                mapper.map("italian/recipes/pasta").kafkaTopic(), is("my_recipes"));
-
-        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
-                mapper.map("angolan/recipes/calulu/fish").kafkaTopic(), is("my_recipes"));
+                mappingResult.kafkaTopic(), is("my_recipes"));
 
         assertThat("The key for +/recipes/# should be null",
-                mapper.map("italian/recipes/pizza").kafkaKey(), nullValue());
+                mappingResult.kafkaKey(), nullValue());
+
+        mappingResult = mapper.map("angolan/recipes/calulu/fish");
+
+        assertThat("Mqtt pattern +/recipes/# should be mapped to my_recipes",
+                mappingResult.kafkaTopic(), is("my_recipes"));
 
         // Test {house}/# pattern
+        mappingResult = mapper.map("my_house/temperature");
         assertThat("Mqtt pattern {house}/# should be mapped to {house}",
-                mapper.map("my_house/temperature").kafkaTopic(), is("my_house"));
+                mappingResult.kafkaTopic(), is("my_house"));
+
+        assertThat("The key for {house}/# should be null",
+                mappingResult.kafkaKey(), nullValue());
 
         assertThat("Mqtt pattern {house}/# should be mapped to {house}",
                 mapper.map("my_house/temperature/room1").kafkaTopic(), is("my_house"));
-
-        assertThat("The key for {house}/# should be null",
-                mapper.map("my_house/temperature").kafkaKey(), nullValue());
     }
 }

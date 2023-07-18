@@ -51,7 +51,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
                 HashMap<String, String> placeholders = new HashMap<>();
 
                 String mappedKafkaTopic = rule.getKafkaTopicTemplate();
-                String kafkaKey = rule.getKafkaKey();
+                String kafkaKey = rule.getKafkaKeyTemplate();
 
                 // find MQTT_TOPIC_PLACEHOLDER_REGEX in the kafkaTopicTemplate.
                 Matcher placeholderMatcher = this.placeholderPattern.matcher(rule.getKafkaTopicTemplate());

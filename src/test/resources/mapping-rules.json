@@ -6,18 +6,17 @@
   },
   {
     "mqttTopic": "sensors/([^/]+)/data",
-    "kafkaTopic": "sensor_data",
-    "kafkaKey": "sensor_$1"
+    "kafkaTopic": "sensor_data"
   },
   {
-    "mqttTopic": "devices/([^/]+)/data",
+    "mqttTopic": "devices/([^/]+)/type/([^/]+)/data",
     "kafkaTopic": "devices_$1_data",
-    "kafkaKey": "devices_$1"
+    "kafkaKey": "devices_$2"
   },
   {
     "mqttTopic": "fleet/([^/]+)/vehicle/([^/]+).*",
     "kafkaTopic": "fleet_$1_vehicle_$2",
-    "kafkaKey": "fleet_$2"
+    "kafkaKey": "vehicle_$2"
   },
   {
     "mqttTopic": "building/[^/]+.*",
@@ -25,12 +24,10 @@
   },
   {
     "mqttTopic": "sensors.*",
-    "kafkaTopic": "sensor_others",
-    "kafkaKey": "sensor"
+    "kafkaTopic": "sensor_others"
   },
   {
     "mqttTopic": "building.*",
-    "kafkaTopic": "building_others",
-    "kafkaKey": "building"
+    "kafkaTopic": "building_others"
   }
 ]

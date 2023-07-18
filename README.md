@@ -36,23 +36,22 @@ The following is an example of a valid ToMaR:
 ```json
 [
   {
-    "mqttTopic": "building/(\\w+)/room/(\\d{1,4}).*",
-    "kafkaTopic": "building_$1_room_$2",
-    "kafkaKey": "room_$2"
+     "mqttTopic": "building/(\\w+)/room/(\\d{1,4}).*",
+     "kafkaTopic": "building_$1",
+     "kafkaKey": "room_$2"
   },
   {
     "mqttTopic": "sensors/([^/]+)/data",
     "kafkaTopic": "sensor_data"
   },
   {
-    "mqttTopic": "sensors.*",
-    "kafkaTopic": "sensor_others",
-    "kafkaKey": "sensor"
+     "mqttTopic": "sensors.*",
+     "kafkaTopic": "sensor_others"
   },
   {
     "mqttTopic": "devices/([^/]+)/data/(\b(all|new|old)\b)",
-    "kafkaTopic": "device_$1_data",
-    "kafkaKey": "device_$1"
+     "kafkaTopic": "device_$1_data",
+     "kafkaKey": "device_$2"
   }
 ]
 ```
@@ -73,32 +72,33 @@ used to replace the placeholders in the `KafkaTopic` and `kafkaKey` templates.
 Let's go through each rule in the above example to understand how the MQTT Bridge uses these rules to map MQTT topics to
 Kafka topics:
 
-1. MQTT Topic: `building/(\\w+)/room/(\\d{1,4}).*` -> Kafka Topic: `building_$1_room_$2`
+1. MQTT Topic: `building/(\\w+)/room/(\\d{1,4}).*` -> Kafka Topic: `building_$1` with Kafka Key: `room_$2`
 
    This rule maps MQTT topics of the form `building/{some word}/room/{some number with 4 digits}/#` to the Kafka
-   topic `building_$1_room_$2`.
+   topic `building_$1`.
    For example, if the MQTT topic is `building/A/room/1003/floor/2` it will be mapped to the Kafka
-   topic `building_A_room_1003` with the key `room_1003`.
+   topic `building_A` with the key `room_1003`.
 
-2. MQTT Topic: `sensors/([^/]+)/data` -> Kafka Topic: `sensor_data`
+2. MQTT Topic: `sensors/([^/]+)/data` -> Kafka Topic: `sensor_data` with Kafka Key: `null`
 
    This rule maps MQTT topics of the form `sensors/+/data` to the Kafka topic `sensor_data`.
    For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data`.
    Because the `KafkaKey` is not defined, the key of the Kafka record will be `null`.
 
-3. MQTT Topic: `sensors.*` -> Kafka Topic: `sensor_others`
+3. MQTT Topic: `sensors.*` -> Kafka Topic: `sensor_others` with Kafka Key: `null`
 
    This rule maps any MQTT topic starting with `sensors/` followed by any number of levels in the hierarchy to the Kafka
    topic `sensor_others`.
    For example, if the MQTT topic is `sensors/temperature/living-room`, it will be mapped to the Kafka
    topic `sensor_others` with the key `sensor`.
+   Because the `KafkaKey` is not defined, the key of the Kafka record will be `null`.
 
-4. MQTT Topic: `devices/([^/]+)/data/(\b(all|new|old)\b)` -> Kafka Topic: `device_$1_data`
+4. MQTT Topic: `devices/([^/]+)/data/(\b(all|new|old)\b)` -> Kafka Topic: `device_$1_data` with Kafka Key: `device_$2`
 
    This rule maps MQTT topics of the form `devices/{some word}/data/{either all, new or old}` to the Kafka
    topic `device_$1_data`.
    For example, if the MQTT topic is `devices/thermostat/data/all`, it will be mapped to the Kafka
-   topic `device_thermostat_data` with the key `device_thermostat`.
+   topic `device_thermostat_data` with the key `device_all`.
    This example also shows the advantage of using regex in the `mqttTopic` pattern. The last capturing group in
    the `mqttTopic` should be a word boundary `\b` followed by either `all`, `new` or `old` and anything else will not
    match the pattern.
