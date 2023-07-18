@@ -17,7 +17,7 @@ As a part of the bridge, a Kafka producer will be responsible for producing mess
 
 ### Topic Mapping Rules (ToMaR)
 
-The ToMaR is a set of patterns the user provides defining how the MQTT Bridge maps MQTT topic names to Kafka topic
+The ToMaR is a set of patterns the user provides defining how the MQTT Bridge maps MQTT topic names to Kafka topic names.
 names.
 A Mapping Rule is a model that contains an `MQTT topic pattern`, a `Kafka topic template`, and optionally
 a `Kafka record key`.
