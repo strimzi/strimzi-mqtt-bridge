@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public abstract class MqttKafkaMapper {
 
-    // default kafka topic. Used when no mapping rule matches the mqtt topic.
+    // default Kafka topic. Used when no mapping rule matches the mqtt topic.
     public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
 
     protected final List<MappingRule> rules;
@@ -30,7 +30,7 @@ public abstract class MqttKafkaMapper {
      * Maps an MQTT topic to a Kafka topic. The topic is mapped according to the defined mapping rules.
      *
      * @param mqttTopic
-     * @return a MappingResult object containing the mapped kafka topic and kafka key.
+     * @return a MappingResult object containing the mapped Kafka topic and Kafka key.
      */
     public abstract MappingResult map(String mqttTopic);
 

@@ -60,7 +60,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     }
 
     /**
-     * Transform a MqttPublishMessage's payload into byte array
+     * Transform a MqttPublishMessage's payload into bytes array
      */
     private static byte[] payloadToBytes(MqttPublishMessage msg) {
         byte[] data = new byte[msg.payload().readableBytes()];
@@ -143,7 +143,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         // perform topic mapping
         MappingResult mappingResult = mqttKafkaMapper.map(mqttTopic);
 
-        //log the topic mapping
+        // log the topic mapping
         logger.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, mappingResult.kafkaTopic(), mappingResult.kafkaKey());
 
         byte[] data = payloadToBytes(publishMessage);

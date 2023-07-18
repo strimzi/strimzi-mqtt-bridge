@@ -10,9 +10,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Represents a Mapping Rule in the Topic Mapping Rules(ToMaR). Mapping rules are used to define how MQTT topics should be mapped to Kafka topics, and additionally define the record key.
  * E.g.: a valid mapping rule would look like this in the ToMaR file:
  * {
- * "mqttTopic": "sensors/(^[0-9])/type/([^/]+)/data",
- * "kafkaTopic": "sensors_$1_data",
- * "kafkaKey": "sensor_$2"
+ *      "mqttTopic": "sensors/(^[0-9])/type/([^/]+)/data",
+ *      "kafkaTopic": "sensors_$1_data",
+ *      "kafkaKey": "sensor_$2"
  * }
  * and like this in the MappingRule class:
  * MappingRule(mqttTopicPattern= sensors/(^[0-9])/data, kafkaTopicTemplate=sensors_$1_data, kafkaKey=sensor_$2)
@@ -36,7 +36,8 @@ public class MappingRule {
      * Constructor for MappingRule.
      *
      * @param mqttTopicPattern   the mqtt topic pattern.
-     * @param kafkaTopicTemplate the kafka topic template.
+     * @param kafkaTopicTemplate the Kafka topic template.
+     * @param kafkaKeyTemplate   the Kafka key template.
      */
     public MappingRule(String mqttTopicPattern, String kafkaTopicTemplate, String kafkaKeyTemplate) {
         this.mqttTopicPattern = mqttTopicPattern;
@@ -45,9 +46,9 @@ public class MappingRule {
     }
 
     /**
-     * Get the kafka topic template.
+     * Get the Kafka topic template.
      *
-     * @return the kafka topic template.
+     * @return the Kafka topic template.
      */
     public String getKafkaTopicTemplate() {
         return kafkaTopicTemplate;
@@ -65,7 +66,7 @@ public class MappingRule {
     /**
      * Get the record key.
      *
-     * @return the record key.
+     * @return the record key template.
      */
     public String getKafkaKeyTemplate() {
         return kafkaKeyTemplate;

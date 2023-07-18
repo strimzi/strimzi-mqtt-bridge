@@ -37,11 +37,11 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
                     kafkaKey = kafkaKey != null ? kafkaKey.replace("$" + i, matcher.group(i)) : null;
                 }
 
-                // check for pending placeholders replacement in the kafka topic
+                // check for pending placeholders replacement in the Kafka topic
                 checkPlaceholder(mappedKafkaTopic);
 
                 if (kafkaKey != null) {
-                    // check for pending placeholders replacement in the kafka key.
+                    // check for pending placeholders replacement in the Kafka key.
                     checkPlaceholder(kafkaKey);
                 }
 
@@ -58,7 +58,7 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
     }
 
     /**
-     * Checks if there are any pending placeholders in the kafka topic or kafka key template.
+     * Checks if there are any pending placeholders in the Kafka topic or Kafka key template.
      *
      * @param template the placeholder to check.
      */

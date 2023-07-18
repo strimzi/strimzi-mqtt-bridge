@@ -6,10 +6,10 @@ package io.strimzi.kafka.bridge.mqtt.mapper;
 
 /**
  * Represents the result of a mapping operation.
- * It contains the mapped kafka topic and the kafka key.
+ * It contains the mapped Kafka topic and the Kafka key.
  *
- * @param kafkaTopic the mapped kafka topic.
- * @param kafkaKey   the kafka key.
+ * @param kafkaTopic the mapped Kafka topic.
+ * @param kafkaKey   the Kafka key.
  */
 public record MappingResult(String kafkaTopic, String kafkaKey) {
 

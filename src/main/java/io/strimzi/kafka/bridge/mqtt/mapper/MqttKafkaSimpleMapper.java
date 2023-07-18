@@ -81,7 +81,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
                         placeholders.put(placeholderKey, placeholderValue);
                     }
 
-                    //build the kafka topic using the placeholders.
+                    // build the Kafka topic using the placeholders.
                     for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                         if (entry.getValue() != null) {
                             mappedKafkaTopic = mappedKafkaTopic.replace(entry.getKey(), entry.getValue());
@@ -100,7 +100,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
     @Override
     protected void buildOrCompilePatterns() {
 
-        //convert the mqtt patterns to a valid regex expression.
+        // convert the mqtt patterns to a valid regex expression.
         // the mqtt pattern can contain placeholders like {something}, + and #.
         // if the mqtt topic contains a +, we replace it with @singleLevelWildcardRegex
         // if the mqtt topic contains a #, we replace it with @multiLevelWildcardRegex
