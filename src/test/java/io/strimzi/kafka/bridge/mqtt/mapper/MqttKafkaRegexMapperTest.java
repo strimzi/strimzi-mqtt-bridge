@@ -64,7 +64,7 @@ public class MqttKafkaRegexMapperTest {
         assertThat("building/(\\d+)/floor/(\\d+).* should be mapped to building_$1_$2",
                 mappingResult.kafkaTopic(), is("building_14"));
 
-        assertThat("The key for building_$1 should be expanded to building_25",
+        assertThat("The key for building_$1 should be expanded to room_25",
                 mappingResult.kafkaKey(), is("building_25"));
 
         // Test sensors/[^/]+/data
