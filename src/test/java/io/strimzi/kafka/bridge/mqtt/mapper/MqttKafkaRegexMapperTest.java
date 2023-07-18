@@ -52,7 +52,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("sensors/[^/]+/data", "sensor_data", null));
         rules.add(new MappingRule("devices/([^/]+)/data", "devices_$1_data", null));
         rules.add(new MappingRule("fleet/([0-9]+)/vehicle/(\\w+)", "fleet_$1", "vehicle$2"));
-        rules.add(new MappingRule("building/(\\d+)/floor/(\\d+).*", "building_$1", "building_$2"));
+        rules.add(new MappingRule("building/(\\d+)/floor/(\\d+).*", "building_$1", "floor_$2"));
         rules.add(new MappingRule("term/(\\d+)", "term$1", null));
         rules.add(new MappingRule("devices/([^/]+)/data/(\\b(all|new|old)\\b)", "devices_$1_data", "devices_$2"));
 
