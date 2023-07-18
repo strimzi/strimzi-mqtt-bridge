@@ -20,6 +20,13 @@ public abstract class MqttKafkaMapper {
     protected final List<Pattern> patterns = new ArrayList<>();
     protected final Pattern placeholderPattern;
 
+    /**
+     * Constructor
+     *
+     * @param rules the list of mapping rules.
+     * @param placeholderPattern the pattern used to find placeholders.
+     * @see MappingRule
+     */
     protected MqttKafkaMapper(List<MappingRule> rules, Pattern placeholderPattern) {
         this.rules = rules;
         this.placeholderPattern = placeholderPattern;
