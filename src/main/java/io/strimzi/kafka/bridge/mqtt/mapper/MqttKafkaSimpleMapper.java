@@ -11,9 +11,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Responsible for handling all the topic mapping.
+ * Responsible for handling all the topic mapping using named placeholders instead of regular expressions.
  *
  * @see MappingRule
+ * @see MqttKafkaMapper
+ * @see MqttKafkaRegexMapper
  */
 public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
 

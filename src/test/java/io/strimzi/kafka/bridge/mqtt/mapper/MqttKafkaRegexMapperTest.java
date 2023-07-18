@@ -18,7 +18,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 
 /**
- * Unit tests for {@link MqttKafkaSimpleMapper}
+ * Unit tests for {@link MqttKafkaRegexMapper}
  */
 public class MqttKafkaRegexMapperTest {
 
