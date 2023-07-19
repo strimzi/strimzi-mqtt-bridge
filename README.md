@@ -57,8 +57,8 @@ The expression `([^/]+)` is used to represent the wildcard `+`, which in turn re
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
 Placeholders in the `KafkaTopic` and `kafkaKey` templates are defined using the `$` character followed by a number. 
-The number represents the index of the capturing group in the `mqttTopic` pattern.
-The MQTT Bridge uses the capturing groups in the `mqttTopic` pattern to positionally extract the values that will be used to replace the placeholders in the `KafkaTopic` and `kafkaKey` templates.
+The number represents the index of the `capturing group` in the `mqttTopic` pattern. `Please note that the index starts from 1 and not 0`.
+The MQTT Bridge uses the `capturing groups` in the `mqttTopic` pattern to positionally extract the values that will be used to replace the placeholders in the `KafkaTopic` and `kafkaKey` templates.
 
 Let's go through each rule in the above example to understand how the MQTT Bridge uses these rules to map MQTT topics to Kafka topics:
 
