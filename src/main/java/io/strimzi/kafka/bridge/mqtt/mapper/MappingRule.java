@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *      "kafkaKey": "sensor_$2"
  * }
  * and like this in the MappingRule class:
- * MappingRule(mqttTopicPattern= sensors/(^[0-9])/data, kafkaTopicTemplate=sensors_$1_data, kafkaKey=sensor_$2)
+ * MappingRule(mqttTopicPattern=sensors/(^[0-9])/type/([^/]+)/data, kafkaTopicTemplate=sensors_$1_data, kafkaKey=sensor_$2)
  */
 public class MappingRule {
     @JsonProperty("mqttTopic")
