@@ -32,7 +32,7 @@ The following is an example of a valid ToMaR:
 ```json
 [
   {
-     "mqttTopic": "building/(\\w+)/room/(\\d{1,4}).*",
+     "mqttTopic": "building/(\\w+)/room/(\\d{1,4})/.*",
      "kafkaTopic": "building_$1",
      "kafkaKey": "room_$2"
   },
@@ -52,8 +52,11 @@ The following is an example of a valid ToMaR:
 ]
 ```
 
-The expression `.*` is used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
-The expression `([^/]+)` is used to represent the wildcard `+`, which in turn represents a single level in the MQTT topic hierarchy.
+- The expression `.*` is used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
+However, there are some cases that can lead to unexpected behavior when using the `.*` wildcard. Therefore, you should note the following:
+  - You can not use the `.*` wildcard in capturing groups. For example, the pattern `building/(\\w+)/room/(\\d{1,4})/(.*)` is invalid because it will capture the whole subtopic of the pattern, and `$3` placeholder might include `/` characters, which will lead to an invalid Kafka topic name.
+  - You can use the `.*` wildcard without a preceding `/` character, but it is not equivalent to when it is preceded by `/`. For example, the pattern `building.*` will match `building`, `building/room`, `buildingroom`, and so on. On the other hand, the pattern `building/.*` will match `building`, `building/room`, `building/floor/room`, and so on, but not `buildingroom`. 
+- The expression `([^/]+)` is used to represent the wildcard `+`, which in turn represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
 Placeholders in the `kafkaTopic` and `kafkaKey` templates are defined using the `$` character followed by a number. 

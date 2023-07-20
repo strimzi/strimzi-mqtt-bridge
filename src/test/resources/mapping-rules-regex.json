@@ -1,7 +1,7 @@
 [
   {
-    "mqttTopic": "building/([^/]+)/room/([^/]+).*",
-    "kafkaTopic": "building_$1_room_$2",
+    "mqttTopic": "building/([^/]+)/room/([^/]+)/.*",
+    "kafkaTopic": "building_$1",
     "kafkaKey": "building_$2"
   },
   {
@@ -14,12 +14,12 @@
     "kafkaKey": "devices_$2"
   },
   {
-    "mqttTopic": "fleet/([^/]+)/vehicle/([^/]+).*",
-    "kafkaTopic": "fleet_$1_vehicle_$2",
+    "mqttTopic": "fleet/([^/]+)/vehicle/([^/]+)/.*",
+    "kafkaTopic": "fleet_$1",
     "kafkaKey": "vehicle_$2"
   },
   {
-    "mqttTopic": "building/[^/]+.*",
+    "mqttTopic": "building/([^/]+)/.*",
     "kafkaTopic": "building_$1_others"
   },
   {
@@ -27,7 +27,7 @@
     "kafkaTopic": "sensor_others"
   },
   {
-    "mqttTopic": "building.*",
+    "mqttTopic": "building/.*",
     "kafkaTopic": "building_others"
   }
 ]

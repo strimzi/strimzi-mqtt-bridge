@@ -16,6 +16,9 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
     // used to find any expression starting with a $ followed by upto 2 digits number. E.g. $1, this is known as a placeholder.
     public static final String MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX = "\\$(\\d{1,2})";
 
+    // find literal equivalent of # in the mqtt pattern. E.g. sensors/.*
+    protected static final String PATTERN_MULTI_LEVEL_WILDCARD_REGEX = ".*";
+
     /**
      * Constructor
      * Creates a new instance of MqttKafkaRegexMapper.
@@ -54,7 +57,22 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
 
     @Override
     protected void buildOrCompilePatterns() {
-        this.rules.forEach(e -> patterns.add(Pattern.compile(e.getMqttTopicPattern())));
+        for (MappingRule rule : this.rules) {
+            int lastSlashIndex = rule.getMqttTopicPattern().length() - 3;
+            if (rule.getMqttTopicPattern().endsWith(PATTERN_MULTI_LEVEL_WILDCARD_REGEX) && rule.getMqttTopicPattern().split(MQTT_TOPIC_SEPARATOR).length > 1 && rule.getMqttTopicPattern().charAt(lastSlashIndex) == MQTT_TOPIC_SEPARATOR.charAt(0)){
+                // remove /.* from the end of the pattern
+                String regex = rule.getMqttTopicPattern().substring(0, lastSlashIndex) +
+                        // add the wildcard regex
+                        MqttKafkaRegexMapper.WILDCARD_REGEX;
+                this.patterns.add(Pattern.compile(regex));
+            } else if(rule.getMqttTopicPattern().endsWith("("+PATTERN_MULTI_LEVEL_WILDCARD_REGEX+")")){
+                throw new IllegalArgumentException("The pattern " + rule.getMqttTopicPattern() + " is not valid. You should not use .* in capture groups.\n" +
+                        "Example of correct use of .* are: building.*, building/.*, and etc.\n"+
+                        "Please refer to the documentation for more information.");
+            } else {
+                this.patterns.add(Pattern.compile(rule.getMqttTopicPattern()));
+            }
+        }
     }
 
     /**

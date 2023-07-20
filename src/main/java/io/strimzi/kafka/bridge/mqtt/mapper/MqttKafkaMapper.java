@@ -16,6 +16,12 @@ public abstract class MqttKafkaMapper {
     // default Kafka topic. Used when no mapping rule matches the mqtt topic.
     public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
 
+    // used to replace the # in the mqtt pattern.
+    public static final String WILDCARD_REGEX = "(?:\\/.*)?$";
+
+    // MQTT topic separator
+    public static final String MQTT_TOPIC_SEPARATOR = "/";
+
     protected final List<MappingRule> rules;
     protected final List<Pattern> patterns = new ArrayList<>();
     protected final Pattern placeholderPattern;

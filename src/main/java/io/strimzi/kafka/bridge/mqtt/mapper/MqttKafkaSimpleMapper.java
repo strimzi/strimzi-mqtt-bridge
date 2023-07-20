@@ -31,9 +31,6 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
     // identifies a multi level wildcard character in the mqtt pattern. E.g. sensors/#
     private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
 
-    // matches any character after the string. Used to replace the # in the mqtt pattern.
-    private static final String MULTIPLE_LEVEL_WILDCARD_REGEX = ".*";
-
 
     /**
      * Constructor.
@@ -108,7 +105,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
         String[] mqttTopicPatternParts;
         StringBuilder ruleRegex;
         for (MappingRule rule : this.rules) {
-            mqttTopicPatternParts = rule.getMqttTopicPattern().split("/");
+            mqttTopicPatternParts = rule.getMqttTopicPattern().split(MQTT_TOPIC_SEPARATOR);
             ruleRegex = new StringBuilder();
             for (String part : mqttTopicPatternParts) {
                 if (part.matches(MQTT_TOPIC_PLACEHOLDER_REGEX)) {
@@ -119,11 +116,11 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
                     if (ruleRegex.length() > 1) {
                         ruleRegex.deleteCharAt(ruleRegex.length() - 1);
                     }
-                    ruleRegex.append(MULTIPLE_LEVEL_WILDCARD_REGEX);
+                    ruleRegex.append(MqttKafkaMapper.WILDCARD_REGEX);
                 } else {
                     ruleRegex.append(part);
                 }
-                ruleRegex.append("/");
+                ruleRegex.append(MQTT_TOPIC_SEPARATOR);
             }
             // remove the last slash
             ruleRegex.deleteCharAt(ruleRegex.length() - 1);
