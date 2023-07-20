@@ -132,7 +132,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
-        publishMessage.retain();
         // get QoS level from the MqttPublishMessage
         MqttQoS qos = MqttQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
 
@@ -171,6 +170,5 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             }
             case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported");
         }
-        publishMessage.release();
     }
 }
