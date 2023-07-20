@@ -6,6 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
 import io.netty.handler.codec.mqtt.MqttMessageType;
@@ -67,12 +68,11 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             MqttMessageType messageType = msg.fixedHeader().messageType();
             logger.debug("Got {} message type", messageType.name());
             if (messageType == MqttMessageType.CONNECT) {
-                handleConnectMessage(ctx);
+                handleConnectMessage(ctx, (MqttConnectMessage) msg);
             } else if (messageType == MqttMessageType.PUBLISH) {
-                MqttPublishMessage message = (MqttPublishMessage) msg;
-                message.retain();
-                handlePublishMessage(ctx, message);
-                message.release();
+                handlePublishMessage(ctx, (MqttPublishMessage) msg);
+            } else {
+                logger.warn("Message type {} not handled", messageType.name());
             }
         } catch (Exception e) {
             logger.error("Error reading Channel: ", e);
@@ -90,14 +90,15 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * Handle the case when a client sent a MQTT CONNECT message type.
      *
      * @param ctx ChannelHandlerContext instance
+     * @param connectMessage incoming MqttConnectMessage
      */
-    private void handleConnectMessage(ChannelHandlerContext ctx) {
+    private void handleConnectMessage(ChannelHandlerContext ctx, MqttConnectMessage connectMessage) {
         MqttConnAckMessage connAckMessage = MqttMessageBuilders.connAck()
                 .sessionPresent(false)
                 .returnCode(MqttConnectReturnCode.CONNECTION_ACCEPTED)
                 .build();
 
-        logger.info("{} client connected.", ctx.channel().remoteAddress());
+        logger.info("Client [{}] connected from {}", connectMessage.payload().clientIdentifier(), ctx.channel().remoteAddress());
         ctx.writeAndFlush(connAckMessage);
     }
 
@@ -131,6 +132,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
      * @param publishMessage represents a MqttPublishMessage
      */
     private void handlePublishMessage(ChannelHandlerContext ctx, MqttPublishMessage publishMessage) {
+        publishMessage.retain();
         // get QoS level from the MqttPublishMessage
         MqttQoS qos = MqttQoS.valueOf(publishMessage.fixedHeader().qosLevel().value());
 
@@ -169,5 +171,6 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             }
             case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported");
         }
+        publishMessage.release();
     }
 }
