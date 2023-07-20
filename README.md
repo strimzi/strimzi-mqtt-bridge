@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/cncf/strimzi/_apis/build/status%2Fmqtt-bridge%2Fmqtt-bridge?branchName=main)](https://dev.azure.com/cncf/strimzi/_build/latest?definitionId=59&branchName=main)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Twitter Follow](https://img.shields.io/twitter/follow/strimziio?style=social)](https://twitter.com/strimziio)
 
