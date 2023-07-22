@@ -31,6 +31,8 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
     // identifies a multi level wildcard character in the mqtt pattern. E.g. sensors/#
     private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
 
+    // used to replace the # in the mqtt pattern.
+    public static final String WILDCARD_REGEX = "(?:\\/.*)?$";
 
     /**
      * Constructor.
@@ -116,7 +118,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
                     if (ruleRegex.length() > 1) {
                         ruleRegex.deleteCharAt(ruleRegex.length() - 1);
                     }
-                    ruleRegex.append(MqttKafkaMapper.WILDCARD_REGEX);
+                    ruleRegex.append(WILDCARD_REGEX);
                 } else {
                     ruleRegex.append(part);
                 }

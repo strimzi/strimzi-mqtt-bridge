@@ -153,91 +153,91 @@ public class MqttKafkaRegexMapperTest {
     public void testMultiLevel() {
         List<MappingRule> rules = new ArrayList<>();
 
-        rules.add(new MappingRule("building/([^/]+)/room/(\\d{1,3})/.*", "building_$1", "room_$2"));
+        rules.add(new MappingRule("building/([^/]+)/room/(\\d{1,3}).*", "building_$1", "room_$2"));
         rules.add(new MappingRule("building/([^/]+).*", "building_$1_others", null));
-        rules.add(new MappingRule("building/.*", "building_others", null));
-        rules.add(new MappingRule("fleet/([0-9])/vehicle/(\\w+)/.*", "fleet_$1", "vehicle_$2"));
+        rules.add(new MappingRule("building.*", "building_others", null));
+        rules.add(new MappingRule("fleet/([0-9])/vehicle/(\\w+)(?:\\/.*)?$", "fleet_$1", "vehicle_$2"));
         rules.add(new MappingRule("sensor.*", "sensor_data", null));
-        rules.add(new MappingRule("sport/tennis/(\\w+)/.*", "sports_$1", null));
-        rules.add(new MappingRule("(\\w+)/recipes/.*", "$1_recipes", null));
+        rules.add(new MappingRule("sport/tennis/(\\w+).*", "sports_$1", null));
+        rules.add(new MappingRule("(\\w+)/recipes(?:\\/.*)?$", "$1_recipes", null));
         rules.add(new MappingRule("([^/]+)/.*", "$1", null));
 
         MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
 
 
-        // Test for building/([^/]+)/room/(\\d{1,3})/.* pattern
+        // Test for building/([^/]+)/room/(\\d{1,3}).* pattern
         MappingResult mappingResult = mapper.map("building/4/room/23/temperature");
 
-        assertThat("Mqtt pattern building/([^/]+)/room/(\\d{1,3})/.* should be mapped to building_$1",
+        assertThat("Mqtt pattern building/([^/]+)/room/(\\d{1,3}).* should be mapped to building_$1",
                 mappingResult.kafkaTopic(), is("building_4"));
 
-        assertThat("The key for building/([^/]+)/room/(\\d{1,3})/.* should be expanded to room_$2",
+        assertThat("The key for building/([^/]+)/room/(\\d{1,3}).* should be expanded to room_$2",
                 mappingResult.kafkaKey(), is("room_23"));
 
         // Test for building/([^/]+).* pattern
         mappingResult = mapper.map("building/405/room");
 
-        assertThat("Mqtt pattern building/([^/]+)/.* should be mapped to building_$1_others",
+        assertThat("Mqtt pattern building/([^/]+).* should be mapped to building_$1_others",
                 mappingResult.kafkaTopic(), is("building_405_others"));
 
-        assertThat("The key for building/([^/]+)/.* should be expanded to null",
+        assertThat("The key for building/([^/]+).* should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
 
-        // Test for building/.* pattern
+        // Test for building.* pattern
         mappingResult = mapper.map("building/101");
 
-        assertThat("Mqtt pattern building/.* will be mapped to building_101_others because building/([^/]+)/.* was defined before building/.*",
+        assertThat("Mqtt pattern building.* will be mapped to building_101_others because building/([^/]+).* was defined before building.*",
                 mappingResult.kafkaTopic(), not("building_others"));
 
-        assertThat("Mqtt pattern building/.* will be mapped to building_101_others because building/([^/]+)/.* was defined before building/.*",
+        assertThat("Mqtt pattern building.* will be mapped to building_101_others because building/([^/]+).* was defined before building.*",
                 mappingResult.kafkaTopic(), is("building_101_others"));
 
-        assertThat("The key for building/.* should be expanded to null",
+        assertThat("The key for building.* should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
 
-        assertThat("building/.* should be mapped to building_others",
+        assertThat("building.* should be mapped to building_others",
                 mapper.map("building").kafkaTopic(), is("building_others"));
 
-        // Test for fleet/([0-9])/vehicle/(\\w+)/.* pattern
+        // Test for fleet/([0-9])/vehicle/(\\w+)(?:\/.*)?$ pattern
         mappingResult = mapper.map("fleet/9/vehicle/23/velocity");
 
-        assertThat("Mqtt pattern fleet/([0-9])/vehicle/(\\w+)/.* should be mapped to fleet_$1",
+        assertThat("Mqtt pattern fleet/([0-9])/vehicle/(\\w+)(?:\\/.*)?$ should be mapped to fleet_$1",
                 mappingResult.kafkaTopic(), is("fleet_9"));
 
-        assertThat("The key for fleet/([0-9])/vehicle/(\\w+)/.* should be expanded to fleet$1",
+        assertThat("The key for fleet/([0-9])/vehicle/(\\w+)(?:\\/.*)?$ should be expanded to fleet$1",
                 mappingResult.kafkaKey(), is("vehicle_23"));
 
         // Test for sensor.* pattern
         mappingResult = mapper.map("sensor/temperature/data");
 
-        assertThat("Mqtt pattern sensor/.* should be mapped to sensor_data",
+        assertThat("Mqtt pattern sensor.* should be mapped to sensor_data",
                 mappingResult.kafkaTopic(), is("sensor_data"));
 
         assertThat("The key for sensor.* should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
 
-        // Test for sport/tennis/(\\w+)/.* pattern
+        // Test for sport/tennis/(\\w+).* pattern
         mappingResult = mapper.map("sport/tennis/player123/score/wimbledon");
 
-        assertThat("Mqtt pattern sport/tennis/(\\w+)/.* should be mapped to sports_$1",
+        assertThat("Mqtt pattern sport/tennis/(\\w+).* should be mapped to sports_$1",
                 mappingResult.kafkaTopic(), is("sports_player123"));
 
-        assertThat("The key for sport/tennis/(\\w+)/.* should be expanded to null",
+        assertThat("The key for sport/tennis/(\\w+).* should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
 
-        assertThat("Mqtt pattern sport/tennis/(\\w+)/.* should be mapped to sports_$1",
+        assertThat("Mqtt pattern sport/tennis/(\\w+).* should be mapped to sports_$1",
                 mapper.map("sport/tennis/player1").kafkaTopic(), is("sports_player1"));
 
-        assertThat("Mqtt pattern sport/tennis/(\\w+)/.* should be mapped to sports_$1",
+        assertThat("Mqtt pattern sport/tennis/(\\w+).* should be mapped to sports_$1",
                 mapper.map("sport/tennis/player100/ranking").kafkaTopic(), is("sports_player100"));
 
-        // Test for ([^/]+)/recipes/.* pattern
+        // Test for ([^/]+)/recipes(?:\/.*)?$ pattern
         mappingResult = mapper.map("angolan/recipes/caculu/fish");
 
-        assertThat("Mqtt pattern ([^/]+)/recipes/.* should be mapped to my_recipes",
+        assertThat("Mqtt pattern ([^/]+)/recipes(?:\\/.*)?$ should be mapped to my_recipes",
                 mappingResult.kafkaTopic(), is("angolan_recipes"));
 
-        assertThat("The key for ([^/]+)/recipes/.* should be expanded to null",
+        assertThat("The key for ([^/]+)/recipes(?:\\/.*)?$ should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
 
         // Test for ([^/]+)/.* pattern
@@ -246,7 +246,7 @@ public class MqttKafkaRegexMapperTest {
         assertThat("Mqtt pattern ([^/]+)/.* should be mapped to $1",
                 mappingResult.kafkaTopic(), is("my_house"));
 
-        assertThat("The key for ([^/]+)/.* should be expanded to null",
+        assertThat("The key for ([^/]+).* should be expanded to null",
                 mappingResult.kafkaKey(), nullValue());
     }
 
@@ -258,8 +258,8 @@ public class MqttKafkaRegexMapperTest {
         List<MappingRule> rules = new ArrayList<>();
 
         rules.add(new MappingRule("building/([^/]+)/room/(\\d{1,3}).*", "building_$1", "room_$1"));
-        rules.add(new MappingRule("building/(\\p)/.*", "building_$1_others", null));
-        rules.add(new MappingRule("building/.*", "building_others", null));
+        rules.add(new MappingRule("building/(\\p).*", "building_$1_others", null));
+        rules.add(new MappingRule("building.*", "building_others", null));
 
         Exception mapper = assertThrows(PatternSyntaxException.class, () -> new MqttKafkaRegexMapper(rules));
 
@@ -272,9 +272,6 @@ public class MqttKafkaRegexMapperTest {
         Exception anotherMapper = assertThrows(
                 "Should throw IllegalArgumentException",
                 IllegalArgumentException.class, () -> new MqttKafkaRegexMapper(rules));
-
-        assertThat(".* should not be used in capture groups",
-                anotherMapper.getMessage(), startsWith("The pattern fleet/([0-9])/vehicle/(\\w+)/(.*) is not valid. You should not use .* in capture groups"));
     }
 
     /**
@@ -285,7 +282,7 @@ public class MqttKafkaRegexMapperTest {
         List<MappingRule> rules = new ArrayList<>();
 
         rules.add(new MappingRule("home/(\\w+)/temperature/(sensor\\d{1,2})/readings/(\\b(all|new|old)\\b)", "temperature_$2_in_$1", "$3"));
-        rules.add(new MappingRule("sports/([^/]+)/league/season/(\\d{4}-\\d{4})/match/(\\d+)/.*", "season_$2_$1", "match_$3"));
+        rules.add(new MappingRule("sports/([^/]+)/league/season/(\\d{4}-\\d{4})/match/(\\d+).*", "season_$2_$1", "match_$3"));
 
         MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
 

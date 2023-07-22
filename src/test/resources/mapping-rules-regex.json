@@ -19,7 +19,7 @@
     "kafkaKey": "vehicle_$2"
   },
   {
-    "mqttTopic": "building/([^/]+)/.*",
+    "mqttTopic": "building/([^/]+)/(?:\\/.*)?$",
     "kafkaTopic": "building_$1_others"
   },
   {
