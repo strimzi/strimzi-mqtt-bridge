@@ -34,7 +34,7 @@ public class MappingRulesLoaderTest {
      */
     @Test
     public void testLoadRules() throws Exception {
-        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
+        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules-regex.json")).getPath();
         MappingRulesLoader loader = mock(MappingRulesLoader.class);
 
         // 1st loadRules call throws exception. 2nd loadRules call returns the rules
@@ -72,7 +72,7 @@ public class MappingRulesLoaderTest {
      */
     @Test
     public void testInitMoreThanOnce() {
-        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules.json")).getPath();
+        String filePath = Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules-regex.json")).getPath();
         MappingRulesLoader loader = mock(MappingRulesLoader.class);
 
         // 1st init call, do Nothing. 2nd init call throw exception
