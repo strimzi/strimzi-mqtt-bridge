@@ -67,7 +67,10 @@ Therefore, you should note the following:
   On the other hand, the pattern `building/.*` will match `building/room`, `building/floor/room`, and so on, but not `buildingroom` and `building/`. 
   - You can also use the `(?:\\/.*)?$` wildcard to match the whole subtopic level of the pattern. 
   For example, the pattern `locations/([^/]+)(?:\\/.*)?$` will match `locations/city/luanda/angola`, `locations/city`, `locations/city/`, and so on. 
-  It's literally equivalent to `locations/+/#`.
+  It's literally equivalent to `locations/+/#`.  
+  Please note that the `(?:\\/.*)?$` wildcard is a non-capturing group, which means that it will not be used to replace the placeholders in the `kafkaTopic` and `kafkaKey` templates.
+  - The `(?:\\/.*)?$` wildcard is different from the `.*` wildcard. For example, the pattern `sensors.*` will match everything after `sensors`, seperated with a slash or not. For example, `sensors`, `sensors/`, `sensorsdata`, and so on. 
+  On the other hand, the pattern `sensors(?:\\/.*)?$` will match `sensors`, `sensors/`, `sensors/data`, and so on, but not `sensorsdata`.
 - The expression `([^/]+)` is used to represent the wildcard `+`, which in turn represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
