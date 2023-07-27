@@ -5,7 +5,8 @@
 # MQTT bridge for Apache Kafka®
 
 This project provides a software component which acts as a bridge between [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html) and an [Apache Kafka®](https://kafka.apache.org/) cluster.
-
+It enables the one-way communication from MQTT to Kafka, allowing MQTT clients to send data to an Apache Kafka cluster.
+MQTT subscriptions to read data from the Apache Kafka brokers is out of scope.
 
 ## MQTT Bridge Overview
 
