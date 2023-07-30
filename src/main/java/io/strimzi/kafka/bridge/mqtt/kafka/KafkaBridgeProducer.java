@@ -5,7 +5,6 @@
 package io.strimzi.kafka.bridge.mqtt.kafka;
 
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
-import io.strimzi.kafka.bridge.mqtt.utils.KafkaProducerAckLevel;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
