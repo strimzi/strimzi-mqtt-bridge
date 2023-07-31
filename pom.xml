@@ -21,6 +21,8 @@
         <kafka.version>3.5.0</kafka.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <test-container.version>0.104.0</test-container.version>
+        <eclipse-paho.version>1.2.5</eclipse-paho.version>
     </properties>
 
     <dependencies>
@@ -97,6 +99,17 @@
             <artifactId>hamcrest</artifactId>
             <version>${hamcrest.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.strimzi</groupId>
+            <artifactId>strimzi-test-container</artifactId>
+            <version>${test-container.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>${eclipse-paho.version}</version>
         </dependency>
     </dependencies>
 </project>
