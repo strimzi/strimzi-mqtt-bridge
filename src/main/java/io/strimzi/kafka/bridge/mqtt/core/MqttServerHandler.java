@@ -19,7 +19,7 @@ import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaRegexMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
-import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;

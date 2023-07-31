@@ -2,11 +2,9 @@
  * Copyright Strimzi authors.
  * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
  */
-package io.strimzi.kafka.bridge.mqtt.core.utils;
+package io.strimzi.kafka.bridge.mqtt.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
-import io.strimzi.kafka.bridge.mqtt.utils.MappingRulesLoader;
 import org.junit.Test;
 
 import java.nio.file.Path;
