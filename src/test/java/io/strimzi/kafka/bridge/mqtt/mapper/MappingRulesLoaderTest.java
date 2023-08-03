@@ -5,7 +5,7 @@
 package io.strimzi.kafka.bridge.mqtt.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,7 +14,8 @@ import java.util.Objects;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;

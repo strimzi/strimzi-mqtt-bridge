@@ -6,8 +6,8 @@ package io.strimzi.kafka.bridge.mqtt.core;
 
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
-import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link ConfigRetriever}.

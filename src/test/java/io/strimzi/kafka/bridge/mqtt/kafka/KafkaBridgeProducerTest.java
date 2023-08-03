@@ -7,7 +7,7 @@ package io.strimzi.kafka.bridge.mqtt.kafka;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
 
