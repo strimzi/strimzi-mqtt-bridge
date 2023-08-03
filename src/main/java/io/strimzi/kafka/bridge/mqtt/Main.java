@@ -13,15 +13,14 @@ import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
@@ -49,11 +48,26 @@ public class Main {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             MqttServer mqttServer = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
 
+            CountDownLatch latch = new CountDownLatch(1);
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    mqttServer.stop();
+                } catch (Exception e) {
+                    logger.error("Error stopping the MQTT server: ", e);
+                } finally {
+                    latch.countDown();
+                }
+            }));
+
             // start the MQTT server
             mqttServer.start();
-        } catch (IOException | ParseException e) {
+            latch.await();
+        } catch (Exception e) {
             logger.error("Error starting the MQTT server: ", e);
+            System.exit(1);
         }
+        System.exit(0);
     }
 
     /**
