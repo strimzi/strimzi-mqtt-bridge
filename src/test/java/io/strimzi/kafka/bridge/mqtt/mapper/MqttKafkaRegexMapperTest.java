@@ -4,7 +4,8 @@
  */
 package io.strimzi.kafka.bridge.mqtt.mapper;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.regex.PatternSyntaxException;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link MqttKafkaRegexMapper}
@@ -97,7 +98,7 @@ public class MqttKafkaRegexMapperTest {
         // Test term/(\\d+)
         mappingResult = mapper.map("term/4");
 
-        assertThat("term/(\\d+) should be mapped to temr$1",
+        assertThat("term/(\\d+) should be mapped to term$1",
                 mappingResult.kafkaTopic(), is("term4"));
 
         assertThat("The key for term/(\\d+) should be null",
@@ -269,9 +270,7 @@ public class MqttKafkaRegexMapperTest {
         // test for .* in capture groups
         rules.add(0, new MappingRule("fleet/([0-9])/vehicle/(\\w+)/(.*)", "fleet_$1", "vehicle_$2"));
 
-        Exception anotherMapper = assertThrows(
-                "Should throw IllegalArgumentException",
-                IllegalArgumentException.class, () -> new MqttKafkaRegexMapper(rules));
+        assertThrows(IllegalArgumentException.class, () -> new MqttKafkaRegexMapper(rules));
     }
 
     /**
