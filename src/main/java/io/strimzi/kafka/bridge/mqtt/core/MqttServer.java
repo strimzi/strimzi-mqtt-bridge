@@ -65,7 +65,7 @@ public class MqttServer {
      * Stop the server.
      */
     public void stop() throws InterruptedException {
-        logger.info("Shutting down Netty server ...");
+        logger.info("Shutting down Netty server...");
         this.channelFuture.channel().close().sync();
         this.channelFuture.channel().closeFuture().sync();
         this.masterGroup.shutdownGracefully().sync();
