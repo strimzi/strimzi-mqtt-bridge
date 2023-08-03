@@ -110,6 +110,7 @@
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>${eclipse-paho.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

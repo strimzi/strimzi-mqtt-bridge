@@ -30,7 +30,6 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.slf4j.Logger;
@@ -46,7 +45,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,7 +61,6 @@ public class MqttBridgetIT {
     private static KafkaConsumer<String, String> kafkaConsumerClient = null;
     private static MqttServer mqttBridge;
     private static StrimziKafkaContainer kafkaContainer;
-    private String mqttClientId;
 
 
     /**
@@ -111,24 +108,11 @@ public class MqttBridgetIT {
         MappingRulesLoader.getInstance().init(mappingRulesPath);
 
         // start the MQTT bridge
-        CountDownLatch latch = new CountDownLatch(1);
-
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         mqttBridge = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
         mqttBridge.start();
-
-        latch.countDown();
-        latch.await();
-    }
-
-    /**
-     * Randomly generate a new client id before each test
-     */
-    @BeforeEach
-    public void generateClientId() {
-        mqttClientId = "mqtt-client-" + new Random().nextInt(20);
     }
 
     /**
@@ -136,7 +120,7 @@ public class MqttBridgetIT {
      */
     @Test
     public void testConnection() throws MqttException {
-        try (MqttClient client = new MqttClient(MQTT_SERVER_URI, mqttClientId)) {
+        try (MqttClient client = new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId())) {
             // Set up options for the connection
             MqttConnectOptions options = new MqttConnectOptions();
 
@@ -161,15 +145,14 @@ public class MqttBridgetIT {
      */
     @Test
     public void testConcurrentConnections() throws MqttException {
-        int numberOfClients = 10;
         List<MqttClient> clients = new ArrayList<>();
 
-        for (int i = 0; i < numberOfClients; i++) {
-            String clientId = "mqtt-client-" + i;
-            clients.add(new MqttClient(MQTT_SERVER_URI, clientId));
+        // Create 10 clients
+        for (int i = 0; i < 10; i++) {
+            clients.add(new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId()));
         }
-
         MqttConnectOptions options = new MqttConnectOptions();
+
         // Connect all clients and test the connection
         clients.stream().unordered().parallel().forEach(client -> {
             try {
@@ -201,7 +184,7 @@ public class MqttBridgetIT {
         String mqttTopic = "devices/bluetooth/type/audio/data";
         String kafkaKey = "devices_audio";
 
-        try (MqttAsyncClient client = new MqttAsyncClient(MQTT_SERVER_URI, mqttClientId)) {
+        try (MqttAsyncClient client = new MqttAsyncClient(MQTT_SERVER_URI, getRandomMqttClientId())) {
             MqttConnectOptions options = new MqttConnectOptions();
 
             client.connect(options).waitForCompletion();
@@ -234,5 +217,12 @@ public class MqttBridgetIT {
         kafkaConsumerClient.close();
         mqttBridge.stop();
         kafkaContainer.stop();
+    }
+
+    /**
+     * Randomly generate a new client id before each test
+     */
+    private String getRandomMqttClientId() {
+        return "mqtt-client-" + new Random().nextInt(20);
     }
 }
