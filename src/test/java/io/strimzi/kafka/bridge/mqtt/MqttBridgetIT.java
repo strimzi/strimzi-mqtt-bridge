@@ -120,7 +120,7 @@ public class MqttBridgetIT {
      */
     @Test
     public void testConnection() throws MqttException {
-        try (MqttClient client = new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId())) {
+        try (MqttClient client = new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId(), null)) {
             // Set up options for the connection
             MqttConnectOptions options = new MqttConnectOptions();
 
@@ -149,7 +149,7 @@ public class MqttBridgetIT {
 
         // Create 10 clients
         for (int i = 0; i < 10; i++) {
-            clients.add(new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId()));
+            clients.add(new MqttClient(MQTT_SERVER_URI, getRandomMqttClientId(), null));
         }
         MqttConnectOptions options = new MqttConnectOptions();
 
@@ -184,7 +184,7 @@ public class MqttBridgetIT {
         String mqttTopic = "devices/bluetooth/type/audio/data";
         String kafkaKey = "devices_audio";
 
-        try (MqttAsyncClient client = new MqttAsyncClient(MQTT_SERVER_URI, getRandomMqttClientId())) {
+        try (MqttAsyncClient client = new MqttAsyncClient(MQTT_SERVER_URI, getRandomMqttClientId(), null)) {
             MqttConnectOptions options = new MqttConnectOptions();
 
             client.connect(options).waitForCompletion();
