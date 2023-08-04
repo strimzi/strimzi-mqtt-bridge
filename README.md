@@ -28,7 +28,7 @@ However, if the incoming MQTT message's topic does not match any pattern in the 
 The optional `Kafka record key` is used to define the key of the Kafka record that will be produced to the Kafka topic.
 It is defined by a template as well, and its default value is `null`.
 A valid ToMaR is a JSON file that contains an array of mapping rules.
-Each mapping rule is a JSON object that contains two properties: `mqttTopic` and `kafkaTopic`.
+Each mapping rule is a JSON object that contains two mandatory properties, `mqttTopic`, `kafkaTopic`, and one optional `kafkaKey`.
 The following is an example of a valid ToMaR:
 
 ```json
@@ -59,7 +59,7 @@ The following is an example of a valid ToMaR:
 ]
 ```
 
-The expressions `.*` and `(?:\\/.*)?$` are used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
+- The expressions `.*` and `(?:\\/.*)?$` are used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
 However, there are some cases that can lead to unexpected behavior when using the these wildcards interchangeably . 
 Therefore, you should note the following:
   - You cannot use the `.*` wildcard in capturing groups. 
