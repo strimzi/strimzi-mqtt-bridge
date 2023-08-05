@@ -144,7 +144,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>io.strimzi.kafka.bridge.mqtt.Main</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>

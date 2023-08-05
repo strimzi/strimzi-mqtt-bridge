@@ -5,9 +5,9 @@ set -x
 MYPATH="$(dirname "$0")"
 
 # Configure logging
-if [ -z "$KAFKA_BRIDGE_LOG4J_OPTS" ]
+if [ -z "$MQTT_BRIDGE_LOG4J_OPTS" ]
 then
-      KAFKA_BRIDGE_LOG4J_OPTS="-Dlog4j2.configurationFile=file:${MYPATH}/../config/log4j2.properties"
+      MQTT_BRIDGE_LOG4J_OPTS="-Dlog4j2.configurationFile=file:${MYPATH}/../config/log4j2.properties"
 fi
 
-exec java $KAFKA_BRIDGE_LOG4J_OPTS -classpath "${MYPATH}/../libs/*" io.strimzi.kafka.bridge.mqtt.Main "$@"
+exec java MQTT_BRIDGE_LOG4J_OPTS -classpath "${MYPATH}/../libs/*" io.strimzi.kafka.bridge.mqtt.Main "$@"
