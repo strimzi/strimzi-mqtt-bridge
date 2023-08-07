@@ -1,0 +1,34 @@
+TOPDIR=$(dir $(lastword $(MAKEFILE_LIST)))
+DOCKERFILE_DIR     ?= ./
+DOCKER_REGISTRY    ?= quay.io
+DOCKER_ORG         ?= $(USER)
+DOCKER_TAG         ?= latest
+BUILD_TAG          ?= latest
+RELEASE_VERSION    ?= $(shell cat $(TOPDIR)/release.version)
+
+ifdef DOCKER_ARCHITECTURE
+  DOCKER_PLATFORM = --platform linux/$(DOCKER_ARCHITECTURE)
+  DOCKER_PLATFORM_TAG_SUFFIX = -$(DOCKER_ARCHITECTURE)
+endif
+
+.PHONY: docker_build
+docker_build:
+	# Build Docker image ...
+	docker $(DOCKER_BUILDX) build $(DOCKER_PLATFORM) $(DOCKER_BUILD_ARGS) --build-arg strimzi_mqtt_bridge_version=$(RELEASE_VERSION) -t strimzi/$(PROJECT_NAME):latest $(DOCKERFILE_DIR)
+	# Also tag with $(BUILD_TAG)
+	docker tag strimzi/$(PROJECT_NAME):latest strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+
+.PHONY: docker_load
+docker_load:
+	# Loads the container as TGZ file
+	docker load < mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
+
+.PHONY: docker_tag
+docker_tag:
+	# Tag the $(BUILD_TAG) image we built with the given $(DOCKER_TAG) tag
+	docker tag strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+
+.PHONY: docker_push
+docker_push: docker_tag
+	# Push the $(DOCKER_TAG)-tagged image to the registry
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
