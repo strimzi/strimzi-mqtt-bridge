@@ -16,16 +16,13 @@ spec:
     spec:
       containers:
         - name: mqtt-bridge
-          image: <your-image-here>
+          image: quay.io/antdev/mqtt-bridge:latest
           command: ["/opt/strimzi/bin/docker/mqtt_bridge_run.sh"]
           ports:
             - containerPort: 1883
           volumeMounts:
             - name: mqtt-bridge-config-volume
               mountPath: /opt/strimzi/config/
-          env:
-            - name: BRIDGE_ID
-              value: my-bridge
       volumes:
         - name: mqtt-bridge-config-volume
           configMap:
