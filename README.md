@@ -8,6 +8,54 @@ This project provides a software component which acts as a bridge between [MQTT 
 It enables the one-way communication from MQTT to Kafka, allowing MQTT clients to send data to an Apache Kafka cluster.
 MQTT subscriptions to read data from the Apache Kafka brokers is out of scope.
 
+## Running the MQTT Bridge
+
+### Prerequisites
+
+- A running Apache Kafka cluster:
+  - if you want to run the MQTT Bridge on Kubernetes, you need to deploy your Kafka cluster and the MQTT Bridge on the same Kubernetes cluster. 
+  
+### On Bare Metal
+
+First of all, you need to clone the repository:
+
+```shell
+git clone https://github.com/strimzi/strimzi-mqtt-bridge.git
+```
+
+Then, go to the `strimzi-mqtt-bridge` directory and build the MQTT Bridge using the following command:
+
+```shell
+make package
+```
+
+Go to the `target/mqtt-bridge-<version>/mqtt-bridge-<version>` directory and run the MQTT Bridge using the following command:
+
+Please note the current version of the MQTT Bridge is `0.1.0-SNAPSHOT`.
+
+```shell
+bin/mqtt_bridge_run.sh --config-file <path/to/config/file> --mapping-rules <path/to/mapping/rules/file>
+```
+
+As a default, you can find the configuration and mapping rules files under the `config` directory.
+
+### Deploying on Kubernetes
+
+Deploy the MQTT Bridge to the same Kubernetes cluster as your Kafka cluster. To run the Apache Kafka cluster on Kubernetes, you can use [Strimzi](https://strimzi.io/).
+The MQTT Bridge is deployed as a Kubernetes Deployment, and it is configured using a ConfigMap.
+The ConfigMap contains the configuration file and the mapping rules file. To create the ConfigMap, run the following command:
+
+```shell
+kubectl create configmap mqtt-bridge-config --from-file=config/application.properties --from-file=config/topic-mapping-rules.json
+```
+Make sure that the `application.properties` and `topic-mapping-rules.json` files contain your desired configuration and mapping rules.
+
+Then, deploy the MQTT Bridge using the following command:
+
+```shell
+kubectl apply -f ./install
+````
+
 ## MQTT Bridge Overview
 
 ### How it works

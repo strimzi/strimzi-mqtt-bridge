@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-bridge-deployment
+  labels:
+    app: mqtt-bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt-bridge
+  template:
+    metadata:
+      labels:
+        app: mqtt-bridge
+    spec:
+      volumes:
+        - name: mqtt-bridge-config-volume
+          configMap:
+            name: mqtt-bridge-config
+      containers:
+        - name: mqtt-bridge
+          image: <your-image-here>
+          command: ["/opt/strimzi/bin/mqtt_bridge_run.sh"]
+          args: ["--config-file=/opt/strimzi/config/application.properties", "--mapping-rules=/opt/strimzi/config/topic-mapping-rules.json"]
+          ports:
+            - containerPort: 1883
+          volumeMounts:
+            - name: mqtt-bridge-config-volume
+              mountPath: /opt/strimzi/mqtt-bridge/

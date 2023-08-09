@@ -5,13 +5,13 @@
 # The DOCKER_ORG (default is name of the current user) and DOCKER_TAG (based on Git Tag,
 # default latest) variables are used to name the Docker image. DOCKER_REGISTRY identifies
 # the registry where the image will be pushed (default is Docker Hub).
-TOPDIR=$(dir $(lastword $(MAKEFILE_LIST)))
+TOP_DIR=$(dir $(lastword $(MAKEFILE_LIST)))
 DOCKERFILE_DIR     ?= ./
 DOCKER_REGISTRY    ?= docker.io
 DOCKER_ORG         ?= $(USER)
 DOCKER_TAG         ?= latest
 BUILD_TAG          ?= latest
-RELEASE_VERSION    ?= $(shell cat $(TOPDIR)/release.version)
+RELEASE_VERSION    ?= $(shell cat $(TOP_DIR)/release.version)
 
 ifdef DOCKER_ARCHITECTURE
   DOCKER_PLATFORM = --platform linux/$(DOCKER_ARCHITECTURE)
