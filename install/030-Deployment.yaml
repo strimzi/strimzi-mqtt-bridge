@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mqtt-bridge
-          image: quay.io/antdev/mqtt-bridge:latest
+          image: <your-image-here>
           command: ["/opt/strimzi/bin/docker/mqtt_bridge_run.sh"]
           ports:
             - containerPort: 1883
