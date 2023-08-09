@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mqtt-bridge-config
+  labels:
+        app: mqtt-bridge
+data:
+  application.properties: |
+    #Bridge related settings
+    bridge.id=my-bridge
+
+    #MQTT server common
+    mqtt.server.host=localhost
+    mqtt.server.port=1883
+    #Apache Kafka common
+    kafka.bootstrap.servers=localhost:9092
+  topic-mapping-rules.json: '[]'

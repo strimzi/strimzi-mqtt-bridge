@@ -14,17 +14,19 @@ spec:
       labels:
         app: mqtt-bridge
     spec:
-      volumes:
-        - name: mqtt-bridge-config-volume
-          configMap:
-            name: mqtt-bridge-config
       containers:
         - name: mqtt-bridge
           image: <your-image-here>
-          command: ["/opt/strimzi/bin/mqtt_bridge_run.sh"]
-          args: ["--config-file=/opt/strimzi/config/application.properties", "--mapping-rules=/opt/strimzi/config/topic-mapping-rules.json"]
+          command: ["/opt/strimzi/bin/docker/mqtt_bridge_run.sh"]
           ports:
             - containerPort: 1883
           volumeMounts:
             - name: mqtt-bridge-config-volume
-              mountPath: /opt/strimzi/mqtt-bridge/
+              mountPath: /opt/strimzi/config/
+          env:
+            - name: BRIDGE_ID
+              value: my-bridge
+      volumes:
+        - name: mqtt-bridge-config-volume
+          configMap:
+            name: mqtt-bridge-config
