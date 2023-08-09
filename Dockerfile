@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 ARG JAVA_VERSION=17
-ARG TARGET_PLATFORM
+ARG TARGETPLATFORM
 
 USER root
 
@@ -33,15 +33,15 @@ ENV TINI_SHA256_PPC64LE=3f658420974768e40810001a038c29d003728c5fe86da211cff5059e
 ENV TINI_SHA256_S390X=931b70a182af879ca249ae9de87ef68423121b38d235c78997fafc680ceab32d
 
 RUN set -ex; \
-    if [[ ${TARGET_PLATFORM} = "linux/ppc64le" ]]; then \
+    if [[ ${TARGETPLATFORM} = "linux/ppc64le" ]]; then \
         curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-ppc64le -o /usr/bin/tini; \
         echo "${TINI_SHA256_PPC64LE} */usr/bin/tini" | sha256sum -c; \
         chmod +x /usr/bin/tini; \
-    elif [[ ${TARGET_PLATFORM} = "linux/arm64" ]]; then \
+    elif [[ ${TARGETPLATFORM} = "linux/arm64" ]]; then \
         curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-arm64 -o /usr/bin/tini; \
         echo "${TINI_SHA256_ARM64} */usr/bin/tini" | sha256sum -c; \
         chmod +x /usr/bin/tini; \
-    elif [[ ${TARGET_PLATFORM} = "linux/s390x" ]]; then \
+    elif [[ ${TARGETPLATFORM} = "linux/s390x" ]]; then \
         curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-s390x -o /usr/bin/tini; \
         echo "${TINI_SHA256_S390X} */usr/bin/tini" | sha256sum -c; \
         chmod +x /usr/bin/tini; \
