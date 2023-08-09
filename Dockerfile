@@ -15,13 +15,13 @@ ENV JAVA_HOME /usr/lib/jvm/jre-${JAVA_VERSION}
 # The user is in the group 0 to have access to the mounted volumes and storage
 RUN useradd -r -m -u 1001 -g 0 strimzi
 
-ARG STRIMZI_MQTT_BRIDGE_VERSION=1.0-SNAPSHOT
-ENV STRIMZI_MQTT_BRIDGE_VERSION ${STRIMZI_MQTT_BRIDGE_VERSION}
+ARG strimzi_mqtt_bridge_version=1.0-SNAPSHOT
+ENV STRIMZI_MQTT_BRIDGE_VERSION ${strimzi_mqtt_bridge_version}
 ENV STRIMZI_HOME=/opt/strimzi
 RUN mkdir -p ${STRIMZI_HOME}
 WORKDIR ${STRIMZI_HOME}
 
-COPY target/mqtt-bridge-${STRIMZI_MQTT_BRIDGE_VERSION}/mqtt-bridge-${STRIMZI_MQTT_BRIDGE_VERSION} ./
+COPY target/mqtt-bridge-${strimzi_mqtt_bridge_version}/mqtt-bridge-${strimzi_mqtt_bridge_version} ./
 
 USER 1001
 

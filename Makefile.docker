@@ -1,6 +1,13 @@
+# Makefile.docker contains the shared tasks for building, tagging and pushing Docker images.
+# This file is included into the Makefile files which contain the Dockerfile files (E.g.
+# kafka-base, kafka etc.).
+#
+# The DOCKER_ORG (default is name of the current user) and DOCKER_TAG (based on Git Tag,
+# default latest) variables are used to name the Docker image. DOCKER_REGISTRY identifies
+# the registry where the image will be pushed (default is Docker Hub).
 TOPDIR=$(dir $(lastword $(MAKEFILE_LIST)))
 DOCKERFILE_DIR     ?= ./
-DOCKER_REGISTRY    ?= quay.io
+DOCKER_REGISTRY    ?= docker.io
 DOCKER_ORG         ?= $(USER)
 DOCKER_TAG         ?= latest
 BUILD_TAG          ?= latest
@@ -18,6 +25,11 @@ docker_build:
 	# Also tag with $(BUILD_TAG)
 	docker tag strimzi/$(PROJECT_NAME):latest strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
 
+.PHONY: docker_save
+docker_save:
+	# Saves the container as TGZ file
+	docker save strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) | gzip > mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
+
 .PHONY: docker_load
 docker_load:
 	# Loads the container as TGZ file
@@ -32,3 +44,18 @@ docker_tag:
 docker_push: docker_tag
 	# Push the $(DOCKER_TAG)-tagged image to the registry
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+	
+.PHONY: docker_amend_manifest
+docker_amend_manifest:
+	# Create / Amend the manifest
+	docker manifest create $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG) --amend $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+
+.PHONY: docker_push_manifest
+docker_push_manifest:
+	# Push the manifest to the registry
+	docker manifest push $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)
+
+.PHONY: docker_delete_manifest
+docker_delete_manifest:
+	# Delete the manifest to the registry, ignore the error if manifest doesn't exist
+	docker manifest rm $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG) || true	
