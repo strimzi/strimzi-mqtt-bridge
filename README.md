@@ -39,10 +39,10 @@ As a default, you can find the configuration and mapping rules files under the `
 ### Deploying on Kubernetes
 
 The MQTT Bridge is deployed using a Kubernetes `Deployment` , and it is configured using a `ConfigMap`.
-The ConfigMap contains the configuration file and the mapping rules file. 
+The `ConfigMap` contains the configuration and the mapping rules files. 
 The files under the `install` directory are used to deploy the MQTT Bridge on Kubernetes.
 
-To deploy the MQTT Bridge using the following command:
+To deploy the MQTT Bridge use the following command:
 
 ```shell
 kubectl apply -f ./install
