@@ -8,6 +8,46 @@ This project provides a software component which acts as a bridge between [MQTT 
 It enables the one-way communication from MQTT to Kafka, allowing MQTT clients to send data to an Apache Kafka cluster.
 MQTT subscriptions to read data from the Apache Kafka brokers is out of scope.
 
+## Running the MQTT Bridge
+
+### Prerequisites
+
+- A running Apache Kafka cluster
+
+### On Bare Metal
+
+First of all, you need to clone the repository:
+
+```shell
+git clone https://github.com/strimzi/strimzi-mqtt-bridge.git
+```
+
+Then, go to the `strimzi-mqtt-bridge` directory and build the MQTT Bridge using the following command:
+
+```shell
+make package
+```
+
+Go to the `target/mqtt-bridge-<version>/mqtt-bridge-<version>` directory and run the MQTT Bridge using the following command:
+
+```shell
+bin/mqtt_bridge_run.sh --config-file <path/to/config/file> --mapping-rules <path/to/mapping/rules/file>
+```
+
+As a default, you can find the configuration and mapping rules files under the `config` directory.
+
+### Deploying on Kubernetes
+
+The MQTT Bridge is deployed using a Kubernetes `Deployment` , and it is configured using a `ConfigMap`.
+The `ConfigMap` contains the configuration and the mapping rules files. 
+The files under the `install` directory are used to deploy the MQTT Bridge on Kubernetes.
+
+To deploy the MQTT Bridge use the following command:
+
+```shell
+kubectl apply -f ./install
+````
+
 ## MQTT Bridge Overview
 
 ### How it works
