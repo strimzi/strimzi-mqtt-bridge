@@ -20,7 +20,7 @@ public class MqttConfig extends AbstractConfig {
 
     public static final String MQTT_PORT = MQTT_CONFIG_PREFIX + "server.port";
 
-    public static final String DEFAULT_MQTT_HOST = "localhost";
+    public static final String DEFAULT_MQTT_HOST = "0.0.0.0";
 
     public static final int DEFAULT_MQTT_PORT = 1883;
 

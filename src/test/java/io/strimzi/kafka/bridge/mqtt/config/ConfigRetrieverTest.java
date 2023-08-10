@@ -2,10 +2,8 @@
  * Copyright Strimzi authors.
  * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
  */
-package io.strimzi.kafka.bridge.mqtt.core;
+package io.strimzi.kafka.bridge.mqtt.config;
 
-import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
-import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;

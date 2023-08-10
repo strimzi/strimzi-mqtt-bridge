@@ -67,7 +67,7 @@ public class KafkaBridgeProducer {
     private Producer<String, byte[]> createProducer(KafkaConfig kafkaConfig, KafkaProducerAckLevel producerAckLevel) {
         Properties props = new Properties();
         props.putAll(kafkaConfig.getConfig());
-        props.putAll(kafkaConfig.getKafkaProducerConfig().getConfig());
+        props.putAll(kafkaConfig.getProducerConfig().getConfig());
         props.put(ProducerConfig.ACKS_CONFIG, String.valueOf(producerAckLevel.getValue()));
         return new KafkaProducer<>(props, new StringSerializer(), new ByteArraySerializer());
     }

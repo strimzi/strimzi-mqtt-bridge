@@ -39,6 +39,7 @@ public class Main {
 
             Map<String, ?> configRetriever = configFilePath != null ? ConfigRetriever.getConfig(configFilePath) : ConfigRetriever.getConfigFromEnv();
             BridgeConfig bridgeConfig = BridgeConfig.fromMap((Map<String, Object>) configRetriever);
+            logger.info("Bridge configuration {}", bridgeConfig);
 
             //set the mapping rules file path
             MappingRulesLoader.getInstance().init(mappingRulesFile);
