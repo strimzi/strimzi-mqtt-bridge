@@ -7,9 +7,6 @@ rm -rfv /tmp/* || true
 
 MYPATH="$(dirname "$0")"
 
-# Configure logging for Kubernetes deployments
-export MQTT_BRIDGE_LOG4J_OPTS="-Dlog4j2.configurationFile=file:$STRIMZI_HOME/config/log4j2.properties"
-
 # Configure Memory
 . "${MYPATH}"/dynamic_resources.sh
 
