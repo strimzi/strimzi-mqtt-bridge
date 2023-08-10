@@ -55,7 +55,7 @@ public class KafkaConfig extends AbstractConfig {
 
     @Override
     public String toString() {
-        Map<String, Object> configToString = this.hidingPasswords(this.config);
+        Map<String, Object> configToString = this.hidePasswords(this.config);
         return "KafkaConfig(" +
                 "config=" + configToString +
                 ", kafkaProducerConfig=" + kafkaProducerConfig +
@@ -69,7 +69,7 @@ public class KafkaConfig extends AbstractConfig {
      * @param config configuration where to do the replacing
      * @return updated configuration with hidden password(s)
      */
-    private Map<String, Object> hidingPasswords(Map<String, Object> config) {
+    private Map<String, Object> hidePasswords(Map<String, Object> config) {
         Map<String, Object> configToString = new HashMap<>();
         configToString.putAll(this.config);
         configToString.entrySet().stream()
