@@ -4,6 +4,7 @@
  */
 package io.strimzi.kafka.bridge.mqtt.config;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -40,22 +41,40 @@ public class KafkaConfig extends AbstractConfig {
     public static KafkaConfig fromMap(Map<String, Object> config) {
         final KafkaProducerConfig kafkaProducerConfig = KafkaProducerConfig.fromMap(config);
         return new KafkaConfig(config.entrySet().stream()
-                .filter((entry -> entry.getKey().startsWith(KafkaConfig.KAFKA_CONFIG_PREFIX)))
+                .filter((entry -> entry.getKey().startsWith(KafkaConfig.KAFKA_CONFIG_PREFIX) &&
+                        !entry.getKey().startsWith(KafkaProducerConfig.KAFKA_PRODUCER_CONFIG_PREFIX)))
                 .collect(Collectors.toMap((e) -> e.getKey().substring(KAFKA_CONFIG_PREFIX.length()), Map.Entry::getValue)), kafkaProducerConfig);
     }
 
     /**
      * @return the Kafka producer configuration properties
      */
-    public KafkaProducerConfig getKafkaProducerConfig() {
+    public KafkaProducerConfig getProducerConfig() {
         return kafkaProducerConfig;
     }
 
     @Override
     public String toString() {
+        Map<String, Object> configToString = this.hidePasswords(this.config);
         return "KafkaConfig(" +
-                "config=" + config +
+                "config=" + configToString +
                 ", kafkaProducerConfig=" + kafkaProducerConfig +
                 ")";
+    }
+
+    /**
+     * Hides Kafka related password(s) configuration (i.e. truststore and keystore)
+     * by replacing each actual password with [hidden] string
+     *
+     * @param config configuration where to do the replacing
+     * @return updated configuration with hidden password(s)
+     */
+    private Map<String, Object> hidePasswords(Map<String, Object> config) {
+        Map<String, Object> configToString = new HashMap<>();
+        configToString.putAll(this.config);
+        configToString.entrySet().stream()
+                .filter(e -> e.getKey().contains("password"))
+                .forEach(e -> e.setValue("[hidden]"));
+        return configToString;
     }
 }
