@@ -166,8 +166,8 @@ A valid configuration file should look like this:
     # Bridge configuration
     bridge.id=my-bridge
     # MQTT configuration
-    mqtt.server.host=localhost
-    mqtt.server.port=1883
+    mqtt.host=localhost
+    mqtt.port=1883
     # Kafka configuration
     kafka.bootstrap.servers=localhost:9092
    ```
@@ -177,8 +177,8 @@ The following table describes the configuration properties defined above.
 | Setting                 | Description                        | Default        |
 |-------------------------|------------------------------------|----------------|
 | bridge.id               | ID of the bridge                   | my-bridge      |
-| mqtt.server.host        | Host address of the MQTT server    | localhost      |
-| mqtt.server.port        | Port number of the MQTT server     | 1883           |
+| mqtt.host               | Host address of the MQTT server    | localhost      |
+| mqtt.port               | Port number of the MQTT server     | 1883           |
 | kafka.bootstrap.servers | Bootstrap servers for Apache Kafka | localhost:9092 |
 
 Other than the above properties, the user can also configure the bridge using environment variables.

@@ -27,8 +27,8 @@ public class ConfigTest {
         map.put("bridge.id", "my-bridge");
         map.put("kafka.bootstrap.servers", "localhost:9092");
         map.put("kafka.producer.acks", "1");
-        map.put("mqtt.server.host", "0.0.0.0");
-        map.put("mqtt.server.port", "1883");
+        map.put("mqtt.host", "0.0.0.0");
+        map.put("mqtt.port", "1883");
 
         BridgeConfig bridgeConfig = BridgeConfig.fromMap(map);
         assertThat(bridgeConfig.getBridgeID(), is("my-bridge"));

@@ -16,9 +16,9 @@ public class MqttConfig extends AbstractConfig {
     // Prefix for all the specific configuration parameters for MQTT in the properties file
     public static final String MQTT_CONFIG_PREFIX = "mqtt.";
 
-    public static final String MQTT_HOST = MQTT_CONFIG_PREFIX + "server.host";
+    public static final String MQTT_HOST = MQTT_CONFIG_PREFIX + "host";
 
-    public static final String MQTT_PORT = MQTT_CONFIG_PREFIX + "server.port";
+    public static final String MQTT_PORT = MQTT_CONFIG_PREFIX + "port";
 
     public static final String DEFAULT_MQTT_HOST = "0.0.0.0";
 
