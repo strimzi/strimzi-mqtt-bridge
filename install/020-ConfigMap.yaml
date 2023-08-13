@@ -10,8 +10,8 @@ data:
     bridge.id=my-bridge
 
     #MQTT server common
-    mqtt.server.host=0.0.0.0
-    mqtt.server.port=1883
+    mqtt.host=0.0.0.0
+    mqtt.port=1883
     #Apache Kafka common
     kafka.bootstrap.servers=<kafka-bootstrap-servers>
   topic-mapping-rules.json: '[]'
