@@ -22,6 +22,9 @@ import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.header.internals.RecordHeader;
+import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,9 +151,11 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         logger.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, mappingResult.kafkaTopic(), mappingResult.kafkaKey());
 
         byte[] data = payloadToBytes(publishMessage);
+        Headers headers = new RecordHeaders();
+        headers.add(new RecordHeader("mqtt-topic", mqttTopic.getBytes()));
         // build the Kafka record
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(mappingResult.kafkaTopic(), mappingResult.kafkaKey(),
-                data);
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(mappingResult.kafkaTopic(), null, mappingResult.kafkaKey(),
+                data, headers);
 
         // send the record to the Kafka topic
         switch (qos) {

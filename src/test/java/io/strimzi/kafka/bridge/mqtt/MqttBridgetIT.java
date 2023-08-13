@@ -203,6 +203,8 @@ public class MqttBridgetIT {
                     record.value(), is("Hello world"));
             assertThat("The topic should be " + KAFKA_TOPIC,
                     record.topic(), is(KAFKA_TOPIC));
+            assertThat("The record headers should contain the MQTT topic " + mqttTopic,
+                    record.headers().lastHeader("mqtt-topic").value(), is(mqttTopic.getBytes()));
 
             // Disconnect the client
             client.disconnect();
