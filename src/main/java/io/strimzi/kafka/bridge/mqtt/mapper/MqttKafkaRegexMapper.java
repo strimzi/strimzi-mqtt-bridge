@@ -22,6 +22,7 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
      */
     public MqttKafkaRegexMapper(List<MappingRule> rules) {
         super(rules, Pattern.compile(MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX));
+        this.buildOrCompilePatterns();
     }
 
     @Override
@@ -52,8 +53,10 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
         return new MappingResult(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC, null);
     }
 
-    @Override
-    protected void buildOrCompilePatterns() {
+    /**
+     * Helper method for Building the regex expressions for the mapping rules.
+     */
+    private void buildOrCompilePatterns() {
         this.rules.forEach(rule-> this.patterns.add(Pattern.compile(rule.getMqttTopicPattern())));
     }
 

@@ -15,10 +15,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -64,7 +66,7 @@ public class Main {
             // start the MQTT server
             mqttServer.start();
             latch.await();
-        } catch (Exception e) {
+        } catch (InterruptedException | ParseException | IOException e) {
             logger.error("Error starting the MQTT server: ", e);
             System.exit(1);
         }
