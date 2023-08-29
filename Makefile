@@ -3,12 +3,7 @@ include ./Makefile.maven
 include ./Makefile.docker
 
 PROJECT_NAME ?= mqtt-bridge
-GITHUB_VERSION ?= main
 RELEASE_VERSION ?= latest
-
-ifneq ($(RELEASE_VERSION),latest)
-  GITHUB_VERSION = $(RELEASE_VERSION)
-endif
 
 .PHONY: all
 all: java_verify docker_build docker_push
