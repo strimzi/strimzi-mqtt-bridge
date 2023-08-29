@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
@@ -82,9 +83,9 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         try {
             MqttMessageType messageType = msg.fixedHeader().messageType();
             logger.debug("Got {} message type", messageType.name());
-            if (messageType == MqttMessageType.CONNECT) {
+            if (msg instanceof MqttConnectMessage) {
                 handleConnectMessage(ctx, (MqttConnectMessage) msg);
-            } else if (messageType == MqttMessageType.PUBLISH) {
+            } else if (msg instanceof MqttPublishMessage) {
                 handlePublishMessage(ctx, (MqttPublishMessage) msg);
             } else {
                 logger.warn("Message type {} not handled", messageType.name());
@@ -152,7 +153,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
         byte[] data = payloadToBytes(publishMessage);
         Headers headers = new RecordHeaders();
-        headers.add(new RecordHeader("mqtt-topic", mqttTopic.getBytes()));
+        headers.add(new RecordHeader("mqtt-topic", mqttTopic.getBytes(StandardCharsets.UTF_8)));
         // build the Kafka record
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(mappingResult.kafkaTopic(), null, mappingResult.kafkaKey(),
                 data, headers);
@@ -177,6 +178,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 });
             }
             case EXACTLY_ONCE -> logger.warn("QoS level EXACTLY_ONCE is not supported");
+            default -> throw new IllegalArgumentException("QoS level " + qos + "not supported");
         }
     }
 }

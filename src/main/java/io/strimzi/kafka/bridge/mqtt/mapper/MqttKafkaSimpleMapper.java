@@ -41,6 +41,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
      */
     public MqttKafkaSimpleMapper(List<MappingRule> rules) {
         super(rules, Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX));
+        this.buildOrCompilePatterns();
     }
 
     @Override
@@ -96,8 +97,10 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
         return new MappingResult(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC, null);
     }
 
-    @Override
-    protected void buildOrCompilePatterns() {
+    /**
+     * Helper method for Building the regex expressions for the mapping rules.
+     */
+    private void buildOrCompilePatterns() {
 
         // convert the mqtt patterns to a valid regex expression.
         // the mqtt pattern can contain placeholders like {something}, + and #.

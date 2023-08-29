@@ -33,7 +33,6 @@ public abstract class MqttKafkaMapper {
     protected MqttKafkaMapper(List<MappingRule> rules, Pattern placeholderPattern) {
         this.rules = rules;
         this.placeholderPattern = placeholderPattern;
-        this.buildOrCompilePatterns();
     }
 
     /**
@@ -43,9 +42,4 @@ public abstract class MqttKafkaMapper {
      * @return a MappingResult object containing the mapped Kafka topic and Kafka key.
      */
     public abstract MappingResult map(String mqttTopic);
-
-    /**
-     * Helper method for Building the regex expressions for the mapping rules.
-     */
-    protected abstract void buildOrCompilePatterns();
 }
