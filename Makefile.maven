@@ -25,3 +25,7 @@ java_install:
 java_clean:
 	echo "Cleaning Maven build ..."
 	mvn clean
+
+.PHONY: spotbugs
+spotbugs: java_compile
+	mvn $(MVN_ARGS) spotbugs:check
