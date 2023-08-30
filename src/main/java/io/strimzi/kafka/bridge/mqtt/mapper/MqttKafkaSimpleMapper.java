@@ -44,6 +44,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
         this.buildOrCompilePatterns();
     }
 
+    @SuppressWarnings({"checkstyle:CyclomaticComplexity"})
     @Override
     public MappingResult map(String mqttTopic) {
         for (MappingRule rule : this.rules) {

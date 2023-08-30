@@ -57,7 +57,7 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
      * Helper method for Building the regex expressions for the mapping rules.
      */
     private void buildOrCompilePatterns() {
-        this.rules.forEach(rule-> this.patterns.add(Pattern.compile(rule.getMqttTopicPattern())));
+        this.rules.forEach(rule -> this.patterns.add(Pattern.compile(rule.getMqttTopicPattern())));
     }
 
     /**
