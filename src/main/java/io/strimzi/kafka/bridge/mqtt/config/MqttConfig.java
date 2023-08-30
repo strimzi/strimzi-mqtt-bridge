@@ -60,7 +60,7 @@ public class MqttConfig extends AbstractConfig {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "MqttConfig(" +
                 "config=" + config +
                 ")";

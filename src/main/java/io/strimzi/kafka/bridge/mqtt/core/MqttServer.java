@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Represents the MqttServer component.
  */
 public class MqttServer {
-    private static final Logger logger = LoggerFactory.getLogger(MqttServer.class);
+    private static final Logger log = LoggerFactory.getLogger(MqttServer.class);
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
     private final ServerBootstrap serverBootstrap;
@@ -65,15 +65,15 @@ public class MqttServer {
      * Stop the server.
      */
     public void stop() throws InterruptedException {
-        logger.info("Shutting down Netty server...");
+        log.info("Shutting down Netty server...");
         this.channelFuture.channel().close().sync();
         this.channelFuture.channel().closeFuture().sync();
         this.masterGroup.shutdownGracefully().sync();
         this.workerGroup.shutdownGracefully().sync();
-        logger.info("Netty server shut down");
+        log.info("Netty server shut down");
 
-        logger.info("Closing Kafka producers...");
+        log.info("Closing Kafka producers...");
         this.kafkaBridgeProducer.close();
-        logger.info("Kafka producers closed");
+        log.info("Kafka producers closed");
     }
 }

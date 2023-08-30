@@ -53,7 +53,7 @@ public class ConfigRetrieverTest {
      */
     @Test
     public void testApplicationPropertiesFileNotExists()  {
-        Exception fileNotFoundException = assertThrows(FileNotFoundException.class, ()-> ConfigRetriever.getConfig("not-exists-application.properties"));
+        Exception fileNotFoundException = assertThrows(FileNotFoundException.class, () -> ConfigRetriever.getConfig("not-exists-application.properties"));
 
         assertThat("File not found exception should be thrown",
                 fileNotFoundException.getMessage(), is("not-exists-application.properties (No such file or directory)"));

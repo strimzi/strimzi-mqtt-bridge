@@ -29,6 +29,8 @@
         <maven.assembly.version>3.4.2</maven.assembly.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <maven.spotbugs.version>4.7.3.0</maven.spotbugs.version>
+        <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
+        <checkstyle.version>10.12.2</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -199,6 +201,36 @@
                     <!-- Configures the file for excluding warnings -->
                     <excludeFilterFile>${project.basedir}/.spotbugs/spotbugs-exclude.xml</excludeFilterFile>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <configLocation>.checkstyle/checkstyle.xml</configLocation>
+                            <headerLocation>.checkstyle/java.header</headerLocation>
+                            <suppressionsLocation>.checkstyle/suppressions.xml</suppressionsLocation>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

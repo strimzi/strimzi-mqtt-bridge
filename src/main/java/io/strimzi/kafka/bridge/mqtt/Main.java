@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
     private static final String CONFIG_FILE_OPTION = "config-file";
     private static final String MAPPING_RULES_FILE_OPTION = "mapping-rules";
 
     public static void main(String[] args) {
-        logger.info("Strimzi MQTT Bridge {} is starting", Main.class.getPackage().getImplementationVersion());
+        log.info("Strimzi MQTT Bridge {} is starting", Main.class.getPackage().getImplementationVersion());
         try {
             //prepare the command line options
             CommandLine cmd = new DefaultParser().parse(generateCommandLineOptions(), args);
@@ -41,7 +41,7 @@ public class Main {
 
             Map<String, ?> configRetriever = configFilePath != null ? ConfigRetriever.getConfig(configFilePath) : ConfigRetriever.getConfigFromEnv();
             BridgeConfig bridgeConfig = BridgeConfig.fromMap((Map<String, Object>) configRetriever);
-            logger.info("Bridge configuration {}", bridgeConfig);
+            log.info("Bridge configuration {}", bridgeConfig);
 
             //set the mapping rules file path
             MappingRulesLoader.getInstance().init(mappingRulesFile);
@@ -57,7 +57,7 @@ public class Main {
                 try {
                     mqttServer.stop();
                 } catch (Exception e) {
-                    logger.error("Error stopping the MQTT server: ", e);
+                    log.error("Error stopping the MQTT server: ", e);
                 } finally {
                     latch.countDown();
                 }
@@ -67,7 +67,7 @@ public class Main {
             mqttServer.start();
             latch.await();
         } catch (InterruptedException | ParseException | IOException e) {
-            logger.error("Error starting the MQTT server: ", e);
+            log.error("Error starting the MQTT server: ", e);
             System.exit(1);
         }
         System.exit(0);
