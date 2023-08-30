@@ -45,7 +45,7 @@ import static io.netty.channel.ChannelHandler.Sharable;
 @SuppressWarnings({"checkstyle:ClassFanOutComplexity"})
 @Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
-    private static final Logger log = LoggerFactory.getLogger(MqttServerHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttServerHandler.class);
     private final KafkaBridgeProducer kafkaBridgeProducer;
     private MqttKafkaMapper mqttKafkaMapper;
 
@@ -60,7 +60,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
             List<MappingRule> rules = mappingRulesLoader.loadRules();
             this.mqttKafkaMapper = new MqttKafkaRegexMapper(rules);
         } catch (IOException e) {
-            log.error("Error reading mapping file: ", e);
+            LOGGER.error("Error reading mapping file: ", e);
         }
         this.kafkaBridgeProducer = kafkaBridgeProducer;
     }
@@ -76,23 +76,23 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
+        LOGGER.info("Client  {} is trying to connect", ctx.channel().remoteAddress());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
         try {
             MqttMessageType messageType = msg.fixedHeader().messageType();
-            log.debug("Got {} message type", messageType.name());
+            LOGGER.debug("Got {} message type", messageType.name());
             if (msg instanceof MqttConnectMessage) {
                 handleConnectMessage(ctx, (MqttConnectMessage) msg);
             } else if (msg instanceof MqttPublishMessage) {
                 handlePublishMessage(ctx, (MqttPublishMessage) msg);
             } else {
-                log.warn("Message type {} not handled", messageType.name());
+                LOGGER.warn("Message type {} not handled", messageType.name());
             }
         } catch (Exception e) {
-            log.error("Error reading Channel: ", e);
+            LOGGER.error("Error reading Channel: ", e);
             ctx.close();
         }
     }
@@ -115,7 +115,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 .returnCode(MqttConnectReturnCode.CONNECTION_ACCEPTED)
                 .build();
 
-        log.info("Client [{}] connected from {}", connectMessage.payload().clientIdentifier(), ctx.channel().remoteAddress());
+        LOGGER.info("Client [{}] connected from {}", connectMessage.payload().clientIdentifier(), ctx.channel().remoteAddress());
         ctx.writeAndFlush(connAckMessage);
     }
 
@@ -150,7 +150,7 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         MappingResult mappingResult = mqttKafkaMapper.map(mqttTopic);
 
         // log the topic mapping
-        log.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, mappingResult.kafkaTopic(), mappingResult.kafkaKey());
+        LOGGER.info("MQTT topic {} mapped to Kafka Topic {} with Key {}", mqttTopic, mappingResult.kafkaTopic(), mappingResult.kafkaKey());
 
         byte[] data = payloadToBytes(publishMessage);
         Headers headers = new RecordHeaders();
@@ -163,22 +163,22 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
         switch (qos) {
             case AT_MOST_ONCE -> {
                 kafkaBridgeProducer.sendNoAck(record);
-                log.info("Message sent to Kafka on topic {}", record.topic());
+                LOGGER.info("Message sent to Kafka on topic {}", record.topic());
             }
             case AT_LEAST_ONCE -> {
                 CompletionStage<RecordMetadata> result = kafkaBridgeProducer.send(record);
                 // wait for the result of the send operation
                 result.whenComplete((metadata, error) -> {
                     if (error != null) {
-                        log.error("Error sending message to Kafka: ", error);
+                        LOGGER.error("Error sending message to Kafka: ", error);
                     } else {
-                        log.info("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
+                        LOGGER.info("Message sent to Kafka on topic {} with offset {}", metadata.topic(), metadata.offset());
                         // send PUBACK message to the client
                         sendPubAckMessage(ctx, publishMessage.variableHeader().packetId());
                     }
                 });
             }
-            case EXACTLY_ONCE -> log.warn("QoS level EXACTLY_ONCE is not supported");
+            case EXACTLY_ONCE -> LOGGER.warn("QoS level EXACTLY_ONCE is not supported");
             default -> throw new IllegalArgumentException("QoS level " + qos + "not supported");
         }
     }

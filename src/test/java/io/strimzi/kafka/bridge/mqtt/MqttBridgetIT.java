@@ -54,7 +54,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
 public class MqttBridgetIT {
-    private static final Logger log = LoggerFactory.getLogger(MqttBridgetIT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttBridgetIT.class);
     private static final String MQTT_SERVER_HOST = "localhost";
     private static final int MQTT_SERVER_PORT = 1883;
     private static final String MQTT_SERVER_URI = "tcp://" + MQTT_SERVER_HOST + ":" + MQTT_SERVER_PORT;
@@ -77,7 +77,7 @@ public class MqttBridgetIT {
             kafkaContainer.start();
             kafkaBootstrapServers = kafkaContainer.getBootstrapServers();
         } catch (Exception e) {
-            log.error("Exception occurred", e);
+            LOGGER.error("Exception occurred", e);
             throw e;
         }
 
@@ -165,12 +165,12 @@ public class MqttBridgetIT {
                 assertThat("The client should be connected",
                         client.isConnected(), is(true));
             } catch (MqttException e) {
-                log.error("Exception occurred", e);
+                LOGGER.error("Exception occurred", e);
             } finally {
                 try {
                     client.disconnect();
                 } catch (MqttException e) {
-                    log.error("Exception occurred", e);
+                    LOGGER.error("Exception occurred", e);
                 }
             }
         });
