@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: mqtt-bridge-config
   labels:
-        app: mqtt-bridge
+    app: mqtt-bridge
 data:
   application.properties: |
     #Bridge related settings
