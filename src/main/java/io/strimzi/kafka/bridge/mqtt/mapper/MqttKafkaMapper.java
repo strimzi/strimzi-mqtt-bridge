@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public abstract class MqttKafkaMapper {
 
     // default Kafka topic. Used when no mapping rule matches the mqtt topic.
-    public static final String DEFAULT_KAFKA_TOPIC = "messages_default";
+    public static final String MAPPER_DEFAULT_KAFKA_TOPIC = "messages_default";
 
     // MQTT topic separator
     public static final String MQTT_TOPIC_SEPARATOR = "/";
@@ -22,6 +22,7 @@ public abstract class MqttKafkaMapper {
     protected final List<MappingRule> rules;
     protected final List<Pattern> patterns = new ArrayList<>();
     protected final Pattern placeholderPattern;
+    protected final String bridgeDefaultTopic;
 
     /**
      * Constructor
@@ -30,9 +31,10 @@ public abstract class MqttKafkaMapper {
      * @param placeholderPattern the pattern used to find placeholders.
      * @see MappingRule
      */
-    protected MqttKafkaMapper(List<MappingRule> rules, Pattern placeholderPattern) {
+    protected MqttKafkaMapper(List<MappingRule> rules, Pattern placeholderPattern, String bridgeDefaultTopic) {
         this.rules = rules;
         this.placeholderPattern = placeholderPattern;
+        this.bridgeDefaultTopic = bridgeDefaultTopic;
     }
 
     /**

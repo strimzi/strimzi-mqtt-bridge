@@ -5,6 +5,7 @@
 
 package io.strimzi.kafka.bridge.mqtt.config;
 
+import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,16 @@ public class ConfigTest {
 
         BridgeConfig bridgeConfig = BridgeConfig.fromMap(map);
         assertThat(bridgeConfig.getBridgeID(), is("my-bridge"));
+
+        // test no default topic set
+        assertThat(bridgeConfig.getBridgeDefaultTopic(), is(MqttKafkaMapper.MAPPER_DEFAULT_KAFKA_TOPIC));
+
+        map.put("bridge.default.topic", "bridge_topic");
+
+        bridgeConfig = BridgeConfig.fromMap(map);
+
+        // test default topic set
+        assertThat(bridgeConfig.getBridgeDefaultTopic(), is("bridge_topic"));
 
         assertThat(bridgeConfig.getKafkaConfig().getConfig().size(), is(1));
         assertThat(bridgeConfig.getKafkaConfig().getConfig().get(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG), is("localhost:9092"));

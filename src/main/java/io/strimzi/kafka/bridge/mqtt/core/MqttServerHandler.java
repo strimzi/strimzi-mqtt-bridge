@@ -52,13 +52,13 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
     /**
      * Constructor
      */
-    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer) {
+    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic) {
         // auto release reference count to avoid memory leak
         super(true);
         try {
             MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
             List<MappingRule> rules = mappingRulesLoader.loadRules();
-            this.mqttKafkaMapper = new MqttKafkaRegexMapper(rules);
+            this.mqttKafkaMapper = new MqttKafkaRegexMapper(rules, bridgeDefaultTopic);
         } catch (IOException e) {
             LOGGER.error("Error reading mapping file: ", e);
         }
