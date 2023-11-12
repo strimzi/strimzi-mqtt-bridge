@@ -12,13 +12,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netty.version>4.1.94.Final</netty.version>
+        <netty.version>4.1.100.Final</netty.version>
         <log4j.version>2.17.2</log4j.version>
         <slf4j.version>1.7.21</slf4j.version>
         <junit.version>5.8.2</junit.version>
         <jackson.version>2.15.2</jackson.version>
         <commons-cli.version>1.5.0</commons-cli.version>
-        <kafka.version>3.5.0</kafka.version>
+        <kafka.version>3.6.0</kafka.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <test-container.version>0.104.0</test-container.version>
