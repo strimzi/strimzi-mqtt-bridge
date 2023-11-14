@@ -21,7 +21,7 @@
         <kafka.version>3.6.0</kafka.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <test-container.version>0.104.0</test-container.version>
+        <test-container.version>0.105.0</test-container.version>
         <eclipse-paho.version>1.2.5</eclipse-paho.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
