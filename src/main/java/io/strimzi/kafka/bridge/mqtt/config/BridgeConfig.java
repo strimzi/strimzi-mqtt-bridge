@@ -24,7 +24,7 @@ public class BridgeConfig extends AbstractConfig {
     public static final String BRIDGE_ID = BRIDGE_CONFIG_PREFIX + "id";
 
     // Bridge default topic name
-    public static final String BRIDGE_DEFAULT_TOPIC = BRIDGE_CONFIG_PREFIX + "default.topic";
+    public static final String BRIDGE_DEFAULT_TOPIC = BRIDGE_CONFIG_PREFIX + "topic.default";
 
     private final MqttConfig mqttConfig;
     private final KafkaConfig kafkaConfig;
