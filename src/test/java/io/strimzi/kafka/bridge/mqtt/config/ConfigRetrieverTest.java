@@ -32,8 +32,8 @@ public class ConfigRetrieverTest {
         // bridge config related tests
         assertThat("Bridge-ID should be 'my-bridge'",
                 bridgeConfig.getBridgeID(), is("my-bridge"));
-        assertThat("Bridge default topic should be 'bridge_topic'",
-                bridgeConfig.getBridgeDefaultTopic(), is("bridge_topic"));
+        assertThat("Bridge default topic should be 'default_topic'",
+                bridgeConfig.getBridgeDefaultTopic(), is("default_topic"));
 
         // Mqtt server config related tests
         assertThat("There should be 2 related mqtt server config parameters",

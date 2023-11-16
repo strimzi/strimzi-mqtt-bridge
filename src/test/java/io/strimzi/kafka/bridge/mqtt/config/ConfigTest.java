@@ -36,12 +36,12 @@ public class ConfigTest {
         // test no default topic set
         assertThat(bridgeConfig.getBridgeDefaultTopic(), is(MqttKafkaMapper.MAPPER_DEFAULT_KAFKA_TOPIC));
 
-        map.put("bridge.default.topic", "bridge_topic");
+        map.put("bridge.topic.default", "default_topic");
 
         bridgeConfig = BridgeConfig.fromMap(map);
 
         // test default topic set
-        assertThat(bridgeConfig.getBridgeDefaultTopic(), is("bridge_topic"));
+        assertThat(bridgeConfig.getBridgeDefaultTopic(), is("default_topic"));
 
         assertThat(bridgeConfig.getKafkaConfig().getConfig().size(), is(1));
         assertThat(bridgeConfig.getKafkaConfig().getConfig().get(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG), is("localhost:9092"));
