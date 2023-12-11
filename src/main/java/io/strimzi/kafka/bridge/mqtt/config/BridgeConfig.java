@@ -4,8 +4,6 @@
  */
 package io.strimzi.kafka.bridge.mqtt.config;
 
-import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
-
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -24,7 +22,10 @@ public class BridgeConfig extends AbstractConfig {
     public static final String BRIDGE_ID = BRIDGE_CONFIG_PREFIX + "id";
 
     // Bridge default topic name
-    public static final String BRIDGE_DEFAULT_TOPIC = BRIDGE_CONFIG_PREFIX + "topic.default";
+    public static final String BRIDGE_DEFAULT_TOPIC_PREFIX = BRIDGE_CONFIG_PREFIX + "topic.default";
+
+    // default Kafka topic. Used when no mapping rule matches the mqtt topic.
+    public static final String BRIDGE_DEFAULT_TOPIC = "messages_default";
 
     private final MqttConfig mqttConfig;
     private final KafkaConfig kafkaConfig;
@@ -82,7 +83,7 @@ public class BridgeConfig extends AbstractConfig {
      * If not set, the default topic name is "messages_default"
      */
     public String getBridgeDefaultTopic() {
-        return this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC) == null ? MqttKafkaMapper.MAPPER_DEFAULT_KAFKA_TOPIC : this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC).toString();
+        return this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX) == null ? BRIDGE_DEFAULT_TOPIC : this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX).toString();
     }
 
     /**

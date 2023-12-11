@@ -175,13 +175,13 @@ A valid configuration file should look like this:
 
 The following table describes the configuration properties defined above.
 
-| Setting                        | Description                                                                                      | Default          |
-|--------------------------------|--------------------------------------------------------------------------------------------------|------------------|
-| bridge.id                      | ID of the bridge                                                                                 | my-bridge        |
-| bridge.topic.default | Default Kafka topic for the bridge. If not set, the bridge will use the `messages_default` topic | messages_default |
-| mqtt.host                      | Host address of the MQTT server                                                                  | localhost        |
-| mqtt.port                      | Port number of the MQTT server                                                                   | 1883             |
-| kafka.bootstrap.servers        | Bootstrap servers for Apache Kafka                                                               | localhost:9092   |
+| Setting                 | Description                                              | Default              |
+|-------------------------|----------------------------------------------------------|----------------------|
+| bridge.id               | ID of the bridge                                         | my-bridge            |
+| bridge.topic.default    | Topic to be used if no matches with any mapping rules    | messages_default     |
+| mqtt.host               | Host address of the MQTT server                          | localhost            |
+| mqtt.port               | Port number of the MQTT server                           | 1883                 |
+| kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                       | localhost:9092       |
 
 Other than the above properties, the user can also configure the bridge using environment variables.
 
