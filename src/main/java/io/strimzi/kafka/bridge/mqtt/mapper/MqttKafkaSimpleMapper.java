@@ -39,8 +39,8 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
      *
      * @param rules the list of mapping rules.
      */
-    public MqttKafkaSimpleMapper(List<MappingRule> rules) {
-        super(rules, Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX));
+    public MqttKafkaSimpleMapper(List<MappingRule> rules, String bridgeDefaultTopic) {
+        super(rules, Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX), bridgeDefaultTopic);
         this.buildOrCompilePatterns();
     }
 
@@ -95,7 +95,7 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
                 return new MappingResult(mappedKafkaTopic, kafkaKey);
             }
         }
-        return new MappingResult(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC, null);
+        return new MappingResult(bridgeDefaultTopic, null);
     }
 
     /**

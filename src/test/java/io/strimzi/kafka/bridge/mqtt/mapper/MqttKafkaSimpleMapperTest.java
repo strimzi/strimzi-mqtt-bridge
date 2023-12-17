@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class MqttKafkaSimpleMapperTest {
 
+    private String defaultTopicTest = "default_topic";
     /**
      * Test for default topic.
      * If the MQTT topic does not match any of the mapping rules, the default topic is used.
@@ -31,11 +32,11 @@ public class MqttKafkaSimpleMapperTest {
     public void testDefaultTopic() {
         List<MappingRule> rules = new ArrayList<>();
 
-        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
+        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules, defaultTopicTest);
 
         MappingResult result = mapper.map("sensor/temperature");
         assertThat("Should use the default topic when no mapping pattern matches.",
-                result.kafkaTopic(), is(MqttKafkaSimpleMapper.DEFAULT_KAFKA_TOPIC));
+                result.kafkaTopic(), is(defaultTopicTest));
 
         assertThat("The key for the default topic should be null",
                 result.kafkaKey(), nullValue());
@@ -54,7 +55,7 @@ public class MqttKafkaSimpleMapperTest {
         rules.add(new MappingRule("building/{building}/floor/{floor}", "building.{building}", "floor_{floor}"));
         rules.add(new MappingRule("term/{number}", "term{number}", null));
 
-        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
+        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules, defaultTopicTest);
 
         // Test sensors/+/data
         MappingResult mappingResult = mapper.map("sensors/8/data");
@@ -114,7 +115,7 @@ public class MqttKafkaSimpleMapperTest {
         rules.add(new MappingRule("buildings/+/rooms/+/device/+", "buildings_{building}_rooms_{room}_device_{device}", "building"));
         rules.add(new MappingRule("building/{building}/room/{room}", "building_{building}_room_{room}_{noexistingplaceholder}", null));
 
-        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
+        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules, defaultTopicTest);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mapper.map("fleet/4/vehicle/23"));
 
@@ -146,7 +147,7 @@ public class MqttKafkaSimpleMapperTest {
         rules.add(new MappingRule("+/recipes/#", "my_recipes", null));
         rules.add(new MappingRule("{house}/#", "{house}", null));
 
-        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules);
+        MqttKafkaSimpleMapper mapper = new MqttKafkaSimpleMapper(rules, defaultTopicTest);
 
         // Test fleet/{fleet}/vehicle/{vehicle}/# pattern
         MappingResult mappingResult = mapper.map("fleet/4/vehicle/23/velocity");

@@ -20,8 +20,8 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
      * Constructor
      * Creates a new instance of MqttKafkaRegexMapper.
      */
-    public MqttKafkaRegexMapper(List<MappingRule> rules) {
-        super(rules, Pattern.compile(MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX));
+    public MqttKafkaRegexMapper(List<MappingRule> rules, String bridgeDefaultTopic) {
+        super(rules, Pattern.compile(MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX), bridgeDefaultTopic);
         this.buildOrCompilePatterns();
     }
 
@@ -50,7 +50,7 @@ public class MqttKafkaRegexMapper extends MqttKafkaMapper {
                 return new MappingResult(mappedKafkaTopic, kafkaKey);
             }
         }
-        return new MappingResult(MqttKafkaMapper.DEFAULT_KAFKA_TOPIC, null);
+        return new MappingResult(bridgeDefaultTopic, null);
     }
 
     /**

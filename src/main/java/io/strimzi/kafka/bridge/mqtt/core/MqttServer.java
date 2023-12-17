@@ -49,7 +49,7 @@ public class MqttServer {
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer))
+                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config.getBridgeDefaultTopic()))
                 .childOption(option, true);
     }
 

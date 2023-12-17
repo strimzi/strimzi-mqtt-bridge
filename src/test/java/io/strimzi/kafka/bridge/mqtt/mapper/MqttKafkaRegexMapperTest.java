@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Unit tests for {@link MqttKafkaRegexMapper}
  */
 public class MqttKafkaRegexMapperTest {
-
+    private String defaultTopicTest = "default_topic";
 
     /**
      * Test for default topic.
@@ -33,11 +33,11 @@ public class MqttKafkaRegexMapperTest {
     public void testDefaultTopic() {
         List<MappingRule> rules = new ArrayList<>();
 
-        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
+        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules, defaultTopicTest);
 
         MappingResult result = mapper.map("sensor/temperature");
         assertThat("Should use the default topic when no mapping pattern matches.",
-                result.kafkaTopic(), is(MqttKafkaSimpleMapper.DEFAULT_KAFKA_TOPIC));
+                result.kafkaTopic(), is(defaultTopicTest));
 
         assertThat("The key for the default topic should be null",
                 result.kafkaKey(), nullValue());
@@ -57,7 +57,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("term/(\\d+)", "term$1", null));
         rules.add(new MappingRule("devices/([^/]+)/data/(\\b(all|new|old)\\b)", "devices_$1_data", "devices_$2"));
 
-        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
+        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules, defaultTopicTest);
 
         // Test building/(\\d+)/floor/(\\d+)
         MappingResult mappingResult = mapper.map("building/14/floor/25");
@@ -126,7 +126,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("buildings/([^/]+)/rooms/([^/]+)/device/([^/]+)", "buildings_$0_rooms_$1_device_$2", "device_$3"));
         rules.add(new MappingRule("building/(\\d{1,2})/room/(\\d{1,4})", "building_$1_room_$2_$3", "room_$4"));
 
-        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
+        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules, defaultTopicTest);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mapper.map("fleet/vehicle/23"));
 
@@ -163,7 +163,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("(\\w+)/recipes(?:\\/.*)?$", "$1_recipes", null));
         rules.add(new MappingRule("([^/]+)/.*", "$1", null));
 
-        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
+        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules, defaultTopicTest);
 
 
         // Test for building/([^/]+)/room/(\\d{1,3}).* pattern
@@ -262,7 +262,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("building/(\\p).*", "building_$1_others", null));
         rules.add(new MappingRule("building.*", "building_others", null));
 
-        Exception mapper = assertThrows(PatternSyntaxException.class, () -> new MqttKafkaRegexMapper(rules));
+        Exception mapper = assertThrows(PatternSyntaxException.class, () -> new MqttKafkaRegexMapper(rules, defaultTopicTest));
 
         assertThat("Should throw PatternSyntaxException",
                 mapper.getMessage(), startsWith("Unknown character property name {)} near index 12"));
@@ -270,7 +270,7 @@ public class MqttKafkaRegexMapperTest {
         // test for .* in capture groups
         rules.add(0, new MappingRule("fleet/([0-9])/vehicle/(\\w+)/(.*)", "fleet_$1", "vehicle_$2"));
 
-        assertThrows(IllegalArgumentException.class, () -> new MqttKafkaRegexMapper(rules));
+        assertThrows(IllegalArgumentException.class, () -> new MqttKafkaRegexMapper(rules, defaultTopicTest));
     }
 
     /**
@@ -283,7 +283,7 @@ public class MqttKafkaRegexMapperTest {
         rules.add(new MappingRule("home/(\\w+)/temperature/(sensor\\d{1,2})/readings/(\\b(all|new|old)\\b)", "temperature_$2_in_$1", "$3"));
         rules.add(new MappingRule("sports/([^/]+)/league/season/(\\d{4}-\\d{4})/match/(\\d+).*", "season_$2_$1", "match_$3"));
 
-        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules);
+        MqttKafkaRegexMapper mapper = new MqttKafkaRegexMapper(rules, defaultTopicTest);
 
         // Test home/(\\w+)/temperature/(sensor\\d{1,2})/readings/(\\b(all|new|old)\\b) pattern
         MappingResult mappingResult = mapper.map("home/bedroom/temperature/sensor01/readings/all");

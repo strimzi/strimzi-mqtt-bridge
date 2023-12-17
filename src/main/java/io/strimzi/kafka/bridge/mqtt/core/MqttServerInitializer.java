@@ -17,8 +17,8 @@ import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 public class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
     private final MqttServerHandler mqttServerHandler;
 
-    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer) {
-        this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer);
+    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic) {
+        this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer, bridgeDefaultTopic);
     }
 
     @Override

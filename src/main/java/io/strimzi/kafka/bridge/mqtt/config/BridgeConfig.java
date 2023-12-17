@@ -21,6 +21,12 @@ public class BridgeConfig extends AbstractConfig {
     // Bridge identification number
     public static final String BRIDGE_ID = BRIDGE_CONFIG_PREFIX + "id";
 
+    // Bridge default topic name
+    public static final String BRIDGE_DEFAULT_TOPIC_PREFIX = BRIDGE_CONFIG_PREFIX + "topic.default";
+
+    // default Kafka topic. Used when no mapping rule matches the mqtt topic.
+    public static final String BRIDGE_DEFAULT_TOPIC = "messages_default";
+
     private final MqttConfig mqttConfig;
     private final KafkaConfig kafkaConfig;
 
@@ -70,6 +76,14 @@ public class BridgeConfig extends AbstractConfig {
      */
     public String getBridgeID() {
         return this.config.get(BridgeConfig.BRIDGE_ID) == null ? null : this.config.get(BridgeConfig.BRIDGE_ID).toString();
+    }
+
+    /**
+     * @return the bridge default topic name
+     * If not set, the default topic name is "messages_default"
+     */
+    public String getBridgeDefaultTopic() {
+        return this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX) == null ? BRIDGE_DEFAULT_TOPIC : this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX).toString();
     }
 
     /**
