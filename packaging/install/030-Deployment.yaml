@@ -23,6 +23,18 @@ spec:
           volumeMounts:
             - name: mqtt-bridge-config-volume
               mountPath: /opt/strimzi/config/
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
       volumes:
         - name: mqtt-bridge-config-volume
           configMap:

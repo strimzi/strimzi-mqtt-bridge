@@ -13,7 +13,7 @@ data:
     mqtt.host=0.0.0.0
     mqtt.port=1883
     #Apache Kafka common
-    kafka.bootstrap.servers=<kafka-bootstrap-servers>
+    kafka.bootstrap.servers=my-cluster-kafka-bootstrap:9092
   topic-mapping-rules.json: '[]'
   log4j2.properties: |
     name=MqttBridgeConfig

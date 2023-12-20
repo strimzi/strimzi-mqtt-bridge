@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents the MqttServer component.
  */
-public class MqttServer {
+public class MqttServer implements Liveness, Readiness {
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttServer.class);
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
@@ -56,24 +56,44 @@ public class MqttServer {
     /**
      * Start the server.
      */
-    public void start() throws InterruptedException {
-        // bind the Netty server and wait synchronously
-        this.channelFuture = this.serverBootstrap.bind(this.mqttConfig.getHost(), this.mqttConfig.getPort()).sync();
+    public void start() {
+        try {
+            // bind the Netty server and wait synchronously
+            this.channelFuture = this.serverBootstrap.bind(this.mqttConfig.getHost(), this.mqttConfig.getPort()).sync();
+        } catch (Exception e) {
+            LOGGER.error("Failed to start the MQTT server", e);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Stop the server.
      */
-    public void stop() throws InterruptedException {
-        LOGGER.info("Shutting down Netty server...");
-        this.channelFuture.channel().close().sync();
-        this.channelFuture.channel().closeFuture().sync();
-        this.masterGroup.shutdownGracefully().sync();
-        this.workerGroup.shutdownGracefully().sync();
-        LOGGER.info("Netty server shut down");
+    public void stop() {
+        try {
+            LOGGER.info("Shutting down Netty server...");
+            this.channelFuture.channel().close().sync();
+            this.channelFuture.channel().closeFuture().sync();
+            this.masterGroup.shutdownGracefully().sync();
+            this.workerGroup.shutdownGracefully().sync();
+            LOGGER.info("Netty server shut down");
 
-        LOGGER.info("Closing Kafka producers...");
-        this.kafkaBridgeProducer.close();
-        LOGGER.info("Kafka producers closed");
+            LOGGER.info("Closing Kafka producers...");
+            this.kafkaBridgeProducer.close();
+            LOGGER.info("Kafka producers closed");
+        } catch (Exception e) {
+            LOGGER.error("Failed to stop the MQTT server", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean isAlive() {
+        return !this.workerGroup.isTerminated() && !this.masterGroup.isTerminated();
+    }
+
+    @Override
+    public boolean isReady() {
+        return !this.workerGroup.isTerminated() && !this.masterGroup.isTerminated();
     }
 }
