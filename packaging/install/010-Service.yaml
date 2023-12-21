@@ -12,3 +12,7 @@ spec:
         protocol: TCP
         port: 1883
         targetPort: 1883
+      - name: http
+        protocol: TCP
+        port: 8080
+        targetPort: 8080

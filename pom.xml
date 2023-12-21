@@ -19,6 +19,7 @@
         <jackson.version>2.15.2</jackson.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <kafka.version>3.6.1</kafka.version>
+        <jetty.version>9.4.53.v20231009</jetty.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <test-container.version>0.105.0</test-container.version>
@@ -88,6 +89,11 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.spotbugs</groupId>
