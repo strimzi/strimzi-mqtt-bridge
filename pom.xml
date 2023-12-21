@@ -18,7 +18,7 @@
         <junit.version>5.8.2</junit.version>
         <jackson.version>2.15.2</jackson.version>
         <commons-cli.version>1.5.0</commons-cli.version>
-        <kafka.version>3.6.0</kafka.version>
+        <kafka.version>3.6.1</kafka.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <test-container.version>0.105.0</test-container.version>
