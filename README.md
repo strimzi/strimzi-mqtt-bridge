@@ -63,7 +63,8 @@ The ToMaR is a set of patterns the user provides defining how the MQTT Bridge ma
 A Mapping Rule is a model that contains an `MQTT topic pattern`, a `Kafka topic template`, and optionally a `Kafka record key`.
 All the incoming MQTT message's topic should match an `MQTT topic pattern` in the ToMaR so that the bridge knows in which Kafka topic to produce this message.
 This Kafka topic is defined by a template, `Kafka Topic template`.
-However, if the incoming MQTT message's topic does not match any pattern in the ToMaR, the Bridge has a default Kafka topic where the incoming message will be mapped to, known as `messages_default`.
+However, if the incoming MQTT message's topic does not match any pattern in the ToMaR, the Bridge uses a default Kafka topic where the incoming message will be mapped to.
+This Kafka topic is configurable but if it is not specified, the bridge uses the `messages_default` topic name. 
 
 The optional `Kafka record key` is used to define the key of the Kafka record that will be produced to the Kafka topic.
 It is defined by a template as well, and its default value is `null`.
@@ -74,46 +75,46 @@ The following is an example of a valid ToMaR:
 ```json
 [
   {
-     "mqttTopic": "building/(\\w+)/room/(\\d{1,4})/.*",
-     "kafkaTopic": "building_$1",
-     "kafkaKey": "room_$2"
+    "mqttTopic": "building/(\\w+)/room/(\\d{1,4})/.*", 
+    "kafkaTopic": "building_$1", 
+    "kafkaKey": "room_$2"
   },
   {
     "mqttTopic": "sensors/([^/]+)/data",
     "kafkaTopic": "sensor_data"
   },
   {
-     "mqttTopic": "sensors.*",
-     "kafkaTopic": "sensor_others"
+    "mqttTopic": "sensors.*", 
+    "kafkaTopic": "sensor_others"
   },
   {
-    "mqttTopic": "devices/([^/]+)/data/(\b(all|new|old)\b)",
-     "kafkaTopic": "device_$1_data",
-     "kafkaKey": "device_$2"
+    "mqttTopic": "devices/([^/]+)/data/(\b(all|new|old)\b)", 
+    "kafkaTopic": "device_$1_data", 
+    "kafkaKey": "device_$2"
   },
   {
-      "mqttTopic": "locations/([^/]+)(?:\\/.*)?$",
-      "kafkaTopic": "locations",
-      "kafkaKey": "location_$1"
+    "mqttTopic": "locations/([^/]+)(?:\\/.*)?$", 
+    "kafkaTopic": "locations", 
+    "kafkaKey": "location_$1"
   }
 ]
 ```
 
-- The expressions `.*` and `(?:\\/.*)?$` are used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
+* The expressions `.*` and `(?:\\/.*)?$` are used to represent the wildcard `#`, which in turn represents one or more levels in the MQTT topic hierarchy.
 However, there are some cases that can lead to unexpected behavior when using the these wildcards interchangeably . 
 Therefore, you should note the following:
-  - You cannot use the `.*` wildcard in capturing groups. 
+  * You cannot use the `.*` wildcard in capturing groups. 
   For example, the pattern `building/(\\w+)/room/(\\d{1,4})/(.*)` is invalid because it will capture the whole subtopic of the pattern, and `$3` placeholder might include `/` characters, which will lead to an invalid Kafka topic name.
-  - You can use the `.*` wildcard without a preceding `/` character, but it is not equivalent to when it is preceded by `/`. 
+  * You can use the `.*` wildcard without a preceding `/` character, but it is not equivalent to when it is preceded by `/`. 
   For example, the pattern `building.*` will match `building`, `building/room`, `buildingroom`, and so on. 
   On the other hand, the pattern `building/.*` will match `building/room`, `building/floor/room`, and so on, but not `buildingroom` and `building/`. 
-  - You can also use the `(?:\\/.*)?$` wildcard to match the whole subtopic level of the pattern. 
+  * You can also use the `(?:\\/.*)?$` wildcard to match the whole subtopic level of the pattern. 
   For example, the pattern `locations/([^/]+)(?:\\/.*)?$` will match `locations/city/luanda/angola`, `locations/city`, `locations/city/`, and so on. 
   It's literally equivalent to `locations/+/#`.  
   Please note that the `(?:\\/.*)?$` wildcard is a non-capturing group, which means that it will not be used to replace the placeholders in the `kafkaTopic` and `kafkaKey` templates.
-  - The `(?:\\/.*)?$` wildcard is different from the `.*` wildcard. For example, the pattern `sensors.*` will match everything after `sensors`, seperated with a slash or not. For example, `sensors`, `sensors/`, `sensorsdata`, and so on. 
+  * The `(?:\\/.*)?$` wildcard is different from the `.*` wildcard. For example, the pattern `sensors.*` will match everything after `sensors`, seperated with a slash or not. For example, `sensors`, `sensors/`, `sensorsdata`, and so on. 
   On the other hand, the pattern `sensors(?:\\/.*)?$` will match `sensors`, `sensors/`, `sensors/data`, and so on, but not `sensorsdata`.
-- The expression `([^/]+)` is used to represent the wildcard `+`, which in turn represents a single level in the MQTT topic hierarchy.
+* The expression `([^/]+)` is used to represent the wildcard `+`, which in turn represents a single level in the MQTT topic hierarchy.
 It worth's mentioning that it is the user's responsibility to adhere to the [MQTT 3.1.1 naming conventions](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106) when defining the MQTT topic patterns.
 
 Placeholders in the `kafkaTopic` and `kafkaKey` templates are defined using the `$` character followed by a number. 
@@ -154,7 +155,8 @@ If we swap the positions of the rules, the MQTT Bridge would use the `sensors.*`
 
 The user can configure the MQTT Bridge using an `application.properties` file.
 This section describes the configuration properties that can be used to configure the MQTT Bridge. 
-The MQTT bridge can be configured using the appropriate prefix. Example:
+The MQTT bridge can be configured using the appropriate prefix.
+Following the prefixes for the specific configurations:
 
 - `bridge.` is the prefix used for general configuration of the Bridge.
 - `mqtt.` is the prefix used for MQTT configuration of the Bridge.
@@ -175,13 +177,15 @@ A valid configuration file should look like this:
 
 The following table describes the configuration properties defined above.
 
-| Setting                 | Description                                           | Default          |
-|-------------------------|-------------------------------------------------------|------------------|
-| bridge.id               | ID of the bridge                                      | null/undefined   |
-| bridge.topic.default    | Topic to be used if no matches with any mapping rules | messages_default |
-| mqtt.host               | Host address of the MQTT server                       | localhost        |
-| mqtt.port               | Port number of the MQTT server                        | 1883             |
-| kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                    | localhost:9092   |
+| Setting                 | Description                                                  | Default                 |
+|-------------------------|--------------------------------------------------------------|-------------------------|
+| bridge.id               | ID of the bridge                                             | null/undefined          |
+| bridge.topic.default    | Topic to be used if no matches with any mapping rules        | messages_default        |
+| mqtt.host               | Host address of the MQTT server                              | localhost               |
+| mqtt.port               | Port number of the MQTT server                               | 1883                    |
+| kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                           | localhost:9092          |
+| kafka.producer.*        | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
+
 
 Other than the above properties, the user can also configure the bridge using environment variables.
 
