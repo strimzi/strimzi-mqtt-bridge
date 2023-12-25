@@ -8,38 +8,23 @@ This project provides a software component which acts as a bridge between [MQTT 
 It enables the one-way communication from MQTT to Kafka, allowing MQTT clients to send data to an Apache Kafka cluster.
 MQTT subscriptions to read data from the Apache Kafka brokers is out of scope.
 
-## Running the MQTT Bridge
+## Running the bridge
 
-### Prerequisites
+### On bare-metal / VM
 
-- A running Apache Kafka cluster
-
-### On Bare Metal
-
-First of all, you need to clone the repository:
+Download the ZIP or TAR.GZ file from the [GitHub release page](https://github.com/strimzi/strimzi-mqtt-bridge/releases) and unpack it.
+Afterwards, edit the `config/application.properties` file which contains the configuration and the `config/topic-mapping-rules.json` with the topics' mapping rules. 
+Once your configuration is ready, start the bridge using:
 
 ```shell
-git clone https://github.com/strimzi/strimzi-mqtt-bridge.git
+bin/mqtt_bridge_run.sh --config-file config/application.properties --mapping-rules config/topic-mapping-rules.json
 ```
 
-Then, go to the `strimzi-mqtt-bridge` directory and build the MQTT Bridge using the following command:
+### On Kubernetes and OpenShift
 
-```shell
-make package
-```
-
-Go to the `target/mqtt-bridge-<version>/mqtt-bridge-<version>` directory and run the MQTT Bridge using the following command:
-
-```shell
-bin/mqtt_bridge_run.sh --config-file <path/to/config/file> --mapping-rules <path/to/mapping/rules/file>
-```
-
-As a default, you can find the configuration and mapping rules files under the `config` directory.
-
-### Deploying on Kubernetes
-
-The MQTT Bridge is deployed using a Kubernetes `Deployment` , and it is configured using a `ConfigMap`.
-The `ConfigMap` contains the configuration and the mapping rules files. 
+Download the ZIP or TAR.GZ file from the [GitHub release page](https://github.com/strimzi/strimzi-mqtt-bridge/releases) and unpack it.
+The MQTT Bridge is deployed using a Kubernetes `Deployment`, and it is configured using a `ConfigMap`.
+The `ConfigMap` contains the configuration and the topics' mapping rules files.
 The files under the `install` directory are used to deploy the MQTT Bridge on Kubernetes.
 
 To deploy the MQTT Bridge use the following command:
@@ -48,7 +33,7 @@ To deploy the MQTT Bridge use the following command:
 kubectl apply -f ./install
 ````
 
-## MQTT Bridge Overview
+## Bridge Overview
 
 ### How it works
 
@@ -151,7 +136,7 @@ The MQTT Bridge will use the first rule that matches the MQTT topic.
 For example, if the MQTT topic is `sensors/temperature/data`, it will be mapped to the Kafka topic `sensor_data` because `sensors/([^/]+)/data` matches the MQTT topic before `sensors/#`.
 If we swap the positions of the rules, the MQTT Bridge would use the `sensors.*` to map the MQTT topic to the Kafka  topic `sensor_others`.
 
-### MQTT Bridge Configuration
+### Bridge Configuration
 
 The user can configure the MQTT Bridge using an `application.properties` file.
 This section describes the configuration properties that can be used to configure the MQTT Bridge. 
