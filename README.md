@@ -1,4 +1,5 @@
 [![Build Status](https://dev.azure.com/cncf/strimzi/_apis/build/status%2Fmqtt-bridge%2Fmqtt-bridge?branchName=main)](https://dev.azure.com/cncf/strimzi/_build/latest?definitionId=59&branchName=main)
+[![GitHub release](https://img.shields.io/github/release/strimzi/strimzi-mqtt-bridge.svg)](https://github.com/strimzi/strimzi-mqtt-bridge/releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Twitter Follow](https://img.shields.io/twitter/follow/strimziio?style=social)](https://twitter.com/strimziio)
 
@@ -188,6 +189,24 @@ The following table describes the configuration properties defined above.
 
 
 Other than the above properties, the user can also configure the bridge using environment variables.
+
+## Contributing
+
+You can contribute by:
+- Raising any issues you find using Strimzi MQTT Bridge
+- Fixing issues by opening Pull Requests
+- Improving documentation
+- Talking about Strimzi Kafka Bridge
+
+All bugs, tasks or enhancements are tracked as [GitHub issues](https://github.com/strimzi/strimzi-mqtt-bridge/issues).
+Issues which might be a good start for new contributors are marked with ["good-start"](https://github.com/strimzi/strimzi-mqtt-bridge/labels/good-start) label.
+
+If you want to get in touch with us first before contributing, you can use:
+
+- [Strimzi Dev mailing list](https://lists.cncf.io/g/cncf-strimzi-dev/topics)
+- [#strimzi channel on CNCF Slack](https://slack.cncf.io/)
+
+Learn more on how you can contribute on our [Join Us](https://strimzi.io/join-us/) page.
 
 ## License
 
