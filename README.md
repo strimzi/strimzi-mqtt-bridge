@@ -186,6 +186,8 @@ You can contribute by:
 All bugs, tasks or enhancements are tracked as [GitHub issues](https://github.com/strimzi/strimzi-mqtt-bridge/issues).
 Issues which might be a good start for new contributors are marked with ["good-start"](https://github.com/strimzi/strimzi-mqtt-bridge/labels/good-start) label.
 
+The [Building Strimzi MQTT Bridge](BUILDING.md) guide describes how to build Strimzi MQTT Bridge and how to test your changes before submitting a patch or opening a PR.
+
 If you want to get in touch with us first before contributing, you can use:
 
 - [Strimzi Dev mailing list](https://lists.cncf.io/g/cncf-strimzi-dev/topics)
