@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-bridge-deployment
+  labels:
+    app: mqtt-bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt-bridge
+  template:
+    metadata:
+      labels:
+        app: mqtt-bridge
+    spec:
+      containers:
+        - name: mqtt-bridge
+          image: quay.io/strimzi/mqtt-bridge:0.1.0
+          command: ["/opt/strimzi/bin/docker/mqtt_bridge_run.sh"]
+          ports:
+            - containerPort: 1883
+          volumeMounts:
+            - name: mqtt-bridge-config-volume
+              mountPath: /opt/strimzi/config/
+          livenessProbe:
+            httpGet:
+              path: /healthy
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+      volumes:
+        - name: mqtt-bridge-config-volume
+          configMap:
+            name: mqtt-bridge-config
