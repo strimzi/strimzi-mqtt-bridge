@@ -4,6 +4,8 @@
  */
 package io.strimzi.kafka.bridge.mqtt.config;
 
+import io.netty.handler.codec.mqtt.MqttConstant;
+
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,9 +22,13 @@ public class MqttConfig extends AbstractConfig {
 
     public static final String MQTT_PORT = MQTT_CONFIG_PREFIX + "port";
 
+    public static final String MQTT_DECODER_MAX_BYTES_IN_MESSAGE = MQTT_CONFIG_PREFIX + "decoder.max-bytes-in-message";
+
     public static final String DEFAULT_MQTT_HOST = "0.0.0.0";
 
     public static final int DEFAULT_MQTT_PORT = 1883;
+
+    public static final int DEFAULT_MQTT_DECODER_MAX_BYTES_IN_MESSAGE = MqttConstant.DEFAULT_MAX_BYTES_IN_MESSAGE;
 
     /**
      * Constructor
@@ -57,6 +63,10 @@ public class MqttConfig extends AbstractConfig {
      */
     public String getHost() {
         return this.config.getOrDefault(MqttConfig.MQTT_HOST, MqttConfig.DEFAULT_MQTT_HOST).toString();
+    }
+
+    public int getDecoderMaxBytesInMessage() {
+        return Integer.parseInt(this.config.getOrDefault(MqttConfig.MQTT_DECODER_MAX_BYTES_IN_MESSAGE, MqttConfig.DEFAULT_MQTT_DECODER_MAX_BYTES_IN_MESSAGE).toString());
     }
 
     @Override

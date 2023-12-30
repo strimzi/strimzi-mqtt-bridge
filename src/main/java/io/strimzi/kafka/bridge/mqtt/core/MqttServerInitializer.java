@@ -16,14 +16,16 @@ import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
  */
 public class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
     private final MqttServerHandler mqttServerHandler;
+    private final int decoderMaxBytesInMessage;
 
-    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic) {
+    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic, int decoderMaxBytesInMessage) {
         this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer, bridgeDefaultTopic);
+        this.decoderMaxBytesInMessage = decoderMaxBytesInMessage;
     }
 
     @Override
     protected void initChannel(SocketChannel ch) {
-        ch.pipeline().addLast("decoder", new MqttDecoder());
+        ch.pipeline().addLast("decoder", new MqttDecoder(decoderMaxBytesInMessage));
         ch.pipeline().addLast("encoder", MqttEncoder.INSTANCE);
         ch.pipeline().addLast("handler", this.mqttServerHandler);
     }
