@@ -55,7 +55,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
 public class MqttBridgetIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttBridgetIT.class);
-    private static final String MQTT_SERVER_HOST = "localhost";
+    private static final String MQTT_SERVER_HOST = "0.0.0.0";
     private static final int MQTT_SERVER_PORT = 1883;
     private static final String MQTT_SERVER_URI = "tcp://" + MQTT_SERVER_HOST + ":" + MQTT_SERVER_PORT;
     private static final String KAFKA_TOPIC = "devices_bluetooth_data";

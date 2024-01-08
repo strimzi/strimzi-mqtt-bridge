@@ -38,8 +38,8 @@ public class ConfigRetrieverTest {
         // Mqtt server config related tests
         assertThat("There should be 2 related mqtt server config parameters",
                 bridgeConfig.getMqttConfig().getConfig().size(), is(2));
-        assertThat("Mqtt server host should be 'localhost'",
-                bridgeConfig.getMqttConfig().getHost(), is("localhost"));
+        assertThat("Mqtt server host should be '0.0.0.0'",
+                bridgeConfig.getMqttConfig().getHost(), is("0.0.0.0"));
         assertThat("Mqtt server port should be '1883'",
                 bridgeConfig.getMqttConfig().getPort(), is(1883));
 

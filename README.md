@@ -155,7 +155,7 @@ A valid configuration file should look like this:
     bridge.id=my-bridge
     bridge.topic.default=default_topic
     # MQTT configuration
-    mqtt.host=localhost
+    mqtt.host=0.0.0.0
     mqtt.port=1883
     # Kafka configuration
     kafka.bootstrap.servers=localhost:9092
@@ -167,7 +167,7 @@ The following table describes the configuration properties defined above.
 |-------------------------|--------------------------------------------------------------|-------------------------|
 | bridge.id               | ID of the bridge                                             | null/undefined          |
 | bridge.topic.default    | Topic to be used if no matches with any mapping rules        | messages_default        |
-| mqtt.host               | Host address of the MQTT server                              | localhost               |
+| mqtt.host               | Host address of the MQTT server                              | 0.0.0.0                 |
 | mqtt.port               | Port number of the MQTT server                               | 1883                    |
 | kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                           | localhost:9092          |
 | kafka.producer.*        | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
