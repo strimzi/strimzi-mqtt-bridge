@@ -163,15 +163,15 @@ A valid configuration file should look like this:
 
 The following table describes the configuration properties defined above.
 
-| Setting                           | Description                                                  | Default                 |
-|-----------------------------------|--------------------------------------------------------------|-------------------------|
-| bridge.id                         | ID of the bridge                                             | null/undefined          |
-| bridge.topic.default              | Topic to be used if no matches with any mapping rules        | messages_default        |
-| mqtt.host                         | Host address of the MQTT server                              | localhost               |
-| mqtt.port                         | Port number of the MQTT server                               | 1883                    |
-| mqtt.decoder.max-bytes-in-message | Max bytes in message for MQTT decoder                        | 8092                    |
-| kafka.bootstrap.servers           | Bootstrap servers for Apache Kafka                           | localhost:9092          |
-| kafka.producer.*                  | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
+| Setting                 | Description                                                  | Default                 |
+|-------------------------|--------------------------------------------------------------|-------------------------|
+| bridge.id               | ID of the bridge                                             | null/undefined          |
+| bridge.topic.default    | Topic to be used if no matches with any mapping rules        | messages_default        |
+| mqtt.host               | Host address of the MQTT server                              | localhost               |
+| mqtt.port               | Port number of the MQTT server                               | 1883                    |
+| mqtt.max.bytes.message  | Max bytes in message for MQTT decoder                        | 8092                    |
+| kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                           | localhost:9092          |
+| kafka.producer.*        | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
 
 
 Other than the above properties, the user can also configure the bridge using environment variables.
