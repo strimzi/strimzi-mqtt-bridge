@@ -35,11 +35,16 @@ public class ConfigTest {
         // test no default topic set
         assertThat(bridgeConfig.getBridgeDefaultTopic(), is(BridgeConfig.BRIDGE_DEFAULT_TOPIC));
 
+        // test no MQTT max bytes message set
+        assertThat(bridgeConfig.getMqttConfig().getConfig().size(), is(2));
+        assertThat(bridgeConfig.getMqttConfig().getMaxBytesMessage(), is(MqttConfig.DEFAULT_MQTT_MAX_BYTES_MESSAGE));
+
         map.put("bridge.topic.default", "default_topic");
+        map.put("mqtt.max.bytes.message", "16384");
 
         bridgeConfig = BridgeConfig.fromMap(map);
 
-        // test default topic set
+        // test default topic and max bytes message set
         assertThat(bridgeConfig.getBridgeDefaultTopic(), is("default_topic"));
 
         assertThat(bridgeConfig.getKafkaConfig().getConfig().size(), is(1));
@@ -48,9 +53,10 @@ public class ConfigTest {
         assertThat(bridgeConfig.getKafkaConfig().getProducerConfig().getConfig().size(), is(1));
         assertThat(bridgeConfig.getKafkaConfig().getProducerConfig().getConfig().get(ProducerConfig.ACKS_CONFIG), is("1"));
 
-        assertThat(bridgeConfig.getMqttConfig().getConfig().size(), is(2));
+        assertThat(bridgeConfig.getMqttConfig().getConfig().size(), is(3));
         assertThat(bridgeConfig.getMqttConfig().getHost(), is("0.0.0.0"));
         assertThat(bridgeConfig.getMqttConfig().getPort(), is(1883));
+        assertThat(bridgeConfig.getMqttConfig().getMaxBytesMessage(), is(16384));
     }
 
     @Test
@@ -77,6 +83,7 @@ public class ConfigTest {
 
         assertThat(bridgeConfig.getMqttConfig().getHost(), is("0.0.0.0"));
         assertThat(bridgeConfig.getMqttConfig().getPort(), is(1883));
+        assertThat(bridgeConfig.getMqttConfig().getMaxBytesMessage(), is(8092));
     }
 }
 
