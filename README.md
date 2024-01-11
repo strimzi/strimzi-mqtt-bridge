@@ -169,6 +169,7 @@ The following table describes the configuration properties defined above.
 | bridge.topic.default    | Topic to be used if no matches with any mapping rules        | messages_default        |
 | mqtt.host               | Host address of the MQTT server                              | 0.0.0.0                 |
 | mqtt.port               | Port number of the MQTT server                               | 1883                    |
+| mqtt.max.bytes.message  | Max bytes in message for MQTT decoder                        | 8092                    |
 | kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                           | localhost:9092          |
 | kafka.producer.*        | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
 
