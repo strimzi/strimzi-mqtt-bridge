@@ -18,6 +18,13 @@ public class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
     private final MqttServerHandler mqttServerHandler;
     private final int decoderMaxBytesInMessage;
 
+    /**
+     * Constructor
+     *
+     * @param kafkaBridgeProducer   instance of the Kafka producer for sending messages
+     * @param bridgeDefaultTopic    default Kafka topic to be used if there are no matches for the MQTT topic pattern
+     * @param decoderMaxBytesInMessage  maximum number of bytes for the MQTT request during decoding
+     */
     public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic, int decoderMaxBytesInMessage) {
         this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer, bridgeDefaultTopic);
         this.decoderMaxBytesInMessage = decoderMaxBytesInMessage;

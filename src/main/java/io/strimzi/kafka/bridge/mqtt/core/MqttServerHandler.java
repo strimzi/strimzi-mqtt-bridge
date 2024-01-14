@@ -51,6 +51,9 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
     /**
      * Constructor
+     *
+     * @param kafkaBridgeProducer   instance of the Kafka producer for sending messages
+     * @param bridgeDefaultTopic    default Kafka topic to be used if there are no matches for the MQTT topic pattern
      */
     public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic) {
         // auto release reference count to avoid memory leak
