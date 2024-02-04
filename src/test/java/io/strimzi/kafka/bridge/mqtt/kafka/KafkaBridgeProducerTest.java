@@ -35,7 +35,7 @@ public class KafkaBridgeProducerTest {
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaTopic, "test".getBytes());
 
         // simulate the send method with ack
-        when(producer.send(any(ProducerRecord.class)))
+        when(producer.send(any()))
                 .thenAnswer(invocation -> {
                     ProducerRecord<String, byte[]> r = invocation.getArgument(0);
 
@@ -47,7 +47,7 @@ public class KafkaBridgeProducerTest {
 
                     CompletableFuture<RecordMetadata> promise = new CompletableFuture<>();
 
-                    promise.complete(new RecordMetadata(new TopicPartition(r.topic(), 2), 234L, 0, 1000, 0L, 0, "test".getBytes().length));
+                    promise.complete(new RecordMetadata(new TopicPartition(r.topic(), 2), 234L, 0, 1000, 0, "test".getBytes().length));
                     return promise;
                 });
 
