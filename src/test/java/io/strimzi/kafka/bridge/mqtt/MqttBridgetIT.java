@@ -69,8 +69,8 @@ public class MqttBridgetIT {
      * Start the MQTT bridge before all tests
      */
     @BeforeAll
-    public static void beforeAll() throws InterruptedException {
-        String kafkaBootstrapServers = null;
+    public static void beforeAll() {
+        String kafkaBootstrapServers;
         try {
             kafkaContainer = new StrimziKafkaContainer();
             kafkaContainer.waitForRunning();
@@ -216,7 +216,7 @@ public class MqttBridgetIT {
      * Close the kafka consumer client, stop the Bridge and stop the kafka cluster
      */
     @AfterAll
-    public static void afterAll() throws InterruptedException {
+    public static void afterAll() {
         kafkaConsumerClient.close();
         mqttBridge.stop();
         kafkaContainer.stop();
