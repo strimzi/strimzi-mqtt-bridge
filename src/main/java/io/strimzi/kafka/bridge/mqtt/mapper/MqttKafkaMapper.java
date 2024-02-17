@@ -36,7 +36,7 @@ public abstract class MqttKafkaMapper {
     /**
      * Maps an MQTT topic to a Kafka topic. The topic is mapped according to the defined mapping rules.
      *
-     * @param mqttTopic
+     * @param mqttTopic MQTT topic to map to a Kafka topic
      * @return a MappingResult object containing the mapped Kafka topic and Kafka key.
      */
     public abstract MappingResult map(String mqttTopic);

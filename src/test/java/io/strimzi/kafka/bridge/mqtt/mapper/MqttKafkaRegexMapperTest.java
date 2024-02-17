@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Unit tests for {@link MqttKafkaRegexMapper}
  */
 public class MqttKafkaRegexMapperTest {
-    private String defaultTopicTest = "default_topic";
+    private final String defaultTopicTest = "default_topic";
 
     /**
      * Test for default topic.

@@ -55,7 +55,7 @@ public class KafkaConfig extends AbstractConfig {
 
     @Override
     public String toString() {
-        Map<String, Object> configToString = this.hidePasswords(this.config);
+        Map<String, Object> configToString = this.hidePasswords();
         return "KafkaConfig(" +
                 "config=" + configToString +
                 ", kafkaProducerConfig=" + kafkaProducerConfig +
@@ -66,12 +66,10 @@ public class KafkaConfig extends AbstractConfig {
      * Hides Kafka related password(s) configuration (i.e. truststore and keystore)
      * by replacing each actual password with [hidden] string
      *
-     * @param config configuration where to do the replacing
      * @return updated configuration with hidden password(s)
      */
-    private Map<String, Object> hidePasswords(Map<String, Object> config) {
-        Map<String, Object> configToString = new HashMap<>();
-        configToString.putAll(this.config);
+    private Map<String, Object> hidePasswords() {
+        Map<String, Object> configToString = new HashMap<>(this.config);
         configToString.entrySet().stream()
                 .filter(e -> e.getKey().contains("password"))
                 .forEach(e -> e.setValue("[hidden]"));
