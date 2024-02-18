@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class MqttKafkaSimpleMapperTest {
 
-    private String defaultTopicTest = "default_topic";
+    private final String defaultTopicTest = "default_topic";
     /**
      * Test for default topic.
      * If the MQTT topic does not match any of the mapping rules, the default topic is used.
