@@ -32,8 +32,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
@@ -54,7 +54,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
 public class MqttBridgetIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttBridgetIT.class);
+    private static final Logger LOGGER = LogManager.getLogger(MqttBridgetIT.class);
     private static final String MQTT_SERVER_HOST = "0.0.0.0";
     private static final int MQTT_SERVER_PORT = 1883;
     private static final String MQTT_SERVER_URI = "tcp://" + MQTT_SERVER_HOST + ":" + MQTT_SERVER_PORT;

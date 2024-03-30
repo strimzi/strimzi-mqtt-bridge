@@ -16,15 +16,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LogManager.getLogger(Main.class);
     private static final String CONFIG_FILE_OPTION = "config-file";
     private static final String MAPPING_RULES_FILE_OPTION = "mapping-rules";
 
