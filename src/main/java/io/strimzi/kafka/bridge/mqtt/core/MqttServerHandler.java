@@ -25,8 +25,8 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.header.internals.RecordHeaders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -45,7 +45,7 @@ import static io.netty.channel.ChannelHandler.Sharable;
 @SuppressWarnings({"checkstyle:ClassFanOutComplexity"})
 @Sharable
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttServerHandler.class);
+    private static final Logger LOGGER = LogManager.getLogger(MqttServerHandler.class);
     private final KafkaBridgeProducer kafkaBridgeProducer;
     private MqttKafkaMapper mqttKafkaMapper;
 

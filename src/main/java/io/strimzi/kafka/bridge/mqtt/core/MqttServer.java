@@ -14,14 +14,14 @@ import io.netty.handler.logging.LoggingHandler;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Represents the MqttServer component.
  */
 public class MqttServer implements Liveness, Readiness {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MqttServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(MqttServer.class);
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup workerGroup;
     private final ServerBootstrap serverBootstrap;
