@@ -17,8 +17,6 @@ public class KafkaConfig extends AbstractConfig {
     // Prefix for all the specific configuration parameters for Kafka in the properties file
     public static final String KAFKA_CONFIG_PREFIX = "kafka.";
 
-    // Kafka bootstrap server configuration. This will be removed when we add the apache kafka client
-    public static final String BOOTSTRAP_SERVERS_CONFIG = KAFKA_CONFIG_PREFIX + "bootstrap.servers";
     private final KafkaProducerConfig kafkaProducerConfig;
 
     /**
