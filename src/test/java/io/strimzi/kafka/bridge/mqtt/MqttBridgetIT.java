@@ -177,6 +177,30 @@ public class MqttBridgetIT {
     }
 
     /**
+     * Test the ability to send and receive a pingreq
+     */
+    @Test
+    public void testPing() throws MqttException {
+        try (MqttAsyncClient client = new MqttAsyncClient(MQTT_SERVER_URI, getRandomMqttClientId(), null)) {
+            // Set up options for the connection
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setKeepAliveInterval(1);
+
+            client.connect(options).waitForCompletion();
+            
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // nop
+            }
+
+            assertThat("The client still is connected to the server", client.isConnected(), is(true));
+
+            client.disconnect();
+        }
+    }
+
+    /**
      * Test the client publishing a message to the bridge, and the bridge maps and produce the message to the kafka topic
      * The kafka consumer client consumes the message from the kafka topic.
      */

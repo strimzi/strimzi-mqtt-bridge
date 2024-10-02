@@ -14,6 +14,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttConnAckMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaRegexMapper;
@@ -91,6 +92,8 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
                 handleConnectMessage(ctx, (MqttConnectMessage) msg);
             } else if (msg instanceof MqttPublishMessage) {
                 handlePublishMessage(ctx, (MqttPublishMessage) msg);
+            } else if (messageType == MqttMessageType.PINGREQ) {
+                handlePingReqMessage(ctx, msg);
             } else {
                 LOGGER.warn("Message type {} not handled", messageType.name());
             }
@@ -120,6 +123,19 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
         LOGGER.info("Client [{}] connected from {}", connectMessage.payload().clientIdentifier(), ctx.channel().remoteAddress());
         ctx.writeAndFlush(connAckMessage);
+    }
+
+    /**
+     * Handle the case when a client sent a MQTT PINGREQ message type.
+     *
+     * @param ctx ChannelHandlerContext instance
+     * @param pingreqMessage incoming MqttMessage
+     */
+    private void handlePingReqMessage(ChannelHandlerContext ctx, MqttMessage pingreqMessage) {
+        MqttFixedHeader pingreqFixedHeader = new MqttFixedHeader(MqttMessageType.PINGRESP, false,
+                                                                     MqttQoS.AT_MOST_ONCE, false, 0);
+        MqttMessage pingResp = new MqttMessage(pingreqFixedHeader);
+        ctx.writeAndFlush(pingResp);
     }
 
     /**
