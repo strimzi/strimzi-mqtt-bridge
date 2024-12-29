@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 000-ServiceAccount.yaml
+  - 010-Service.yaml
+  - 020-ConfigMap.yaml
+  - 030-Deployment.yaml
