@@ -81,7 +81,7 @@
         <jackson.version>2.15.3</jackson.version>
         <commons-cli.version>1.5.0</commons-cli.version>
         <kafka.version>4.0.0</kafka.version>
-        <jetty.version>9.4.55.v20240627</jetty.version>
+        <jetty.version>9.4.56.v20240826</jetty.version>
         <mockito.version>4.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <test-container.version>0.110.0</test-container.version>
