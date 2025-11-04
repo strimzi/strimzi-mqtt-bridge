@@ -85,6 +85,12 @@ public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MqttMessage msg) {
+        if (msg.decoderResult().isFailure()) {
+            Throwable error = msg.decoderResult().cause();
+            LOGGER.error("Received invalid message with error: {}", error.getMessage());
+            exceptionCaught(ctx, error);
+            return;
+        }
         try {
             MqttMessageType messageType = msg.fixedHeader().messageType();
             LOGGER.debug("Got {} message type", messageType.name());
