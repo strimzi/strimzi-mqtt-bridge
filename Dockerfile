@@ -1,5 +1,5 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
-ARG JAVA_VERSION=17
+ARG JAVA_VERSION=21
 ARG TARGETPLATFORM
 
 USER root
