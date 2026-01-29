@@ -16,10 +16,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -71,8 +73,15 @@ public class Main {
             httpServer.start();
 
             latch.await();
-        } catch (Exception e) {
-            LOGGER.error("Error starting the MQTT bridge: ", e);
+        } catch (ParseException e) {
+            LOGGER.error("Failed to parse command line arguments: ", e);
+            System.exit(1);
+        } catch (IOException e) {
+            LOGGER.error("Failed to read configuration or mapping rules: ", e);
+            System.exit(1);
+        } catch (InterruptedException e) {
+            LOGGER.error("MQTT bridge was interrupted: ", e);
+            Thread.currentThread().interrupt();
             System.exit(1);
         }
         System.exit(0);
