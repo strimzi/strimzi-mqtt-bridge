@@ -91,7 +91,7 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven.assembly.version>3.4.2</maven.assembly.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <maven.spotbugs.version>4.7.3.0</maven.spotbugs.version>
+        <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
         <checkstyle.version>10.12.2</checkstyle.version>
     </properties>
