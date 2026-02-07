@@ -24,10 +24,10 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        # Java 17 is used as default version
+        # Java 21 is used as default version
         # In case of adding new version make sure that build-containers and deploy-java has correct static version set
         java:
-          - version: "17"
+          - version: "21"
             mainBuild: true
     runs-on: ubuntu-latest
     steps:
