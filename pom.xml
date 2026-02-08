@@ -72,8 +72,8 @@
     </developers>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netty.version>4.2.7.Final</netty.version>
         <log4j.version>2.25.3</log4j.version>
@@ -91,7 +91,7 @@
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven.assembly.version>3.4.2</maven.assembly.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <maven.spotbugs.version>4.7.3.0</maven.spotbugs.version>
+        <maven.spotbugs.version>4.7.3.4</maven.spotbugs.version>
         <maven.checkstyle.version>3.3.0</maven.checkstyle.version>
         <checkstyle.version>10.12.2</checkstyle.version>
     </properties>
