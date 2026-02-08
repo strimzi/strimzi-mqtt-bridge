@@ -13,7 +13,7 @@ import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
-import io.strimzi.test.container.StrimziKafkaContainer;
+import io.strimzi.test.container.StrimziKafkaCluster;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -52,7 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Integration test for MQTT bridge
  */
-@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "checkstyle:ClassFanOutComplexity"})
 public class MqttBridgetIT {
     private static final Logger LOGGER = LogManager.getLogger(MqttBridgetIT.class);
     private static final String MQTT_SERVER_HOST = "0.0.0.0";
@@ -61,7 +61,7 @@ public class MqttBridgetIT {
     private static final String KAFKA_TOPIC = "devices_bluetooth_data";
     private static KafkaConsumer<String, String> kafkaConsumerClient = null;
     private static MqttServer mqttBridge;
-    private static StrimziKafkaContainer kafkaContainer;
+    private static StrimziKafkaCluster kafkaContainer;
 
 
     /**
@@ -72,8 +72,9 @@ public class MqttBridgetIT {
     public static void beforeAll() {
         String kafkaBootstrapServers;
         try {
-            kafkaContainer = new StrimziKafkaContainer();
-            kafkaContainer.waitForRunning();
+            kafkaContainer = new StrimziKafkaCluster.StrimziKafkaClusterBuilder()
+                    .withNumberOfBrokers(1)
+                    .build();
             kafkaContainer.start();
             kafkaBootstrapServers = kafkaContainer.getBootstrapServers();
         } catch (Exception e) {
