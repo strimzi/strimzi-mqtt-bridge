@@ -52,7 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * Integration test for MQTT bridge
  */
-@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "checkstyle:ClassFanOutComplexity"})
 public class MqttBridgetIT {
     private static final Logger LOGGER = LogManager.getLogger(MqttBridgetIT.class);
     private static final String MQTT_SERVER_HOST = "0.0.0.0";
