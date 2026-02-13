@@ -10,11 +10,9 @@ echo "Pushing container images for ${DOCKER_TAG}"
 echo "Login into Docker Hub ..."
 docker login -u $DOCKER_USER -p $DOCKER_PASS $DOCKER_REGISTRY
 
-make docker_delete_manifest
-
 for ARCH in $ARCHITECTURES
 do
-    DOCKER_ARCHITECTURE=$ARCH make docker_load docker_tag docker_push docker_amend_manifest
+    DOCKER_ARCHITECTURE=$ARCH make docker_load docker_tag docker_push
 done
 
-make docker_push_manifest
+MANIFEST_ARCHITECTURES=$(echo $ARCHITECTURES | tr ' ' ',') make docker_amend_manifest
