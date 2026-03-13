@@ -32,7 +32,7 @@ jobs:
       buildContainers: false
       modules: "none"
       nexusCheck: "none"
-      javaVersion: "17"
+      javaVersion: "21"
       helmChartName: "none"
       releaseVersion: "6.6.6"
       imagesDir: "mqtt-bridge-amd64.tar.gz"
