@@ -42,7 +42,6 @@ jobs:
         with:
           mainJavaBuild: ${{ matrix.java.mainBuild }}
           artifactSuffix: "mqtt-bridge"
-          clusterOperatorBuild: "false"
 
   build-containers:
     name: Build Containers
