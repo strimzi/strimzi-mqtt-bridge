@@ -1,0 +1,40 @@
+name: GitHub Actions Integration
+
+on:
+  pull_request:
+    paths:
+      - 'pom.xml'
+      - 'Dockerfile'
+      - 'Makefile'
+      - 'Makefile.docker'
+      - 'Makefile.maven'
+      - 'Makefile.os'
+      - '.github/workflows/github-actions-integration.yml'
+    branches:
+      - "*"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-github-actions-integration:
+    uses: strimzi/github-actions/.github/workflows/reusable-test-integrations.yml@v1
+    with:
+      repo: ${{ github.repository }}
+      ref: ${{ github.sha }}
+      architecture: "amd64"
+      artifactSuffix: "mqtt-bridge"
+      buildContainers: true
+      modules: "none"
+      nexusCheck: "none"
+      javaVersion: "21"
+      helmChartName: "none"
+      releaseVersion: "6.6.6"
+      imagesDir: "mqtt-bridge-amd64.tar.gz"
+      githubActionsRef: "v1"
+    secrets: inherit
