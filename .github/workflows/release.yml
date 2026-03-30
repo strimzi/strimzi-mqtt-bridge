@@ -59,7 +59,7 @@ jobs:
       - name: Download bridge binaries from source build
         uses: actions/download-artifact@v7
         with:
-          name: mqtt-bridge-binaries.tar
+          name: binaries-mqtt-bridge.tar
           run-id: ${{ inputs.sourceBuildRunId }}
           github-token: ${{ github.token }}
 
@@ -68,7 +68,7 @@ jobs:
 
       - name: Push Java artifacts to GHCR
         run: |
-          oras push ghcr.io/${{ env.REPOSITORY }}/bridge-binaries:${{ env.TAG }} mqtt-bridge-binaries.tar:application/x-tar
+          oras push ghcr.io/${{ env.REPOSITORY }}/binaries-mqtt-bridge:${{ env.TAG }} binaries-mqtt-bridge.tar:application/x-tar
         env:
           TAG: ${{ inputs.releaseVersion }}-${{ inputs.sourceBuildRunId }}
           REPOSITORY: "strimzi"
