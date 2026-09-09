@@ -47,7 +47,7 @@
         <junit.version>6.0.0</junit.version>
         <mockito.version>5.21.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <test-container.version>0.116.0</test-container.version>
+        <test-container.version>0.117.0</test-container.version>
         <eclipse-paho.version>1.2.5</eclipse-paho.version>
     </properties>
 
