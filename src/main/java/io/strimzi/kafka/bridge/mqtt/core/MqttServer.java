@@ -14,8 +14,11 @@ import io.netty.handler.logging.LoggingHandler;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 /**
  * Represents the MqttServer component.
@@ -37,10 +40,11 @@ public class MqttServer implements Liveness, Readiness {
      * @param masterGroup EventLoopGroup instance for handle incoming connections.
      * @param workerGroup EventLoopGroup instance for processing I/O.
      * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @param mappingRules  the list of topic mapping rules to apply
      * @see BridgeConfig
      * @see ChannelOption
      */
-    public MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option) {
+    public MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option, List<MappingRule> mappingRules) {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
         this.mqttConfig = config.getMqttConfig();
@@ -49,7 +53,7 @@ public class MqttServer implements Liveness, Readiness {
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config.getBridgeDefaultTopic(), this.mqttConfig.getMaxBytesMessage()))
+                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config.getBridgeDefaultTopic(), this.mqttConfig.getMaxBytesMessage(), mappingRules))
                 .childOption(option, true);
     }
 

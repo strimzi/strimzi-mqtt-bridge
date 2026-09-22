@@ -19,17 +19,17 @@ import org.junit.jupiter.api.Test;
 public class MqttServerHandlerTest {
 
     @Test
-    public void testReadMessageWithDecodingError() {
+    public void testReadMessageWithDecodingError() throws Exception {
         String mappingRulesPath =
             Objects.requireNonNull(getClass().getClassLoader().getResource("mapping-rules-regex.json"))
                 .getPath();
-        MappingRulesLoader.getInstance().init(mappingRulesPath);
 
         KafkaBridgeProducer producer = mock(KafkaBridgeProducer.class);
         ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
         Throwable error = mock(Throwable.class);
 
-        MqttServerHandler handler = new MqttServerHandler(producer, "default-topic");
+        MqttServerHandler handler = new MqttServerHandler(producer, "default-topic",
+                MappingRulesLoader.loadRules(mappingRulesPath));
         handler.channelRead0(ctx, MqttMessageFactory.newInvalidMessage(error));
 
         verify(error, times(1)).getMessage();

@@ -12,6 +12,7 @@ import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import io.strimzi.test.container.StrimziKafkaCluster;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -69,7 +70,7 @@ public class MqttBridgetIT {
      * Start the MQTT bridge before all tests
      */
     @BeforeAll
-    public static void beforeAll() {
+    public static void beforeAll() throws Exception {
         String kafkaBootstrapServers;
         try {
             kafkaContainer = new StrimziKafkaCluster.StrimziKafkaClusterBuilder()
@@ -107,13 +108,13 @@ public class MqttBridgetIT {
 
         // prepare the mapping rules
         String mappingRulesPath = Objects.requireNonNull(MqttBridgetIT.class.getClassLoader().getResource("mapping-rules-regex.json")).getPath();
-        MappingRulesLoader.getInstance().init(mappingRulesPath);
+        List<MappingRule> mappingRules = MappingRulesLoader.loadRules(mappingRulesPath);
 
         // start the MQTT bridge
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        mqttBridge = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
+        mqttBridge = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
         mqttBridge.start();
     }
 
@@ -202,7 +203,7 @@ public class MqttBridgetIT {
     }
 
     /**
-     * Test the client publishing a message to the bridge, and the bridge maps and produce the message to the kafka topic
+     * Test the client publishing a message to the bridge, and the bridge maps and produce the message to the kafka topic.
      * The kafka consumer client consumes the message from the kafka topic.
      */
     @Test

@@ -9,6 +9,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
+
+import java.util.List;
 
 /**
  * This helper class help us add necessary Netty pipelines handlers. <br>
@@ -24,9 +27,11 @@ public class MqttServerInitializer extends ChannelInitializer<SocketChannel> {
      * @param kafkaBridgeProducer   instance of the Kafka producer for sending messages
      * @param bridgeDefaultTopic    default Kafka topic to be used if there are no matches for the MQTT topic pattern
      * @param decoderMaxBytesInMessage  maximum number of bytes for the MQTT request during decoding
+     * @param mappingRules          the list of topic mapping rules
      */
-    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic, int decoderMaxBytesInMessage) {
-        this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer, bridgeDefaultTopic);
+    public MqttServerInitializer(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic,
+                                 int decoderMaxBytesInMessage, List<MappingRule> mappingRules) {
+        this.mqttServerHandler = new MqttServerHandler(kafkaBridgeProducer, bridgeDefaultTopic, mappingRules);
         this.decoderMaxBytesInMessage = decoderMaxBytesInMessage;
     }
 

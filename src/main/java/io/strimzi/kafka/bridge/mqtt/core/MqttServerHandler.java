@@ -20,7 +20,6 @@ import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MqttKafkaRegexMapper;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingResult;
-import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Headers;
@@ -29,7 +28,6 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -48,24 +46,19 @@ import static io.netty.channel.ChannelHandler.Sharable;
 public class MqttServerHandler extends SimpleChannelInboundHandler<MqttMessage> {
     private static final Logger LOGGER = LogManager.getLogger(MqttServerHandler.class);
     private final KafkaBridgeProducer kafkaBridgeProducer;
-    private MqttKafkaMapper mqttKafkaMapper;
+    private final MqttKafkaMapper mqttKafkaMapper;
 
     /**
      * Constructor
      *
      * @param kafkaBridgeProducer   instance of the Kafka producer for sending messages
      * @param bridgeDefaultTopic    default Kafka topic to be used if there are no matches for the MQTT topic pattern
+     * @param mappingRules          the list of topic mapping rules
      */
-    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic) {
+    public MqttServerHandler(KafkaBridgeProducer kafkaBridgeProducer, String bridgeDefaultTopic, List<MappingRule> mappingRules) {
         // auto release reference count to avoid memory leak
         super(true);
-        try {
-            MappingRulesLoader mappingRulesLoader = MappingRulesLoader.getInstance();
-            List<MappingRule> rules = mappingRulesLoader.loadRules();
-            this.mqttKafkaMapper = new MqttKafkaRegexMapper(rules, bridgeDefaultTopic);
-        } catch (IOException e) {
-            LOGGER.error("Error reading mapping file: ", e);
-        }
+        this.mqttKafkaMapper = new MqttKafkaRegexMapper(mappingRules, bridgeDefaultTopic);
         this.kafkaBridgeProducer = kafkaBridgeProducer;
     }
 

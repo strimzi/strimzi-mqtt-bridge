@@ -12,6 +12,7 @@ import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
 import io.strimzi.kafka.bridge.mqtt.core.HttpServer;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
+import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -45,13 +47,13 @@ public class Main {
             BridgeConfig bridgeConfig = BridgeConfig.fromMap((Map<String, Object>) configRetriever);
             LOGGER.info("Bridge configuration {}", bridgeConfig);
 
-            //set the mapping rules file path
-            MappingRulesLoader.getInstance().init(mappingRulesFile);
+            // load the mapping rules once at startup and pass them down
+            List<MappingRule> mappingRules = MappingRulesLoader.loadRules(mappingRulesFile);
 
             // start the MQTT server
             EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-            MqttServer mqttServer = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE);
+            MqttServer mqttServer = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
             // start the HTTP server
             HttpServer httpServer = new HttpServer(mqttServer, mqttServer);
 
