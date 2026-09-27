@@ -42,3 +42,8 @@ target/
 *.tar
 *.tar.gz
 sbom/
+
+# AI assistants configuration
+.claude/
+.mcp.json
+.bob/
