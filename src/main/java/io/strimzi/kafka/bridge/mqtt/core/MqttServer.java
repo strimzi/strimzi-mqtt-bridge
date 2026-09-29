@@ -72,7 +72,7 @@ public class MqttServer implements Liveness, Readiness {
         try {
             return MqttSslContextProvider.load(mqttConfig.getSslConfig());
         } catch (SSLException e) {
-            throw new RuntimeException("Failed to load MQTT SSL context", e);
+            throw new SslContextLoadException(e);
         }
     }
 
