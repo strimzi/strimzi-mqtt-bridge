@@ -12,6 +12,7 @@ import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.ConfigRetriever;
 import io.strimzi.kafka.bridge.mqtt.core.HttpServer;
 import io.strimzi.kafka.bridge.mqtt.core.MqttServer;
+import io.strimzi.kafka.bridge.mqtt.core.SslContextLoadException;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRulesLoader;
 import org.apache.commons.cli.CommandLine;
@@ -86,8 +87,10 @@ public class Main {
             LOGGER.error("MQTT bridge was interrupted: ", e);
             Thread.currentThread().interrupt();
             System.exit(1);
+        } catch (SslContextLoadException e) {
+            LOGGER.error("Failed to load the SSL context", e);
+            System.exit(1);
         }
-        System.exit(0);
     }
 
     /**

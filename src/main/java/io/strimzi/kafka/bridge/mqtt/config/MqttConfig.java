@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Represents configurations related to MQTT
  * @see AbstractConfig
+ * @see MqttSslConfig
  */
 public class MqttConfig extends AbstractConfig {
 
@@ -30,13 +31,17 @@ public class MqttConfig extends AbstractConfig {
 
     public static final int DEFAULT_MQTT_MAX_BYTES_MESSAGE = MqttConstant.DEFAULT_MAX_BYTES_IN_MESSAGE;
 
+    private final MqttSslConfig sslConfig;
+
     /**
      * Constructor
      *
      * @param config configuration parameters map
+     * @param sslConfig SSL/TLS configuration properties
      */
-    public MqttConfig(Map<String, Object> config) {
+    public MqttConfig(Map<String, Object> config, MqttSslConfig sslConfig) {
         super(config);
+        this.sslConfig = sslConfig;
     }
 
     /**
@@ -46,9 +51,11 @@ public class MqttConfig extends AbstractConfig {
      * @return a new instance of MqttConfig
      */
     public static MqttConfig fromMap(Map<String, Object> map) {
+        final MqttSslConfig sslConfig = MqttSslConfig.fromMap(map);
         return new MqttConfig(map.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(MqttConfig.MQTT_CONFIG_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                .filter(entry -> entry.getKey().startsWith(MqttConfig.MQTT_CONFIG_PREFIX) &&
+                        !entry.getKey().startsWith(MqttSslConfig.MQTT_SSL_CONFIG_PREFIX))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)), sslConfig);
     }
 
     /**
@@ -69,10 +76,19 @@ public class MqttConfig extends AbstractConfig {
         return Integer.parseInt(this.config.getOrDefault(MqttConfig.MQTT_MAX_BYTES_MESSAGE, MqttConfig.DEFAULT_MQTT_MAX_BYTES_MESSAGE).toString());
     }
 
+    /**
+     * Gets the SSL/TLS configuration for the MQTT Bridge.
+     * @return the SSL/TLS configuration for the MQTT Bridge
+     */
+    public MqttSslConfig getSslConfig() {
+        return sslConfig;
+    }
+
     @Override
     public String toString() {
         return "MqttConfig(" +
                 "config=" + config +
+                ", sslConfig=" + sslConfig +
                 ")";
     }
 
