@@ -41,7 +41,7 @@ public class MqttSslContextProvider {
 
         SslContext sslContext = SslContextBuilder.forServer(certChain, key)
                 .protocols(sslConfig.getEnabledProtocols())
-                .ciphers(sslConfig.getEnabledCipherSuites().isEmpty() ? null : sslConfig.getEnabledCipherSuites())
+                .ciphers(sslConfig.getEnabledCipherSuites())
                 .build();
 
         return new MqttSslContextProvider(sslContext);

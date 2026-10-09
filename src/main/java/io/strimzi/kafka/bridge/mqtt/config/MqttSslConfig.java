@@ -6,8 +6,8 @@ package io.strimzi.kafka.bridge.mqtt.config;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +36,7 @@ public class MqttSslConfig extends AbstractConfig {
 
     public static final boolean DEFAULT_MQTT_SSL_ENABLE = false;
 
-    public static final List<String> DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS = List.of("TLSv1.2", "TLSv1.3");
+    public static final String DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS = "TLSv1.2,TLSv1.3";
 
     /**
      * Constructor
@@ -75,7 +75,7 @@ public class MqttSslConfig extends AbstractConfig {
      * @return the certificate PEM, or {@code null} if not set
      */
     public String getCertificate() {
-        return this.config.get(MQTT_SSL_CERTIFICATE) == null ? null : this.config.get(MQTT_SSL_CERTIFICATE).toString();
+        return (String) this.config.get(MQTT_SSL_CERTIFICATE);
     }
 
     /**
@@ -84,7 +84,7 @@ public class MqttSslConfig extends AbstractConfig {
      * @return the certificate file path, or {@code null} if not set
      */
     public String getCertificateLocation() {
-        return this.config.get(MQTT_SSL_CERTIFICATE_LOCATION) == null ? null : this.config.get(MQTT_SSL_CERTIFICATE_LOCATION).toString();
+        return (String) this.config.get(MQTT_SSL_CERTIFICATE_LOCATION);
     }
 
     /**
@@ -94,7 +94,7 @@ public class MqttSslConfig extends AbstractConfig {
      * @return the private key PEM, or {@code null} if not set
      */
     public String getKey() {
-        return this.config.get(MQTT_SSL_KEY) == null ? null : this.config.get(MQTT_SSL_KEY).toString();
+        return (String) this.config.get(MQTT_SSL_KEY);
     }
 
     /**
@@ -103,7 +103,7 @@ public class MqttSslConfig extends AbstractConfig {
      * @return the private key file path, or {@code null} if not set
      */
     public String getKeyLocation() {
-        return this.config.get(MQTT_SSL_KEY_LOCATION) == null ? null : this.config.get(MQTT_SSL_KEY_LOCATION).toString();
+        return (String) this.config.get(MQTT_SSL_KEY_LOCATION);
     }
 
     /**
@@ -112,26 +112,23 @@ public class MqttSslConfig extends AbstractConfig {
      *
      * @return the enabled TLS protocols
      */
-    public List<String> getEnabledProtocols() {
-        Object value = this.config.get(MQTT_SSL_ENABLED_PROTOCOLS);
-        if (value == null || value.toString().isBlank()) {
-            return DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS;
-        }
-        return parseCommaSeparated(value.toString());
+    public Set<String> getEnabledProtocols() {
+        return Arrays.stream(((String) this.config.getOrDefault(MQTT_SSL_ENABLED_PROTOCOLS, DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS)).split(",")).collect(Collectors.toSet());
     }
 
     /**
      * Gets the enabled TLS cipher suites.
-     * If not set, an empty list is returned and the JDK SSL/TLS engine defaults are used.
+     * If not set, {@code null} is returned and the JDK SSL/TLS engine defaults are used.
      *
-     * @return the enabled cipher suites, or an empty list to use the JDK defaults
+     * @return the enabled cipher suites, or {@code null} to use the JDK defaults
      */
-    public List<String> getEnabledCipherSuites() {
-        Object value = this.config.get(MQTT_SSL_ENABLED_CIPHER_SUITES);
-        if (value == null || value.toString().isBlank()) {
-            return List.of();
+    public Set<String> getEnabledCipherSuites() {
+        String cipherSuites = (String) this.config.get(MQTT_SSL_ENABLED_CIPHER_SUITES);
+        if (cipherSuites != null) {
+            return Arrays.stream(cipherSuites.split(",")).collect(Collectors.toSet());
+        } else {
+            return null;
         }
-        return parseCommaSeparated(value.toString());
     }
 
     @Override
@@ -154,12 +151,5 @@ public class MqttSslConfig extends AbstractConfig {
             configToString.put(MQTT_SSL_CERTIFICATE, "[hidden]");
         }
         return configToString;
-    }
-
-    private static List<String> parseCommaSeparated(String value) {
-        return Arrays.stream(value.split(","))
-                .map(String::trim)
-                .filter(part -> !part.isEmpty())
-                .toList();
     }
 }

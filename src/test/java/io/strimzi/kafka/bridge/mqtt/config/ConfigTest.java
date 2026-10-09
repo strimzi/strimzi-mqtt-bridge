@@ -10,8 +10,8 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -93,8 +93,8 @@ public class ConfigTest {
         assertThat(sslConfig.getCertificateLocation(), is(nullValue()));
         assertThat(sslConfig.getKey(), is(nullValue()));
         assertThat(sslConfig.getKeyLocation(), is(nullValue()));
-        assertThat(sslConfig.getEnabledProtocols(), is(MqttSslConfig.DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS));
-        assertThat(sslConfig.getEnabledCipherSuites(), is(List.of()));
+        assertThat(sslConfig.getEnabledProtocols(), is(Set.of("TLSv1.2", "TLSv1.3")));
+        assertThat(sslConfig.getEnabledCipherSuites(), is(nullValue()));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ConfigTest {
         map.put("mqtt.ssl.key", key);
         map.put("mqtt.ssl.key.location", "/tmp/server-key.pem");
         map.put("mqtt.ssl.enabled.protocols", "TLSv1.3");
-        map.put("mqtt.ssl.enabled.cipher.suites", "TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384");
+        map.put("mqtt.ssl.enabled.cipher.suites", "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384");
 
         BridgeConfig bridgeConfig = BridgeConfig.fromMap(map);
         MqttConfig mqttConfig = bridgeConfig.getMqttConfig();
@@ -123,8 +123,8 @@ public class ConfigTest {
         assertThat(sslConfig.getCertificateLocation(), is("/tmp/server-cert.pem"));
         assertThat(sslConfig.getKey(), is(key));
         assertThat(sslConfig.getKeyLocation(), is("/tmp/server-key.pem"));
-        assertThat(sslConfig.getEnabledProtocols(), is(List.of("TLSv1.3")));
-        assertThat(sslConfig.getEnabledCipherSuites(), is(List.of("TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384")));
+        assertThat(sslConfig.getEnabledProtocols(), is(Set.of("TLSv1.3")));
+        assertThat(sslConfig.getEnabledCipherSuites(), is(Set.of("TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384")));
     }
 
     @Test
