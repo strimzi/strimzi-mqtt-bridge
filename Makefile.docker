@@ -9,6 +9,7 @@ TOPDIR=$(dir $(lastword $(MAKEFILE_LIST)))
 SBOM_DIR=$(TOPDIR)sbom
 
 DOCKERFILE_DIR     ?= ./
+DOCKER_CMD         ?= docker
 DOCKER_REGISTRY    ?= docker.io
 DOCKER_ORG         ?= $(USER)
 DOCKER_TAG         ?= latest
@@ -27,19 +28,19 @@ MANIFEST_ARCHITECTURES ?= $(DOCKER_ARCHITECTURE)
 .PHONY: docker_build
 docker_build:
 	# Build Docker image ...
-	docker $(DOCKER_BUILDX) build $(DOCKER_PLATFORM) $(DOCKER_BUILD_ARGS) --build-arg strimzi_mqtt_bridge_version=$(RELEASE_VERSION) -t strimzi/$(PROJECT_NAME):latest $(DOCKERFILE_DIR)
+	$(DOCKER_CMD) $(DOCKER_BUILDX) build $(DOCKER_PLATFORM) $(DOCKER_BUILD_ARGS) --build-arg strimzi_mqtt_bridge_version=$(RELEASE_VERSION) -t strimzi/$(PROJECT_NAME):latest $(DOCKERFILE_DIR)
 	# Also tag with $(BUILD_TAG)
-	docker tag strimzi/$(PROJECT_NAME):latest strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+	$(DOCKER_CMD) tag strimzi/$(PROJECT_NAME):latest strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
 
 .PHONY: docker_save
 docker_save:
 	# Saves the container as TGZ file
-	docker save $(DOCKER_PLATFORM) strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) | gzip > mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
+	$(DOCKER_CMD) save $(DOCKER_PLATFORM) strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) | gzip > mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
 
 .PHONY: docker_load
 docker_load:
 	# Loads the container as TGZ file
-	docker load < mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
+	$(DOCKER_CMD) load < mqtt-bridge$(DOCKER_PLATFORM_TAG_SUFFIX).tar.gz
 
 .PHONY: docker_delete_archive
 docker_delete_archive:
@@ -49,12 +50,12 @@ docker_delete_archive:
 .PHONY: docker_tag
 docker_tag:
 	# Tag the $(BUILD_TAG) image we built with the given $(DOCKER_TAG) tag
-	docker tag strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+	$(DOCKER_CMD) tag strimzi/$(PROJECT_NAME):$(BUILD_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX) $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
 
 .PHONY: docker_push
 docker_push: docker_tag
 	# Push the $(DOCKER_TAG)-tagged image to the registry
-	docker push $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
+	$(DOCKER_CMD) push $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)$(DOCKER_PLATFORM_TAG_SUFFIX)
 	
 .PHONY: docker_amend_manifest
 docker_amend_manifest:
@@ -63,7 +64,7 @@ docker_amend_manifest:
 	for arch in $$(echo "$(MANIFEST_ARCHITECTURES)" | tr ',' ' '); do \
 		sources="$$sources $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG)-$$arch" ; \
 	done ; \
-	docker buildx imagetools create -t $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG) $$sources
+	$(DOCKER_CMD) buildx imagetools create -t $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(PROJECT_NAME):$(DOCKER_TAG) $$sources
 
 .PHONY: docker_gha_sign_manifest
 docker_gha_sign_manifest:
