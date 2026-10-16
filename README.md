@@ -151,28 +151,51 @@ Following the prefixes for the specific configurations:
 A valid configuration file should look like this:
 
 ```properties
-    # Bridge configuration
-    bridge.id=my-bridge
-    bridge.topic.default=default_topic
-    # MQTT configuration
-    mqtt.host=0.0.0.0
-    mqtt.port=1883
-    # Kafka configuration
-    kafka.bootstrap.servers=localhost:9092
-   ```
+# Bridge configuration
+bridge.id=my-bridge
+bridge.topic.default=default_topic
+# MQTT configuration
+mqtt.host=0.0.0.0
+mqtt.port=1883
+mqtt.max.bytes.message=8092
+# MQTT SSL/TLS (optional)
+#mqtt.ssl.enable=true
+#mqtt.ssl.certificate.location=path/to/server-cert.pem
+#mqtt.ssl.key.location=path/to/server-key.pem
+# Kafka configuration
+kafka.bootstrap.servers=localhost:9092
+```
+
+Uncomment the `mqtt.ssl.*` properties to enable TLS/SSL encryption for MQTT connections.
+Enabling TLS/SSL does not automatically set the `mqtt.port` to `8883`, you need to set it manually.
 
 The following table describes the configuration properties defined above.
 
-| Setting                 | Description                                                  | Default                 |
-|-------------------------|--------------------------------------------------------------|-------------------------|
-| bridge.id               | ID of the bridge                                             | null/undefined          |
-| bridge.topic.default    | Topic to be used if no matches with any mapping rules        | messages_default        |
-| mqtt.host               | Host address of the MQTT server                              | 0.0.0.0                 |
-| mqtt.port               | Port number of the MQTT server                               | 1883                    |
-| mqtt.max.bytes.message  | Max bytes in message for MQTT decoder                        | 8092                    |
-| kafka.bootstrap.servers | Bootstrap servers for Apache Kafka                           | localhost:9092          |
-| kafka.producer.*        | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults |
+| Setting                              | Description                                                  | Default                      |
+|--------------------------------------|--------------------------------------------------------------|------------------------------|
+| bridge.id                            | ID of the bridge                                             | null/undefined               |
+| bridge.topic.default                 | Topic to be used if no matches with any mapping rules        | messages_default             |
+| mqtt.host                            | Host address of the MQTT server                              | 0.0.0.0                      |
+| mqtt.port                            | Port number of the MQTT server                               | 1883                         |
+| mqtt.max.bytes.message               | Max bytes in message for MQTT decoder                        | 8092                         |
+| mqtt.ssl.enable                      | Enable MQTT over TLS                                         | false                        |
+| mqtt.ssl.certificate.location        | Path to the MQTT server certificate in PEM format            | null/undefined               |
+| mqtt.ssl.key.location                | Path to the MQTT server private key in PEM format            | null/undefined               |
+| mqtt.ssl.certificate                 | Inline MQTT server certificate in PEM format                 | null/undefined               |
+| mqtt.ssl.key                         | Inline MQTT server private key in PEM format                 | null/undefined               |
+| mqtt.ssl.enabled.protocols           | Enabled TLS protocol versions                                | TLSv1.2,TLSv1.3              |
+| mqtt.ssl.enabled.cipher.suites       | Enabled TLS cipher suites                                    | JDK SSL/TLS engine defaults  |
+| kafka.bootstrap.servers              | Bootstrap servers for Apache Kafka                           | localhost:9092               |
+| kafka.producer.*                     | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults      |
 
+To accept MQTT connections over TLS, set `mqtt.ssl.enable=true` and provide a server certificate and private key in PEM format.
+PKCS12 and other keystore formats are not supported.
+Each of the certificate and the private key can be supplied either as a file path (`mqtt.ssl.certificate.location` / `mqtt.ssl.key.location`) or inline (`mqtt.ssl.certificate` / `mqtt.ssl.key`).
+Inline values take precedence over file-based values; do not set both for the same item.
+There is no separate TLS listener: when TLS is enabled, MQTT clients connect to `mqtt.host` and `mqtt.port` using TLS (commonly port `8883`).
+
+If `mqtt.ssl.enabled.protocols` is not set, the bridge uses `TLSv1.2,TLSv1.3`.
+If `mqtt.ssl.enabled.cipher.suites` is not set, the bridge uses the cipher suites provided by the underlying JDK SSL/TLS engine.
 
 Other than the above properties, the user can also configure the bridge using environment variables.
 

@@ -11,12 +11,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.strimzi.kafka.bridge.mqtt.MqttSslContextProvider;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.MqttConfig;
 import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.net.ssl.SSLException;
 
 import java.util.List;
 
@@ -30,17 +33,16 @@ public class MqttServer implements Liveness, Readiness {
     private final ServerBootstrap serverBootstrap;
     private final MqttConfig mqttConfig;
     private final KafkaBridgeProducer kafkaBridgeProducer;
-
     private ChannelFuture channelFuture;
 
     /**
      * Constructor
      *
-     * @param config      MqttConfig instance with all configuration needed to run the server.
-     * @param masterGroup EventLoopGroup instance for handle incoming connections.
-     * @param workerGroup EventLoopGroup instance for processing I/O.
-     * @param option      ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
-     * @param mappingRules  the list of topic mapping rules to apply
+     * @param config       MqttConfig instance with all configuration needed to run the server.
+     * @param masterGroup  EventLoopGroup instance for handle incoming connections.
+     * @param workerGroup  EventLoopGroup instance for processing I/O.
+     * @param option       ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @param mappingRules the list of topic mapping rules to apply
      * @see BridgeConfig
      * @see ChannelOption
      */
@@ -50,11 +52,28 @@ public class MqttServer implements Liveness, Readiness {
         this.mqttConfig = config.getMqttConfig();
         this.kafkaBridgeProducer = new KafkaBridgeProducer(config.getKafkaConfig());
         this.serverBootstrap = new ServerBootstrap();
+        MqttSslContextProvider sslContextProvider = loadSslContextProvider();
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config.getBridgeDefaultTopic(), this.mqttConfig.getMaxBytesMessage(), mappingRules))
+                .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config, sslContextProvider, mappingRules))
                 .childOption(option, true);
+    }
+
+    /**
+     * Loads the SSL context once at server startup when MQTT SSL/TLS is enabled.
+     *
+     * @return the SSL context provider, or {@code null} when SSL/TLS is disabled
+     */
+    private MqttSslContextProvider loadSslContextProvider() {
+        if (!mqttConfig.getSslConfig().isEnabled()) {
+            return null;
+        }
+        try {
+            return MqttSslContextProvider.load(mqttConfig.getSslConfig());
+        } catch (SSLException e) {
+            throw new SslContextLoadException(e);
+        }
     }
 
     /**

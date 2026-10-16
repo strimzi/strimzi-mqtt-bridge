@@ -6,7 +6,8 @@ package io.strimzi.kafka.bridge.mqtt;
 
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.strimzi.kafka.bridge.mqtt.config.BridgeConfig;
 import io.strimzi.kafka.bridge.mqtt.config.KafkaConfig;
@@ -42,7 +43,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Random;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
@@ -111,8 +111,8 @@ public class MqttBridgetIT {
         List<MappingRule> mappingRules = MappingRulesLoader.loadRules(mappingRulesPath);
 
         // start the MQTT bridge
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
+        EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
         mqttBridge = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
         mqttBridge.start();
@@ -252,6 +252,6 @@ public class MqttBridgetIT {
      * Randomly generate a new client id before each test
      */
     private String getRandomMqttClientId() {
-        return "mqtt-client-" + new Random().nextInt(20);
+        return "mqtt-client-" + UUID.randomUUID();
     }
 }
