@@ -6,7 +6,7 @@
 * Use Java 21 as the runtime in the MQTT Bridge container image
 * Use the correct `mqtt.host` and `mqtt.port` configuration options in sample configuration files and docs instead of incorrect `mqtt.server.host` and `mqtt.server.port`
 * Support for TLS/SSL Encryption
-* Use Java 25 as the runtime in the container (but still leaving Java 21 at language level) for supporting Post-Quantum Hybrid Key Exchange
+* Use Java 25 as the runtime in the container (leaving the language level at Java 21) for supporting Post-Quantum Hybrid Key Exchange
 
 ## 0.1.0
 
