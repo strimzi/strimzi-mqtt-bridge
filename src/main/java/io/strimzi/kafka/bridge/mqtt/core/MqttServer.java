@@ -4,6 +4,7 @@
  */
 package io.strimzi.kafka.bridge.mqtt.core;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -46,6 +47,7 @@ public class MqttServer implements Liveness, Readiness {
      * @see BridgeConfig
      * @see ChannelOption
      */
+    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "SSL context loading in the constructor can throw; to be refactored out, see https://github.com/strimzi/strimzi-mqtt-bridge/issues/138")
     public MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option, List<MappingRule> mappingRules) {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
