@@ -40,7 +40,7 @@ public class KafkaProducerConfig extends AbstractConfig {
     @Override
     public String toString() {
         return "KafkaProducerConfig(" +
-                "config=" + config +
+                "config=" + this.hideSecrets(KafkaConfig.KAFKA_SENSITIVE_CONFIG_KEYS) +
                 ")";
     }
 }

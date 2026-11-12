@@ -4,8 +4,8 @@
  */
 package io.strimzi.kafka.bridge.mqtt.config;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +16,19 @@ public class KafkaConfig extends AbstractConfig {
 
     // Prefix for all the specific configuration parameters for Kafka in the properties file
     public static final String KAFKA_CONFIG_PREFIX = "kafka.";
+
+    /** Sensitive Kafka config keys, mirroring {@code ConfigDef.Type.PASSWORD} declarations in Kafka's SslConfigs and SaslConfigs */
+    static final Set<String> KAFKA_SENSITIVE_CONFIG_KEYS = Set.of(
+            "ssl.keystore.password",
+            "ssl.key.password",
+            "ssl.truststore.password",
+            "ssl.keystore.key",
+            "ssl.keystore.certificate.chain",
+            "ssl.truststore.certificates",
+            "sasl.jaas.config",
+            "sasl.oauthbearer.client.credentials.client.secret",
+            "sasl.oauthbearer.assertion.private.key.passphrase"
+    );
 
     private final KafkaProducerConfig kafkaProducerConfig;
 
@@ -53,24 +66,9 @@ public class KafkaConfig extends AbstractConfig {
 
     @Override
     public String toString() {
-        Map<String, Object> configToString = this.hidePasswords();
         return "KafkaConfig(" +
-                "config=" + configToString +
+                "config=" + this.hideSecrets(KAFKA_SENSITIVE_CONFIG_KEYS) +
                 ", kafkaProducerConfig=" + kafkaProducerConfig +
                 ")";
-    }
-
-    /**
-     * Hides Kafka related password(s) configuration (i.e. truststore and keystore)
-     * by replacing each actual password with [hidden] string
-     *
-     * @return updated configuration with hidden password(s)
-     */
-    private Map<String, Object> hidePasswords() {
-        Map<String, Object> configToString = new HashMap<>(this.config);
-        configToString.entrySet().stream()
-                .filter(e -> e.getKey().contains("password"))
-                .forEach(e -> e.setValue("[hidden]"));
-        return configToString;
     }
 }

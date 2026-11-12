@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 /**
@@ -132,17 +134,117 @@ public class ConfigTest {
     }
 
     @Test
-    public void testHidingSslPrivateKey() {
-        String key = "-----BEGIN PRIVATE KEY-----\nthis-should-not-be-logged\n-----END PRIVATE KEY-----";
-        Map<String, Object> map = new HashMap<>();
-        map.put("mqtt.ssl.enable", "true");
-        map.put("mqtt.ssl.key", key);
+    public void testHideSecretsKafkaConfig() {
+        String pemKey = "FAKE-PEM-PRIVATE-KEY";
+        String certChain = "FAKE-PEM-CERT-CHAIN";
+        String truststoreCert = "FAKE-PEM-TRUSTSTORE-CERT";
+        String jaasConfig = "PlainLoginModule required username=\"alice\" password=\"secret\";";
+        String oauthSecret = "FAKE-OAUTH-SECRET";
+        String passphrase = "FAKE-PASSPHRASE";
+
+        Map<String, Object> map = Map.of(
+                "kafka.ssl.keystore.key", pemKey,
+                "kafka.ssl.keystore.certificate.chain", certChain,
+                "kafka.ssl.truststore.certificates", truststoreCert,
+                "kafka.sasl.jaas.config", jaasConfig,
+                "kafka.sasl.oauthbearer.client.credentials.client.secret", oauthSecret,
+                "kafka.sasl.oauthbearer.assertion.private.key.passphrase", passphrase
+        );
+
+        String out = BridgeConfig.fromMap(map).getKafkaConfig().toString();
+
+        assertThat(out, not(containsString(pemKey)));
+        assertThat(out, not(containsString(certChain)));
+        assertThat(out, not(containsString(truststoreCert)));
+        assertThat(out, not(containsString(jaasConfig)));
+        assertThat(out, not(containsString(oauthSecret)));
+        assertThat(out, not(containsString(passphrase)));
+
+        assertThat(out, containsString("ssl.keystore.key=[hidden]"));
+        assertThat(out, containsString("ssl.keystore.certificate.chain=[hidden]"));
+        assertThat(out, containsString("ssl.truststore.certificates=[hidden]"));
+        assertThat(out, containsString("sasl.jaas.config=[hidden]"));
+        assertThat(out, containsString("sasl.oauthbearer.client.credentials.client.secret=[hidden]"));
+        assertThat(out, containsString("sasl.oauthbearer.assertion.private.key.passphrase=[hidden]"));
+    }
+
+    @Test
+    public void testHideSecretsKafkaProducerConfig() {
+        String keystorePassword = "FAKE-KEYSTORE-PASSWORD-PRODUCER";
+        String pemKey = "FAKE-PEM-KEY-PRODUCER";
+        String jaasConfig = "PlainLoginModule required username=\"producer\" password=\"secret\";";
+        String oauthSecret = "FAKE-OAUTH-SECRET-PRODUCER";
+
+        Map<String, Object> map = Map.of(
+                "kafka.producer.ssl.keystore.password", keystorePassword,
+                "kafka.producer.ssl.keystore.key", pemKey,
+                "kafka.producer.sasl.jaas.config", jaasConfig,
+                "kafka.producer.sasl.oauthbearer.client.credentials.client.secret", oauthSecret
+        );
+
+        String out = BridgeConfig.fromMap(map).getKafkaConfig().getProducerConfig().toString();
+
+        assertThat(out, not(containsString(keystorePassword)));
+        assertThat(out, not(containsString(pemKey)));
+        assertThat(out, not(containsString(jaasConfig)));
+        assertThat(out, not(containsString(oauthSecret)));
+
+        assertThat(out, containsString("ssl.keystore.password=[hidden]"));
+        assertThat(out, containsString("ssl.keystore.key=[hidden]"));
+        assertThat(out, containsString("sasl.jaas.config=[hidden]"));
+        assertThat(out, containsString("sasl.oauthbearer.client.credentials.client.secret=[hidden]"));
+    }
+
+    @Test
+    public void testHideSecretsMqttSslConfig() {
+        String pemKey = "FAKE-MQTT-SERVER-PEM-KEY";
+        String pemCert = "FAKE-MQTT-SERVER-PEM-CERT";
+
+        Map<String, Object> map = Map.of(
+                "mqtt.ssl.enable", "true",
+                "mqtt.ssl.key", pemKey,
+                "mqtt.ssl.certificate", pemCert
+        );
+
+        String out = BridgeConfig.fromMap(map).getMqttConfig().getSslConfig().toString();
+
+        assertThat(out, not(containsString(pemKey)));
+        assertThat(out, not(containsString(pemCert)));
+
+        assertThat(out, containsString("mqtt.ssl.key=[hidden]"));
+        assertThat(out, containsString("mqtt.ssl.certificate=[hidden]"));
+    }
+
+    @Test
+    public void testNonSensitiveKeysNotHidden() {
+        Map<String, Object> map = Map.of(
+                "kafka.bootstrap.servers", "localhost:9092",
+                "kafka.ssl.truststore.type", "PEM",
+                "kafka.ssl.keystore.type", "PEM",
+                "kafka.producer.acks", "1",
+                "mqtt.host", "0.0.0.0",
+                "mqtt.port", "8883",
+                "mqtt.ssl.enable", "true",
+                "mqtt.ssl.key.location", "/opt/strimzi/certs/tls.key",
+                "mqtt.ssl.certificate.location", "/opt/strimzi/certs/tls.crt"
+        );
 
         BridgeConfig bridgeConfig = BridgeConfig.fromMap(map);
-        String sslConfigAsString = bridgeConfig.getMqttConfig().getSslConfig().toString();
+        String kafkaOut = bridgeConfig.getKafkaConfig().toString();
+        String mqttOut = bridgeConfig.getMqttConfig().toString();
 
-        assertThat(sslConfigAsString.contains(key), is(false));
-        assertThat(sslConfigAsString.contains("mqtt.ssl.key=[hidden]"), is(true));
+        // non-sensitive kafka values must remain visible
+        assertThat(kafkaOut, containsString("bootstrap.servers=localhost:9092"));
+        assertThat(kafkaOut, containsString("ssl.truststore.type=PEM"));
+        assertThat(kafkaOut, containsString("ssl.keystore.type=PEM"));
+        assertThat(kafkaOut, containsString("acks=1"));
+
+        // non-sensitive mqtt values and file paths are not sensitive
+        assertThat(mqttOut, containsString("mqtt.host=0.0.0.0"));
+        assertThat(mqttOut, containsString("mqtt.port=8883"));
+        assertThat(mqttOut, containsString("mqtt.ssl.key.location=/opt/strimzi/certs/tls.key"));
+        assertThat(mqttOut, containsString("mqtt.ssl.certificate.location=/opt/strimzi/certs/tls.crt"));
+        assertThat(mqttOut, not(containsString("[hidden]")));
     }
 }
 

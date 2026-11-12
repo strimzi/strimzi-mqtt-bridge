@@ -5,7 +5,6 @@
 package io.strimzi.kafka.bridge.mqtt.config;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +39,12 @@ public class MqttSslConfig extends AbstractConfig {
     public static final boolean DEFAULT_MQTT_SSL_ENABLE = false;
 
     public static final String DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS = "TLSv1.2,TLSv1.3";
+
+    /** Sensitive MQTT config keys for inline PEM values */
+    static final Set<String> MQTT_SENSITIVE_CONFIG_KEYS = Set.of(
+            "ssl.key",
+            "ssl.certificate"
+    );
 
     /**
      * Constructor
@@ -151,23 +156,8 @@ public class MqttSslConfig extends AbstractConfig {
 
     @Override
     public String toString() {
-        Map<String, Object> configToString = this.hideSecrets();
         return "MqttSslConfig(" +
-                "config=" + configToString +
+                "config=" + this.hideSecrets(MQTT_SENSITIVE_CONFIG_KEYS) +
                 ")";
-    }
-
-    /**
-     * Hides the inline private key by replacing the actual value with [hidden]
-     *
-     * @return updated configuration with the private key hidden
-     */
-    private Map<String, Object> hideSecrets() {
-        Map<String, Object> configToString = new HashMap<>(this.config);
-        if (configToString.containsKey(MQTT_SSL_KEY) || configToString.containsKey(MQTT_SSL_CERTIFICATE)) {
-            configToString.put(MQTT_SSL_KEY, "[hidden]");
-            configToString.put(MQTT_SSL_CERTIFICATE, "[hidden]");
-        }
-        return configToString;
     }
 }
