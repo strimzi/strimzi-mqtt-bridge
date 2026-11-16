@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   test-github-actions-integration:
-    uses: strimzi/github-actions/.github/workflows/reusable-test-integrations.yml@v1
+    uses: strimzi/github-actions/.github/workflows/reusable-test-integrations.yml@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
     with:
       repo: ${{ github.repository }}
       ref: ${{ github.sha }}
@@ -35,6 +35,7 @@ jobs:
       javaVersion: "21"
       helmChartName: "none"
       releaseVersion: "6.6.6"
-      imagesDir: "mqtt-bridge-amd64.tar.gz"
-      githubActionsRef: "v1"
+      imagesLocation: "mqtt-bridge-amd64.tar.gz"
+      helmVersion: "v3.20.0"
+      helmUnitTestVersion: "v1.0.3"
     secrets: inherit
