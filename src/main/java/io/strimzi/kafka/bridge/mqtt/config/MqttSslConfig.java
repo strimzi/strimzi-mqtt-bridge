@@ -6,6 +6,7 @@ package io.strimzi.kafka.bridge.mqtt.config;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,8 @@ public class MqttSslConfig extends AbstractConfig {
     public static final String MQTT_SSL_ENABLED_PROTOCOLS = MQTT_SSL_CONFIG_PREFIX + "enabled.protocols";
 
     public static final String MQTT_SSL_ENABLED_CIPHER_SUITES = MQTT_SSL_CONFIG_PREFIX + "enabled.cipher.suites";
+
+    public static final String MQTT_SSL_NAMED_GROUPS = MQTT_SSL_CONFIG_PREFIX + "named.groups";
 
     public static final boolean DEFAULT_MQTT_SSL_ENABLE = false;
 
@@ -126,6 +129,21 @@ public class MqttSslConfig extends AbstractConfig {
         String cipherSuites = (String) this.config.get(MQTT_SSL_ENABLED_CIPHER_SUITES);
         if (cipherSuites != null) {
             return Arrays.stream(cipherSuites.split(",")).collect(Collectors.toSet());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the enabled TLS named groups.
+     * If not set, {@code null} is returned and the JDK SSL/TLS engine defaults are used.
+     *
+     * @return the enabled named groups, or {@code null} to use the JDK defaults
+     */
+    public List<String> getNamedGroups() {
+        String namedGroups = (String) this.config.getOrDefault(MQTT_SSL_NAMED_GROUPS, null);
+        if (namedGroups != null) {
+            return Arrays.stream(namedGroups.split(",")).toList();
         } else {
             return null;
         }

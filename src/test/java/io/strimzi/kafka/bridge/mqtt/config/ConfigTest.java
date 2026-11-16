@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -95,6 +96,7 @@ public class ConfigTest {
         assertThat(sslConfig.getKeyLocation(), is(nullValue()));
         assertThat(sslConfig.getEnabledProtocols(), is(Set.of("TLSv1.2", "TLSv1.3")));
         assertThat(sslConfig.getEnabledCipherSuites(), is(nullValue()));
+        assertThat(sslConfig.getNamedGroups(), is(nullValue()));
     }
 
     @Test
@@ -111,13 +113,14 @@ public class ConfigTest {
         map.put("mqtt.ssl.key.location", "/tmp/server-key.pem");
         map.put("mqtt.ssl.enabled.protocols", "TLSv1.3");
         map.put("mqtt.ssl.enabled.cipher.suites", "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384");
+        map.put("mqtt.ssl.named.groups", "x25519mlkem768,x25519,secp256r1,secp384r1");
 
         BridgeConfig bridgeConfig = BridgeConfig.fromMap(map);
         MqttConfig mqttConfig = bridgeConfig.getMqttConfig();
         MqttSslConfig sslConfig = mqttConfig.getSslConfig();
 
         assertThat(mqttConfig.getConfig().size(), is(2));
-        assertThat(sslConfig.getConfig().size(), is(7));
+        assertThat(sslConfig.getConfig().size(), is(8));
         assertThat(sslConfig.isEnabled(), is(true));
         assertThat(sslConfig.getCertificate(), is(certificate));
         assertThat(sslConfig.getCertificateLocation(), is("/tmp/server-cert.pem"));
@@ -125,6 +128,7 @@ public class ConfigTest {
         assertThat(sslConfig.getKeyLocation(), is("/tmp/server-key.pem"));
         assertThat(sslConfig.getEnabledProtocols(), is(Set.of("TLSv1.3")));
         assertThat(sslConfig.getEnabledCipherSuites(), is(Set.of("TLS_AES_128_GCM_SHA256", "TLS_AES_256_GCM_SHA384")));
+        assertThat(sslConfig.getNamedGroups(), is(List.of("x25519mlkem768", "x25519", "secp256r1", "secp384r1")));
     }
 
     @Test

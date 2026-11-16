@@ -10,7 +10,9 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.strimzi.kafka.bridge.mqtt.config.MqttSslConfig;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,9 +29,11 @@ import java.nio.file.Path;
  */
 public class MqttSslContextProvider {
     private final SslContext sslContext;
+    private final MqttSslConfig sslConfig;
 
-    private MqttSslContextProvider(SslContext sslContext) {
+    private MqttSslContextProvider(SslContext sslContext, MqttSslConfig sslConfig) {
         this.sslContext = sslContext;
+        this.sslConfig = sslConfig;
     }
 
     /**
@@ -44,7 +48,7 @@ public class MqttSslContextProvider {
                 .ciphers(sslConfig.getEnabledCipherSuites())
                 .build();
 
-        return new MqttSslContextProvider(sslContext);
+        return new MqttSslContextProvider(sslContext, sslConfig);
     }
 
     /**
@@ -54,7 +58,14 @@ public class MqttSslContextProvider {
      * @return a new SSL handler backed by the shared SSL context
      */
     public SslHandler newHandler(ByteBufAllocator allocator) {
-        return sslContext.newHandler(allocator);
+        SslHandler sslHandler = sslContext.newHandler(allocator);
+        if (sslConfig.getNamedGroups() != null) {
+            SSLEngine engine = sslHandler.engine();
+            SSLParameters sslParameters = engine.getSSLParameters();
+            sslParameters.setNamedGroups(sslConfig.getNamedGroups().toArray(new String[0]));
+            engine.setSSLParameters(sslParameters);
+        }
+        return sslHandler;
     }
 
     /**

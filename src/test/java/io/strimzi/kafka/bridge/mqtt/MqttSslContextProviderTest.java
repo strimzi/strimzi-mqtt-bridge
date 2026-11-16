@@ -76,6 +76,20 @@ public class MqttSslContextProviderTest {
     }
 
     @Test
+    public void testNamedGroupsAreApplied() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put(MqttSslConfig.MQTT_SSL_ENABLE, "true");
+        map.put(MqttSslConfig.MQTT_SSL_CERTIFICATE_LOCATION, SslTestUtils.certificateLocation());
+        map.put(MqttSslConfig.MQTT_SSL_KEY_LOCATION, SslTestUtils.keyLocation());
+        map.put(MqttSslConfig.MQTT_SSL_NAMED_GROUPS, "x25519mlkem768,x25519,secp256r1,secp384r1");
+
+        MqttSslContextProvider provider = MqttSslContextProvider.load(MqttSslConfig.fromMap(map));
+        SSLEngine engine = provider.newHandler(UnpooledByteBufAllocator.DEFAULT).engine();
+
+        assertThat(List.of(engine.getSSLParameters().getNamedGroups()), is(List.of("x25519mlkem768", "x25519", "secp256r1", "secp384r1")));
+    }
+
+    @Test
     public void testMissingCertificateAndKeyThrows() {
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(Map.of(MqttSslConfig.MQTT_SSL_ENABLE, "true"))));
