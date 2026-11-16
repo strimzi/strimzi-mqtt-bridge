@@ -222,3 +222,34 @@ Learn more on how you can contribute on our [Join Us](https://strimzi.io/join-us
 ## License
 
 Strimzi Kafka Bridge is licensed under the [Apache License](./LICENSE), Version 2.0
+
+## Artifact attestations
+
+Strimzi MQTT Bridge release archives and container images are published with [GitHub artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) containing [SLSA build provenance](https://slsa.dev/provenance/v1) and, for container images, an [SPDX](https://spdx.dev/) SBOM.
+The attestations are signed keylessly with [Sigstore](https://www.sigstore.dev/) using the GitHub Actions OIDC identity, so no public key is needed to verify them.
+You can verify them with the [GitHub CLI](https://cli.github.com/).
+
+To verify a release archive downloaded from the GitHub release page:
+
+```
+gh attestation verify mqtt-bridge-<version>.tar.gz --repo strimzi/strimzi-mqtt-bridge
+```
+
+Each GitHub release also contains the attestation bundle `release-<version>.intoto.jsonl`.
+You can use it to verify the archive without querying the GitHub Attestation API:
+
+```
+gh attestation verify mqtt-bridge-<version>.tar.gz --bundle release-<version>.intoto.jsonl --repo strimzi/strimzi-mqtt-bridge
+```
+
+To verify the build provenance of a container image:
+
+```
+gh attestation verify oci://quay.io/strimzi/mqtt-bridge:<version> --repo strimzi/strimzi-mqtt-bridge
+```
+
+To verify the SBOM attestation of a container image:
+
+```
+gh attestation verify oci://quay.io/strimzi/mqtt-bridge:<version> --repo strimzi/strimzi-mqtt-bridge --predicate-type https://spdx.dev/Document/v2.3
+```

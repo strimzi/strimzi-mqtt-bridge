@@ -32,15 +32,15 @@ jobs:
             mainBuild: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Java and Maven
-        uses: strimzi/github-actions/.github/actions/dependencies/setup-java@v1
+        uses: strimzi/github-actions/.github/actions/dependencies/setup-java@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
           javaVersion: ${{ matrix.java.version }}
 
       - name: Build binaries using build-binaries action
-        uses: strimzi/github-actions/.github/actions/build/build-binaries@v1
+        uses: strimzi/github-actions/.github/actions/build/build-binaries@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
           mainJavaBuild: ${{ matrix.java.mainBuild }}
           artifactSuffix: "mqtt-bridge"
@@ -59,18 +59,18 @@ jobs:
           - ppc64le
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: strimzi/github-actions/.github/actions/dependencies/install-docker@v1
+      - uses: strimzi/github-actions/.github/actions/dependencies/install-docker@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
 
-      - uses: strimzi/github-actions/.github/actions/build/build-containers@v1
+      - uses: strimzi/github-actions/.github/actions/build/build-containers@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
           architecture: ${{ matrix.architecture }}
           artifactSuffix: "mqtt-bridge"
           containerRegistry: "quay.io"
           containerOrg: "strimzi"
           containerTag: "latest"
-          imagesDir: "mqtt-bridge-${{ matrix.architecture }}.tar.gz"
+          imagesLocation: "mqtt-bridge-${{ matrix.architecture }}.tar.gz"
 
   push-containers:
     name: Push Containers
@@ -80,17 +80,23 @@ jobs:
       - build-containers
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.push-containers.outputs.images }}
+      sbomsArtifact: ${{ steps.push-containers.outputs.sbomsArtifact }}
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: strimzi/github-actions/.github/actions/dependencies/install-docker@v1
+      - uses: strimzi/github-actions/.github/actions/dependencies/install-docker@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
 
-      - uses: strimzi/github-actions/.github/actions/dependencies/install-syft@v1
+      - uses: strimzi/github-actions/.github/actions/dependencies/install-syft@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+        with:
+          version: "1.57.1"
 
-      - uses: strimzi/github-actions/.github/actions/build/push-containers@v1
+      - id: push-containers
+        uses: strimzi/github-actions/.github/actions/build/push-containers@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
           architectures: "amd64,arm64,ppc64le,s390x"
           containerRegistry: "quay.io"
@@ -99,3 +105,64 @@ jobs:
           registryUser: ${{ secrets.QUAY_USER }}
           registryPassword: ${{ secrets.QUAY_PASS }}
           artifactSuffix: "mqtt-bridge"
+
+  attest:
+    name: Attestation
+    needs:
+      - push-containers
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    uses: strimzi/github-actions/.github/workflows/reusable-attest.yml@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+    with:
+      containerImages: ${{ needs.push-containers.outputs.images }}
+      sbomsArtifact: ${{ needs.push-containers.outputs.sbomsArtifact }}
+
+  publish-snapshot:
+    name: Publish snapshot to GHCR
+    needs:
+      - build-mqtt-bridge
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.push-binaries.outputs.image }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download binaries archive
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: binaries-mqtt-bridge.tar
+
+      - name: Install ORAS
+        uses: strimzi/github-actions/.github/actions/dependencies/install-oras@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+        with:
+          version: "1.3.6"
+
+      - name: Setup Java and Maven
+        uses: strimzi/github-actions/.github/actions/dependencies/setup-java@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+        with:
+          javaVersion: "21"
+
+      - name: Get project version
+        id: version
+        run: |
+          if [ -s release.version ]; then
+            version=$(tr -d '[:space:]' < release.version)
+          else
+            version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Push binaries archive to GHCR
+        id: push-binaries
+        uses: strimzi/github-actions/.github/actions/build/push-oci-artifact@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+        with:
+          file: binaries-mqtt-bridge.tar
+          name: binaries-mqtt-bridge
+          tag: ${{ steps.version.outputs.version }}
+          mediaType: "application/x-tar"
