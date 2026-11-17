@@ -114,7 +114,7 @@ public class MqttBridgetIT {
         EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
-        mqttBridge = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
+        mqttBridge = MqttServer.create(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
         mqttBridge.start();
     }
 

@@ -7,6 +7,8 @@ package io.strimzi.kafka.bridge.mqtt;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.handler.ssl.SslHandler;
 import io.strimzi.kafka.bridge.mqtt.config.MqttSslConfig;
+import io.strimzi.kafka.bridge.mqtt.core.SslContextLoadException;
+
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLEngine;
@@ -18,12 +20,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit tests for {@link MqttSslContextProvider}.
  */
 public class MqttSslContextProviderTest {
+
+    @Test
+    public void testLoadReturnsNullWhenSslDisabled() {
+        assertThat(MqttSslContextProvider.load(MqttSslConfig.fromMap(Map.of())), is(nullValue()));
+    }
 
     @Test
     public void testLoadFromPemFiles() throws Exception {
@@ -91,7 +99,7 @@ public class MqttSslContextProviderTest {
 
     @Test
     public void testMissingCertificateAndKeyThrows() {
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(SslContextLoadException.class,
                 () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(Map.of(MqttSslConfig.MQTT_SSL_ENABLE, "true"))));
 
         assertThat(exception.getMessage().contains("certificate"), is(true));
@@ -103,7 +111,7 @@ public class MqttSslContextProviderTest {
         map.put(MqttSslConfig.MQTT_SSL_ENABLE, "true");
         map.put(MqttSslConfig.MQTT_SSL_CERTIFICATE_LOCATION, SslTestUtils.certificateLocation());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(SslContextLoadException.class,
                 () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
 
         assertThat(exception.getMessage().contains("key"), is(true));
@@ -115,7 +123,7 @@ public class MqttSslContextProviderTest {
         map.put(MqttSslConfig.MQTT_SSL_ENABLE, "true");
         map.put(MqttSslConfig.MQTT_SSL_KEY_LOCATION, SslTestUtils.keyLocation());
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(SslContextLoadException.class,
                 () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
 
         assertThat(exception.getMessage().contains("certificate"), is(true));
@@ -128,7 +136,7 @@ public class MqttSslContextProviderTest {
         map.put(MqttSslConfig.MQTT_SSL_CERTIFICATE_LOCATION, SslTestUtils.certificateLocation());
         map.put(MqttSslConfig.MQTT_SSL_KEY_LOCATION, "/tmp/missing-server.key");
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(SslContextLoadException.class,
                 () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
 
         assertThat(exception.getMessage().contains("private key"), is(true));
@@ -141,7 +149,7 @@ public class MqttSslContextProviderTest {
         map.put(MqttSslConfig.MQTT_SSL_CERTIFICATE, "not-a-certificate");
         map.put(MqttSslConfig.MQTT_SSL_KEY, "not-a-private-key");
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
+        Exception exception = assertThrows(SslContextLoadException.class, () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
         assertThat(exception.getMessage().contains("valid certificates"), is(true));
     }
 
@@ -152,7 +160,7 @@ public class MqttSslContextProviderTest {
         map.put(MqttSslConfig.MQTT_SSL_CERTIFICATE_LOCATION, "/tmp/missing-server.crt");
         map.put(MqttSslConfig.MQTT_SSL_KEY_LOCATION, SslTestUtils.keyLocation());
 
-        assertThrows(IllegalArgumentException.class, () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
+        assertThrows(SslContextLoadException.class, () -> MqttSslContextProvider.load(MqttSslConfig.fromMap(map)));
     }
 
     private static MqttSslConfig sslConfigFromFiles() {

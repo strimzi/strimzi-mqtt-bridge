@@ -54,7 +54,7 @@ public class Main {
             // start the MQTT server
             EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-            MqttServer mqttServer = new MqttServer(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
+            MqttServer mqttServer = MqttServer.create(bridgeConfig, bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
             // start the HTTP server
             HttpServer httpServer = new HttpServer(mqttServer, mqttServer);
 

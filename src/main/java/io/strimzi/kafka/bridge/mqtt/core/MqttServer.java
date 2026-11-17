@@ -4,7 +4,6 @@
  */
 package io.strimzi.kafka.bridge.mqtt.core;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -19,8 +18,6 @@ import io.strimzi.kafka.bridge.mqtt.kafka.KafkaBridgeProducer;
 import io.strimzi.kafka.bridge.mqtt.mapper.MappingRule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.net.ssl.SSLException;
 
 import java.util.List;
 
@@ -37,6 +34,25 @@ public class MqttServer implements Liveness, Readiness {
     private ChannelFuture channelFuture;
 
     /**
+     * Creates a MqttServer instance, loading the SSL context first (when SSL/TLS is enabled)
+     * so that a failure happens before any other resource, like the Kafka producers, is created.
+     *
+     * @param config       MqttConfig instance with all configuration needed to run the server.
+     * @param masterGroup  EventLoopGroup instance for handle incoming connections.
+     * @param workerGroup  EventLoopGroup instance for processing I/O.
+     * @param option       ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @param mappingRules the list of topic mapping rules to apply
+     * @return the MqttServer instance
+     * @throws SslContextLoadException if the SSL configuration is invalid or the SSL context cannot be loaded
+     * @see BridgeConfig
+     * @see ChannelOption
+     */
+    public static MqttServer create(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option, List<MappingRule> mappingRules) {
+        MqttSslContextProvider sslContextProvider = MqttSslContextProvider.load(config.getMqttConfig().getSslConfig());
+        return new MqttServer(config, masterGroup, workerGroup, option, mappingRules, sslContextProvider);
+    }
+
+    /**
      * Constructor
      *
      * @param config       MqttConfig instance with all configuration needed to run the server.
@@ -44,38 +60,21 @@ public class MqttServer implements Liveness, Readiness {
      * @param workerGroup  EventLoopGroup instance for processing I/O.
      * @param option       ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
      * @param mappingRules the list of topic mapping rules to apply
+     * @param sslContextProvider the already loaded SSL context provider, or {@code null} when SSL/TLS is disabled
      * @see BridgeConfig
      * @see ChannelOption
      */
-    @SuppressFBWarnings(value = "CT_CONSTRUCTOR_THROW", justification = "SSL context loading in the constructor can throw; to be refactored out, see https://github.com/strimzi/strimzi-mqtt-bridge/issues/138")
-    public MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option, List<MappingRule> mappingRules) {
+    MqttServer(BridgeConfig config, EventLoopGroup masterGroup, EventLoopGroup workerGroup, ChannelOption<Boolean> option, List<MappingRule> mappingRules, MqttSslContextProvider sslContextProvider) {
         this.masterGroup = masterGroup;
         this.workerGroup = workerGroup;
         this.mqttConfig = config.getMqttConfig();
         this.kafkaBridgeProducer = new KafkaBridgeProducer(config.getKafkaConfig());
         this.serverBootstrap = new ServerBootstrap();
-        MqttSslContextProvider sslContextProvider = loadSslContextProvider();
         this.serverBootstrap.group(masterGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new MqttServerInitializer(this.kafkaBridgeProducer, config, sslContextProvider, mappingRules))
                 .childOption(option, true);
-    }
-
-    /**
-     * Loads the SSL context once at server startup when MQTT SSL/TLS is enabled.
-     *
-     * @return the SSL context provider, or {@code null} when SSL/TLS is disabled
-     */
-    private MqttSslContextProvider loadSslContextProvider() {
-        if (!mqttConfig.getSslConfig().isEnabled()) {
-            return null;
-        }
-        try {
-            return MqttSslContextProvider.load(mqttConfig.getSslConfig());
-        } catch (SSLException e) {
-            throw new SslContextLoadException(e);
-        }
     }
 
     /**
@@ -97,8 +96,11 @@ public class MqttServer implements Liveness, Readiness {
     public void stop() {
         try {
             LOGGER.info("Shutting down Netty server...");
-            this.channelFuture.channel().close().sync();
-            this.channelFuture.channel().closeFuture().sync();
+            // channelFuture is null if the server was never started (or failed to bind)
+            if (this.channelFuture != null) {
+                this.channelFuture.channel().close().sync();
+                this.channelFuture.channel().closeFuture().sync();
+            }
             this.masterGroup.shutdownGracefully().sync();
             this.workerGroup.shutdownGracefully().sync();
             LOGGER.info("Netty server shut down");

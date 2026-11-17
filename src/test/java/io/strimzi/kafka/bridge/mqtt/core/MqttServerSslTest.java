@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class MqttServerSslTest {
 
     @Test
-    public void testConstructorFailsWhenSslEnabledWithoutCertificateAndKey() {
+    public void testCreateFailsWhenSslEnabledWithoutCertificateAndKey() {
         Map<String, Object> config = new HashMap<>();
         config.put(MqttConfig.MQTT_HOST, "0.0.0.0");
         config.put(MqttConfig.MQTT_PORT, 0);
@@ -34,8 +34,8 @@ public class MqttServerSslTest {
         EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         try {
-            assertThrows(IllegalArgumentException.class, () ->
-                    new MqttServer(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, null));
+            assertThrows(SslContextLoadException.class, () ->
+                    MqttServer.create(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, null));
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
@@ -43,7 +43,7 @@ public class MqttServerSslTest {
     }
 
     @Test
-    public void testConstructorFailsWhenCertificateFileIsMissing() {
+    public void testCreateFailsWhenCertificateFileIsMissing() {
         Map<String, Object> config = new HashMap<>();
         config.put(MqttConfig.MQTT_HOST, "0.0.0.0");
         config.put(MqttConfig.MQTT_PORT, 0);
@@ -55,8 +55,8 @@ public class MqttServerSslTest {
         EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         try {
-            assertThrows(IllegalArgumentException.class, () ->
-                    new MqttServer(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, null));
+            assertThrows(SslContextLoadException.class, () ->
+                    MqttServer.create(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, null));
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
