@@ -2,6 +2,7 @@
 [![GitHub release](https://img.shields.io/github/release/strimzi/strimzi-mqtt-bridge.svg)](https://github.com/strimzi/strimzi-mqtt-bridge/releases/latest)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Twitter Follow](https://img.shields.io/twitter/follow/strimziio?style=social)](https://twitter.com/strimziio)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstrimzi%2Fstrimzi-mqtt-bridge.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstrimzi%2Fstrimzi-mqtt-bridge?ref=badge_shield)
 
 # MQTT bridge for Apache Kafka®
 
@@ -224,6 +225,9 @@ Learn more on how you can contribute on our [Join Us](https://strimzi.io/join-us
 ## License
 
 Strimzi Kafka Bridge is licensed under the [Apache License](./LICENSE), Version 2.0
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstrimzi%2Fstrimzi-mqtt-bridge.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstrimzi%2Fstrimzi-mqtt-bridge?ref=badge_large)
 
 ## Artifact attestations
 
