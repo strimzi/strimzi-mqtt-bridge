@@ -7,6 +7,7 @@
 * Use the correct `mqtt.host` and `mqtt.port` configuration options in sample configuration files and docs instead of incorrect `mqtt.server.host` and `mqtt.server.port`
 * Support for TLS/SSL Encryption
 * Use Java 25 as the runtime in the container (leaving the language level at Java 21) for supporting Post-Quantum Hybrid Key Exchange
+* Added `mqtt.ssl.named.groups` configuration parameter to specify the SSL/TLS named groups to be used on the MQTT server side of the bridge. If not set, the JVM defaults are used.
 
 ## 0.1.0
 

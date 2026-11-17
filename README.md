@@ -185,6 +185,7 @@ The following table describes the configuration properties defined above.
 | mqtt.ssl.key                         | Inline MQTT server private key in PEM format                 | null/undefined               |
 | mqtt.ssl.enabled.protocols           | Enabled TLS protocol versions                                | TLSv1.2,TLSv1.3              |
 | mqtt.ssl.enabled.cipher.suites       | Enabled TLS cipher suites                                    | JDK SSL/TLS engine defaults  |
+| mqtt.ssl.named.groups                | Enabled TLS named groups                                     | JDK SSL/TLS engine defaults  |
 | kafka.bootstrap.servers              | Bootstrap servers for Apache Kafka                           | localhost:9092               |
 | kafka.producer.*                     | Any Kafka producer configuration (i.e. acks, linger.ms, ...) | Kafka producer defaults      |
 
@@ -196,6 +197,7 @@ There is no separate TLS listener: when TLS is enabled, MQTT clients connect to 
 
 If `mqtt.ssl.enabled.protocols` is not set, the bridge uses `TLSv1.2,TLSv1.3`.
 If `mqtt.ssl.enabled.cipher.suites` is not set, the bridge uses the cipher suites provided by the underlying JDK SSL/TLS engine.
+If `mqtt.ssl.named.groups` is not set, the bridge uses the named groups provided by the underlying JDK SSL/TLS engine.
 
 Other than the above properties, the user can also configure the bridge using environment variables.
 
