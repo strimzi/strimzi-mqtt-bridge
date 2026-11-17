@@ -9,6 +9,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.strimzi.kafka.bridge.mqtt.config.MqttSslConfig;
+import io.strimzi.kafka.bridge.mqtt.core.SslContextLoadException;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -38,17 +39,30 @@ public class MqttSslContextProvider {
 
     /**
      * Loads an SSL context provider based on the provided SSL configuration.
+     * When SSL/TLS is not enabled in the configuration, nothing is loaded.
+     *
+     * @param sslConfig the SSL configuration
+     * @return the SSL context provider, or {@code null} when SSL/TLS is disabled
+     * @throws SslContextLoadException if the SSL configuration is invalid, the certificate/key cannot be read or the SSL context cannot be created
      */
-    public static MqttSslContextProvider load(MqttSslConfig sslConfig) throws SSLException {
-        var certChain = new ByteArrayInputStream(resolveCertificate(sslConfig));
-        var key = new ByteArrayInputStream(resolvePrivateKey(sslConfig));
+    public static MqttSslContextProvider load(MqttSslConfig sslConfig) {
+        if (!sslConfig.isEnabled()) {
+            return null;
+        }
 
-        SslContext sslContext = SslContextBuilder.forServer(certChain, key)
-                .protocols(sslConfig.getEnabledProtocols())
-                .ciphers(sslConfig.getEnabledCipherSuites())
-                .build();
+        try {
 
-        return new MqttSslContextProvider(sslContext, sslConfig);
+            ByteArrayInputStream certChain = new ByteArrayInputStream(resolveCertificate(sslConfig));
+            ByteArrayInputStream key = new ByteArrayInputStream(resolvePrivateKey(sslConfig));
+
+            SslContext sslContext = SslContextBuilder.forServer(certChain, key)
+                    .protocols(sslConfig.getEnabledProtocols())
+                    .ciphers(sslConfig.getEnabledCipherSuites())
+                    .build();
+            return new MqttSslContextProvider(sslContext, sslConfig);
+        } catch (SSLException | IllegalArgumentException e) {
+            throw new SslContextLoadException(e);
+        }
     }
 
     /**

@@ -64,7 +64,7 @@ public class MqttSslIT {
         String mappingRulesPath = Objects.requireNonNull(MqttBridgetIT.class.getClassLoader().getResource("mapping-rules-regex.json")).getPath();
         List<MappingRule> mappingRules = MappingRulesLoader.loadRules(mappingRulesPath);
 
-        mqttBridge = new MqttServer(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
+        mqttBridge = MqttServer.create(BridgeConfig.fromMap(config), bossGroup, workerGroup, ChannelOption.SO_KEEPALIVE, mappingRules);
         mqttBridge.start();
     }
 
