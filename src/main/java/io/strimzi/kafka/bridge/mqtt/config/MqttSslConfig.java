@@ -17,27 +17,37 @@ import java.util.stream.Collectors;
  */
 public class MqttSslConfig extends AbstractConfig {
 
-    // Prefix for all the specific configuration parameters for MQTT SSL/TLS in the properties file
+    /** Prefix for the MQTT SSL/TLS related configuration */
     public static final String MQTT_SSL_CONFIG_PREFIX = MqttConfig.MQTT_CONFIG_PREFIX + "ssl.";
 
+    /** Enable SSL connections */
     public static final String MQTT_SSL_ENABLE = MQTT_SSL_CONFIG_PREFIX + "enable";
 
+    /** MQTT Bridge server certificate */
     public static final String MQTT_SSL_CERTIFICATE = MQTT_SSL_CONFIG_PREFIX + "certificate";
 
+    /** MQTT Bridge server certificate file location */
     public static final String MQTT_SSL_CERTIFICATE_LOCATION = MQTT_SSL_CONFIG_PREFIX + "certificate.location";
 
+    /** MQTT Bridge server private key */
     public static final String MQTT_SSL_KEY = MQTT_SSL_CONFIG_PREFIX + "key";
 
+    /** MQTT Bridge server private key file location */
     public static final String MQTT_SSL_KEY_LOCATION = MQTT_SSL_CONFIG_PREFIX + "key.location";
 
+    /** Comma separated list of protocols enabled for SSL connections */
     public static final String MQTT_SSL_ENABLED_PROTOCOLS = MQTT_SSL_CONFIG_PREFIX + "enabled.protocols";
 
+    /** Comma separated list of cipher suites for MQTT Bridge server */
     public static final String MQTT_SSL_ENABLED_CIPHER_SUITES = MQTT_SSL_CONFIG_PREFIX + "enabled.cipher.suites";
 
+    /** Comma separated list of named groups enabled for SSL connections */
     public static final String MQTT_SSL_NAMED_GROUPS = MQTT_SSL_CONFIG_PREFIX + "named.groups";
 
+    /** Default value for enabling SSL connections */
     public static final boolean DEFAULT_MQTT_SSL_ENABLE = false;
 
+    /** Default protocols enabled for SSL connections */
     public static final String DEFAULT_MQTT_SSL_ENABLED_PROTOCOLS = "TLSv1.2,TLSv1.3";
 
     /** Sensitive MQTT config keys for inline PEM values */

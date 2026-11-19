@@ -13,12 +13,15 @@ import java.util.regex.Pattern;
  */
 public class MqttKafkaRegexMapper extends MqttKafkaMapper {
 
-    // used to find any expression starting with a $ followed by upto 2 digits number. E.g. $1, this is known as a placeholder.
+    /** Used to find any expression starting with a $ followed by up to a 2 digit number (e.g. $1), known as a placeholder */
     public static final String MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX = "\\$(\\d{1,2})";
 
     /**
      * Constructor
      * Creates a new instance of MqttKafkaRegexMapper.
+     *
+     * @param rules the list of mapping rules
+     * @param bridgeDefaultTopic the default Kafka topic used when no mapping rule matches
      */
     public MqttKafkaRegexMapper(List<MappingRule> rules, String bridgeDefaultTopic) {
         super(rules, Pattern.compile(MQTT_TOPIC_DOLLAR_PLACEHOLDER_REGEX), bridgeDefaultTopic);

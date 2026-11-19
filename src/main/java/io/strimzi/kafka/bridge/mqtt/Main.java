@@ -29,11 +29,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Apache Kafka MQTT bridge main application class
+ */
 public class Main {
     private static final Logger LOGGER = LogManager.getLogger(Main.class);
     private static final String CONFIG_FILE_OPTION = "config-file";
     private static final String MAPPING_RULES_FILE_OPTION = "mapping-rules";
 
+    private Main() { }
+
+    /**
+     * Bridge entrypoint
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         LOGGER.info("Strimzi MQTT Bridge {} is starting", Main.class.getPackage().getImplementationVersion());
         try {

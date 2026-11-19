@@ -8,6 +8,11 @@ package io.strimzi.kafka.bridge.mqtt.core;
  * Exception thrown when the SSL context cannot be loaded.
  */
 public class SslContextLoadException extends RuntimeException {
+    /**
+     * Constructor
+     *
+     * @param cause the underlying cause of the SSL context loading failure
+     */
     public SslContextLoadException(Throwable cause) {
         super(cause);
     }

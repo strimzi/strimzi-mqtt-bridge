@@ -13,11 +13,15 @@ import java.util.regex.Pattern;
  */
 public abstract class MqttKafkaMapper {
 
-    // MQTT topic separator
+    /** MQTT topic separator */
     public static final String MQTT_TOPIC_SEPARATOR = "/";
+    /** List of mapping rules */
     protected final List<MappingRule> rules;
+    /** Compiled patterns for the mapping rules */
     protected final List<Pattern> patterns = new ArrayList<>();
+    /** Pattern used to find placeholders */
     protected final Pattern placeholderPattern;
+    /** Default Kafka topic used when no mapping rule matches */
     protected final String bridgeDefaultTopic;
 
     /**
@@ -25,6 +29,7 @@ public abstract class MqttKafkaMapper {
      *
      * @param rules the list of mapping rules.
      * @param placeholderPattern the pattern used to find placeholders.
+     * @param bridgeDefaultTopic the default Kafka topic used when no mapping rule matches
      * @see MappingRule
      */
     protected MqttKafkaMapper(List<MappingRule> rules, Pattern placeholderPattern, String bridgeDefaultTopic) {

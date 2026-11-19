@@ -11,6 +11,8 @@ package io.strimzi.kafka.bridge.mqtt.core;
 public interface Readiness {
 
     /**
+     * Checks whether the application is ready.
+     *
      * @return  True when the application is ready, false otherwise
      */
     boolean isReady();

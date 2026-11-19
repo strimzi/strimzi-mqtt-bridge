@@ -16,19 +16,25 @@ import java.util.stream.Collectors;
  */
 public class MqttConfig extends AbstractConfig {
 
-    // Prefix for all the specific configuration parameters for MQTT in the properties file
+    /** Prefix for the MQTT protocol related configuration */
     public static final String MQTT_CONFIG_PREFIX = "mqtt.";
 
+    /** MQTT bridge host address */
     public static final String MQTT_HOST = MQTT_CONFIG_PREFIX + "host";
 
+    /** MQTT bridge port */
     public static final String MQTT_PORT = MQTT_CONFIG_PREFIX + "port";
 
+    /** Maximum size in bytes of an MQTT message */
     public static final String MQTT_MAX_BYTES_MESSAGE = MQTT_CONFIG_PREFIX + "max.bytes.message";
 
+    /** Default MQTT bridge host address */
     public static final String DEFAULT_MQTT_HOST = "0.0.0.0";
 
+    /** Default MQTT bridge port */
     public static final int DEFAULT_MQTT_PORT = 1883;
 
+    /** Default maximum size in bytes of an MQTT message */
     public static final int DEFAULT_MQTT_MAX_BYTES_MESSAGE = MqttConstant.DEFAULT_MAX_BYTES_IN_MESSAGE;
 
     private final MqttSslConfig sslConfig;
@@ -59,6 +65,8 @@ public class MqttConfig extends AbstractConfig {
     }
 
     /**
+     * Get the MQTT server port.
+     *
      * @return the MQTT server port
      */
     public int getPort() {
@@ -66,12 +74,19 @@ public class MqttConfig extends AbstractConfig {
     }
 
     /**
+     * Get the MQTT server host.
+     *
      * @return the MQTT server host
      */
     public String getHost() {
         return this.config.getOrDefault(MqttConfig.MQTT_HOST, MqttConfig.DEFAULT_MQTT_HOST).toString();
     }
 
+    /**
+     * Get the maximum size in bytes of an MQTT message.
+     *
+     * @return the maximum size in bytes of an MQTT message
+     */
     public int getMaxBytesMessage() {
         return Integer.parseInt(this.config.getOrDefault(MqttConfig.MQTT_MAX_BYTES_MESSAGE, MqttConfig.DEFAULT_MQTT_MAX_BYTES_MESSAGE).toString());
     }
