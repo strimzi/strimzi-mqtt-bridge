@@ -36,12 +36,20 @@ jobs:
 
       - uses: strimzi/github-actions/.github/actions/dependencies/setup-java@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
-          javaVersion: "17"
+          javaVersion: "21"
 
       - uses: strimzi/github-actions/.github/actions/build/release-artifacts@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
         with:
           releaseVersion: ${{ inputs.releaseVersion }}
           artifactSuffix: "mqtt-bridge"
+
+      - uses: strimzi/github-actions/.github/actions/build/deploy-java@bb4758d4afacd9c0ff8f426395bbbece41fd142a # v4.0
+        with:
+          gpgPassphrase: ${{ secrets.GPG_PASSPHRASE }}
+          gpgSigningKey: ${{ secrets.GPG_SIGNING_KEY }}
+          centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          modules: "./"
 
   # Push Java artifacts to GHCR for long-term storage (for CVE rebuilds)
   push-java-artifacts-to-ghcr:
