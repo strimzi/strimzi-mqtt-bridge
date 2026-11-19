@@ -11,6 +11,8 @@ package io.strimzi.kafka.bridge.mqtt.core;
 public interface Liveness {
 
     /**
+     * Checks whether the application is alive.
+     *
      * @return  True when the application is alive, false otherwise.
      */
     boolean isAlive();

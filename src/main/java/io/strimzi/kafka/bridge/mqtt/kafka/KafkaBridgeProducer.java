@@ -27,6 +27,8 @@ public class KafkaBridgeProducer {
 
     /**
      * Constructor
+     *
+     * @param config the Kafka configuration
      */
     public KafkaBridgeProducer(KafkaConfig config) {
         this.noAckProducer = createProducer(config, KafkaProducerAckLevel.ZERO);

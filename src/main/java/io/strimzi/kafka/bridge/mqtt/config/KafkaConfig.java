@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class KafkaConfig extends AbstractConfig {
 
-    // Prefix for all the specific configuration parameters for Kafka in the properties file
+    /** Prefix for Kafka related configuration parameters */
     public static final String KAFKA_CONFIG_PREFIX = "kafka.";
 
     /** Sensitive Kafka config keys, mirroring {@code ConfigDef.Type.PASSWORD} declarations in Kafka's SslConfigs and SaslConfigs */
@@ -58,6 +58,8 @@ public class KafkaConfig extends AbstractConfig {
     }
 
     /**
+     * Get the Kafka producer configuration properties.
+     *
      * @return the Kafka producer configuration properties
      */
     public KafkaProducerConfig getProducerConfig() {

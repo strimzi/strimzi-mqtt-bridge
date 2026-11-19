@@ -12,6 +12,9 @@ import java.util.Set;
  * Base abstract class for configurations related to protocols heads and Kafka
  */
 public abstract class AbstractConfig {
+    /**
+     * Configuration parameters map
+     */
     protected final Map<String, Object> config;
 
     /**
@@ -24,6 +27,8 @@ public abstract class AbstractConfig {
     }
 
     /**
+     * Get the configuration parameters map.
+     *
      * @return configuration parameters map
      */
     public Map<String, Object> getConfig() {

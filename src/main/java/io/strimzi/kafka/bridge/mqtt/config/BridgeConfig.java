@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
  */
 public class BridgeConfig extends AbstractConfig {
 
-    // Prefix for all the specific configuration parameters for the bridge
+    /** Prefix for all the specific bridge configuration parameters */
     public static final String BRIDGE_CONFIG_PREFIX = "bridge.";
 
-    // Bridge identification number
+    /** Bridge identification number */
     public static final String BRIDGE_ID = BRIDGE_CONFIG_PREFIX + "id";
 
-    // Bridge default topic name
+    /** Bridge default topic name */
     public static final String BRIDGE_DEFAULT_TOPIC_PREFIX = BRIDGE_CONFIG_PREFIX + "topic.default";
 
-    // default Kafka topic. Used when no mapping rule matches the mqtt topic.
+    /** Default Kafka topic used when no mapping rule matches the MQTT topic */
     public static final String BRIDGE_DEFAULT_TOPIC = "messages_default";
 
     private final MqttConfig mqttConfig;
@@ -58,6 +58,8 @@ public class BridgeConfig extends AbstractConfig {
     }
 
     /**
+     * Get the Kafka configuration properties.
+     *
      * @return the Kafka configuration properties
      */
     public KafkaConfig getKafkaConfig() {
@@ -65,6 +67,8 @@ public class BridgeConfig extends AbstractConfig {
     }
 
     /**
+     * Get the MQTT configuration properties.
+     *
      * @return the MQTT configuration properties
      */
     public MqttConfig getMqttConfig() {
@@ -72,6 +76,8 @@ public class BridgeConfig extends AbstractConfig {
     }
 
     /**
+     * Get the bridge identification number.
+     *
      * @return the bridge identification number
      */
     public String getBridgeID() {
@@ -79,8 +85,9 @@ public class BridgeConfig extends AbstractConfig {
     }
 
     /**
+     * Get the bridge default topic name. If not set, {@code messages_default} is used.
+     *
      * @return the bridge default topic name
-     * If not set, the default topic name is "messages_default"
      */
     public String getBridgeDefaultTopic() {
         return this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX) == null ? BRIDGE_DEFAULT_TOPIC : this.config.get(BridgeConfig.BRIDGE_DEFAULT_TOPIC_PREFIX).toString();

@@ -31,13 +31,14 @@ public class MqttKafkaSimpleMapper extends MqttKafkaMapper {
     // identifies a multi level wildcard character in the mqtt pattern. E.g. sensors/#
     private static final String MQTT_TOPIC_MULTI_LEVEL_WILDCARD_CHARACTER = "#";
 
-    // used to replace the # in the mqtt pattern.
+    /** Used to replace the # in the MQTT pattern */
     public static final String WILDCARD_REGEX = "(?:\\/.*)?$";
 
     /**
      * Constructor.
      *
      * @param rules the list of mapping rules.
+     * @param bridgeDefaultTopic the default Kafka topic used when no mapping rule matches
      */
     public MqttKafkaSimpleMapper(List<MappingRule> rules, String bridgeDefaultTopic) {
         super(rules, Pattern.compile(MQTT_TOPIC_PLACEHOLDER_REGEX), bridgeDefaultTopic);

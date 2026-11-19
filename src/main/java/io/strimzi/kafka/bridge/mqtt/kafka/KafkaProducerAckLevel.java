@@ -8,11 +8,11 @@ package io.strimzi.kafka.bridge.mqtt.kafka;
  * Represents the Kafka producer ack level
  */
 public enum KafkaProducerAckLevel {
-    // This ack level is used when the kafka producer is expecting no acks
+    /** Ack level used when the Kafka producer is expecting no acks */
     ZERO(0),
-    // This ack level is used when the kafka producer is expecting acks from the leader
+    /** Ack level used when the Kafka producer is expecting acks from the leader */
     ONE(1),
-    // This ack level is used when the kafka producer is expecting acks from all the replicas
+    /** Ack level used when the Kafka producer is expecting acks from all the replicas */
     ALL(-1);
 
     private final int value;
@@ -42,6 +42,8 @@ public enum KafkaProducerAckLevel {
     }
 
     /**
+     * Get the value of the ack level.
+     *
      * @return the value of the ack level
      */
     public int getValue() {
