@@ -40,7 +40,7 @@ public class MqttServer implements Liveness, Readiness {
      * @param config       MqttConfig instance with all configuration needed to run the server.
      * @param masterGroup  EventLoopGroup instance for handle incoming connections.
      * @param workerGroup  EventLoopGroup instance for processing I/O.
-     * @param option       ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @param option       {@code ChannelOption<Boolean>} instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
      * @param mappingRules the list of topic mapping rules to apply
      * @return the MqttServer instance
      * @throws SslContextLoadException if the SSL configuration is invalid or the SSL context cannot be loaded
@@ -58,7 +58,7 @@ public class MqttServer implements Liveness, Readiness {
      * @param config       MqttConfig instance with all configuration needed to run the server.
      * @param masterGroup  EventLoopGroup instance for handle incoming connections.
      * @param workerGroup  EventLoopGroup instance for processing I/O.
-     * @param option       ChannelOption<Boolean> instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
+     * @param option       {@code ChannelOption<Boolean>} instance which allows to configure various channel options, such as SO_KEEPALIVE, SO_BACKLOG etc.
      * @param mappingRules the list of topic mapping rules to apply
      * @param sslContextProvider the already loaded SSL context provider, or {@code null} when SSL/TLS is disabled
      * @see BridgeConfig
