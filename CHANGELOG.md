@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.0
+
+* _Nothing here yet, but we will surely develop something new pretty soon_
+
 ## 0.2.0
 
 * Moved to UBI9 micro as the base container image
